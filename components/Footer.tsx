@@ -17,6 +17,7 @@ export default function Footer() {
           <a href="/search" className="font-extrabold no-underline text-text">{t.navSearch}</a>
           <a href="/compare" className="no-underline text-neutral-800">{t.compareTitle}</a>
           <a href="/advisor" className="no-underline text-neutral-800">{t.advTitle}</a>
+          <a href="/agents" className="no-underline text-neutral-800">{t.navAgents}</a>
           <a href="/group" className="no-underline text-neutral-800">{t.navGroup}</a>
         </div>
         <div className="text-xs text-neutral-800 flex flex-col gap-[5px]">
@@ -27,6 +28,7 @@ export default function Footer() {
         </div>
         <div className="text-xs text-neutral-800 flex flex-col gap-[5px]">
           <a href="/agency" className="font-extrabold no-underline text-text">{t.navAgency}</a>
+          <a href="/agent-direct" className="no-underline text-neutral-800">{t.agntHomeDev}</a>
           <span>{t.upTitle}</span>
           <span>{t.agBookings}</span>
           <a href="/admin" className="no-underline text-neutral-800">{t.navAdmin}</a>

@@ -111,6 +111,25 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* — Agent Direct — */}
+      <section className="max-w-[1400px] mx-auto px-[22px] pt-[30px]">
+        <div className="border-2 border-text p-5 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6 items-end">
+          <div>
+            <div className="kicker">{t.agntHomeKicker}</div>
+            <h2 className="mt-2 mb-2 text-[clamp(24px,2.8vw,36px)] max-w-[520px]">{t.agntHomeTitle}</h2>
+            <p className="text-sm text-neutral-800 max-w-[520px]">{t.agntHomeSub}</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/agents" className="btn btn-primary no-underline">
+              {t.agntHomeCta}
+            </Link>
+            <Link href="/agent-direct" className="btn btn-secondary no-underline">
+              {t.agntHomeDev}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* — burn strip — */}
       <section className="max-w-[1400px] mx-auto px-[22px] pt-[30px]">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-3.5 border-b-2 border-divider pb-2.5">

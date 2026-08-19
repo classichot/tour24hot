@@ -12,6 +12,8 @@ import PriceIntel from "@/components/PriceIntel";
 import SoldOutAlts from "@/components/SoldOutAlts";
 import { AlertTriangle, Check, ChevronLeft, ShieldCheck, Sparkle, StarSolid, X } from "@/components/icons";
 import { pkgPhoto, pkgPhotos } from "@/lib/photos";
+import AgentBadge from "@/components/AgentBadge";
+import { isAgentDirect } from "@/lib/tap";
 
 export default function PackageDetailPage() {
   const { t, L, money, toggleCompare, inCompare, toggleSaved, saved } = useApp();
@@ -70,6 +72,7 @@ export default function PackageDetailPage() {
           </div>
           <h1 className="my-1.5 text-[clamp(28px,3.4vw,44px)] leading-[1.03] [text-wrap:pretty]">{L(p.title)}</h1>
           <div className="flex gap-2 flex-wrap mb-2.5">
+            {isAgentDirect(p.agency) && <AgentBadge />}
             {p.tags.map((tg) => (
               <span key={tg} className="tag tag-outline">
                 {tagLabel(tg, t, L)}
@@ -234,10 +237,11 @@ export default function PackageDetailPage() {
             <h2 className="mb-3 text-[22px]">{t.dAgency}</h2>
             <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-5 items-start">
               <div>
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                   <span className="bg-text text-bg text-[10px] font-extrabold tracking-[0.08em] uppercase px-[9px] py-[3px]">
                     {t.verifiedBadge}
                   </span>
+                  {isAgentDirect(p.agency) && <AgentBadge compact />}
                   <span className="font-[family-name:var(--font-heading)] font-extrabold text-lg">{L(ag.name)}</span>
                 </div>
                 <div className="text-[13px] text-neutral-800">{L(ag.company)}</div>

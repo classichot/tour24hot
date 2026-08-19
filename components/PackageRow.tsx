@@ -9,6 +9,7 @@ import { AlertTriangle } from "./icons";
 import { pkgPhoto } from "@/lib/photos";
 import PriceIntel from "./PriceIntel";
 import { DATA } from "@/lib/data";
+import { isAgentDirect } from "@/lib/tap";
 
 export default function PackageRow({ p }: { p: Pkg }) {
   const { t, L, money, toggleCompare, inCompare } = useApp();
@@ -32,6 +33,9 @@ export default function PackageRow({ p }: { p: Pkg }) {
           <span className={st.cls}>{st.label}</span>
           {p.shopping === 0 && (
             <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">{t.noShopFlag}</span>
+          )}
+          {isAgentDirect(p.agency) && (
+            <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">✓ {t.agntBadgeShort}</span>
           )}
           {badge && <span className="bg-accent text-text text-[11px] font-extrabold px-2.5 py-1">{badge}</span>}
         </div>

@@ -39,6 +39,9 @@ export default function Header() {
           <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
             {t.navAdvisor}
           </Link>
+          <Link href="/agents" className={`${navBtnCls(path.startsWith("/agents") || path.startsWith("/agent-direct"))} no-underline`}>
+            {t.navAgents}
+          </Link>
           <Link href="/group" className={`${navBtnCls(at("/group"))} no-underline`}>
             {t.navGroup}
           </Link>

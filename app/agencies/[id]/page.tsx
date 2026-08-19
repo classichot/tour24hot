@@ -6,6 +6,8 @@ import { DATA, agencyById } from "@/lib/data";
 import { useApp } from "@/lib/store";
 import PackageCard from "@/components/PackageCard";
 import ScoreBar from "@/components/ScoreBar";
+import AgentBadge from "@/components/AgentBadge";
+import { isAgentDirect } from "@/lib/tap";
 
 export default function AgencyProfilePage() {
   const { t, L } = useApp();
@@ -33,6 +35,7 @@ export default function AgencyProfilePage() {
             <span className="bg-text text-bg text-[10px] font-extrabold tracking-[0.08em] uppercase px-[9px] py-1">
               {t.apTitle}
             </span>
+            {isAgentDirect(ag.id) && <AgentBadge compact />}
             <span className="text-xs text-neutral-700">
               {t.apLicence} {ag.licence}
             </span>

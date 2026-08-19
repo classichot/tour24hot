@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { OPS, type TrustBand } from "@/lib/ops";
 import { useApp } from "@/lib/store";
+import { DEMAND } from "@/lib/tap";
 
-type Tab = "overview" | "agencies" | "packages" | "bookings" | "risk" | "support";
+type Tab = "overview" | "agencies" | "packages" | "bookings" | "risk" | "support" | "demand";
 
 function bandCls(b: TrustBand) {
   if (b === "excellent") return "bg-accent text-text";
@@ -51,6 +52,7 @@ export default function AdminPage() {
             ["bookings", t.adBookings],
             ["risk", t.adRisk],
             ["support", t.adSupport],
+            ["demand", t.adDemand],
           ] as const
         ).map(([k, label]) => (
           <button key={k} type="button" onClick={() => setTab(k)} className={tabCls(tab === k)}>
@@ -245,6 +247,40 @@ export default function AdminPage() {
                 <span className="flex-none w-[90px] text-xs">{L(d.age)}</span>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+      {tab === "demand" && (
+        <section className="pt-6 flex flex-col gap-4">
+          <div>
+            <h2 className="mb-1 text-[22px]">{t.agntDemand}</h2>
+            <p className="text-sm text-neutral-800 max-w-[640px]">{t.agntHomeSub}</p>
+          </div>
+          <div className="overflow-x-auto border-2 border-divider">
+            <div className="min-w-[860px]">
+              <div className="flex gap-3 px-3.5 py-2.5 border-b-2 border-divider text-[10px] tracking-[0.08em] uppercase font-extrabold text-neutral-700">
+                <span className="flex-none w-[100px]">{t.fCountry}</span>
+                <span className="flex-none w-[140px]">{t.fWhen}</span>
+                <span className="flex-none w-[110px]">{t.agntSearches}</span>
+                <span className="flex-none w-[110px]">{t.agntSeatPool}</span>
+                <span className="flex-none w-[110px]">{t.agntGap}</span>
+                <span className="flex-1 min-w-[240px]">{t.agntAction}</span>
+              </div>
+              {DEMAND.map((d) => (
+                <div key={d.destination + d.window} className="flex gap-3 px-3.5 py-2.5 border-b border-divider items-start text-[13px]">
+                  <span className="flex-none w-[100px] font-extrabold">{d.destination}</span>
+                  <span className="flex-none w-[140px] text-xs">
+                    {d.window}
+                    <br />
+                    {d.budget} · {d.duration}
+                  </span>
+                  <span className="flex-none w-[110px]">{d.searches.toLocaleString("en-US")}</span>
+                  <span className="flex-none w-[110px]">{d.seats.toLocaleString("en-US")}</span>
+                  <span className="flex-none w-[110px] font-extrabold text-accent-700">{d.gap.toLocaleString("en-US")}</span>
+                  <span className="flex-1 min-w-[240px] text-xs">{L(d.action)}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

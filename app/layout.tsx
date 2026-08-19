@@ -19,9 +19,9 @@ const notoThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "TOUR24 — Certified package tours, compared",
+  title: "TOUR24 — Compare by humans. Discoverable by AI.",
   description:
-    "TOUR24 is Thailand's trusted marketplace for certified package tours. Compare real total cost, itineraries and verified agencies before you book.",
+    "TOUR24 is AI-native distribution and comparison infrastructure for certified package tours. Humans compare. AI agents discover. Travelers book direct with verified operators.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

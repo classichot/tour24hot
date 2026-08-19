@@ -7,8 +7,9 @@ import { statusInfo } from "@/lib/helpers";
 import ScoreBar from "@/components/ScoreBar";
 import { Check, Circle, Spinner, UploadIcon } from "@/components/icons";
 import { extractBrochure, type ExtractRow } from "@/lib/brochure";
+import { DEMAND, TAP_ENDPOINTS, TAP_TOOLS, buildTour24Json } from "@/lib/tap";
 
-type Tab = "upload" | "packages" | "inventory" | "bookings" | "analytics";
+type Tab = "upload" | "packages" | "inventory" | "bookings" | "analytics" | "agent";
 
 const BOOKING_STATUS: Record<string, { key: "nearly" | "open" | "confirmed" | "cancelled"; labelKey: "bkNew" | "tPaid" | "bkPending" | "bkConfirmed" | "stCancelled" }> = {
   new: { key: "nearly", labelKey: "bkNew" },
@@ -29,6 +30,7 @@ export default function AgencyWorkspacePage() {
   const [editing, setEditing] = useState(false);
   const [edits, setEdits] = useState<string[]>([]);
   const [published, setPublished] = useState<{ title: string; file: string }[]>([]);
+  const [agentOn, setAgentOn] = useState(true);
   const fileRef = useRef<HTMLInputElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -101,6 +103,7 @@ export default function AgencyWorkspacePage() {
           { key: "inventory", label: t.agInventory },
           { key: "bookings", label: t.agBookings },
           { key: "analytics", label: t.agAnalytics },
+          { key: "agent", label: t.agntTab },
         ] as const).map((x) => (
           <button key={x.key} type="button" onClick={() => setTab(x.key)} className={tabCls(tab === x.key)}>
             {x.label}
@@ -445,6 +448,83 @@ export default function AgencyWorkspacePage() {
                 </div>
               );
             })}
+          </div>
+        </section>
+      )}
+
+      {tab === "agent" && (
+        <section className="pt-6 flex flex-col gap-6">
+          <div className="flex items-end justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="mb-1.5 text-[22px]">{t.agntTab}</h2>
+              <p className="text-sm text-neutral-800 max-w-[560px]">{t.agntPitch}</p>
+            </div>
+            <button
+              type="button"
+              className={`btn ${agentOn ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => setAgentOn((v) => !v)}
+            >
+              {agentOn ? t.agntOn : t.agntOff}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(170px,1fr))] border-2 border-divider">
+            {[
+              { n: "TH-SIAM-00231", l: "tour24_id" },
+              { n: String(TAP_TOOLS.length), l: t.agntTools },
+              { n: "1.5%", l: t.agntFee },
+              { n: agentOn ? "Live" : "Draft", l: "/agent.json" },
+            ].map((s) => (
+              <div key={s.l} className="p-3.5 border-r border-divider last:border-r-0">
+                <div className="font-[family-name:var(--font-heading)] font-extrabold text-[22px] leading-none">{s.n}</div>
+                <div className="text-[11px] text-neutral-700 mt-1">{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-sm text-neutral-800 border-2 border-text p-3.5">{t.agntOtaVs}</p>
+
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-6">
+            <div>
+              <h3 className="mb-2 text-[17px]">{t.agntIdentity}</h3>
+              <pre className="text-[11px] leading-relaxed overflow-x-auto bg-surface border-2 border-divider p-3.5 whitespace-pre-wrap">
+                {JSON.stringify(buildTour24Json("siam", ""), null, 2)}
+              </pre>
+            </div>
+            <div>
+              <h3 className="mb-2 text-[17px]">{t.agntEndpoints}</h3>
+              <div className="flex flex-col gap-0.5 bg-divider border-2 border-divider">
+                {TAP_ENDPOINTS.slice(0, 8).map((e) => (
+                  <div key={e.path} className="bg-bg px-3 py-2 text-[12px]">
+                    <span className="font-extrabold">{e.method}</span> {e.path}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="mb-2 text-[17px]">{t.agntDemand}</h3>
+            <div className="overflow-x-auto border-2 border-divider">
+              <div className="min-w-[720px]">
+                <div className="flex gap-3 px-3.5 py-2.5 border-b-2 border-divider text-[10px] tracking-[0.08em] uppercase font-extrabold text-neutral-700">
+                  <span className="flex-none w-[100px]">{t.fCountry}</span>
+                  <span className="flex-none w-[120px]">{t.agntSearches}</span>
+                  <span className="flex-none w-[110px]">{t.agntSeatPool}</span>
+                  <span className="flex-none w-[110px]">{t.agntGap}</span>
+                  <span className="flex-1 min-w-[220px]">{t.agntAction}</span>
+                </div>
+                {DEMAND.filter((d) => d.destination === "Japan" || d.destination === "China" || d.destination === "Taiwan").map((d) => (
+                  <div key={d.destination} className="flex gap-3 px-3.5 py-2.5 border-b border-divider items-start text-[13px]">
+                    <span className="flex-none w-[100px] font-extrabold">{d.destination}</span>
+                    <span className="flex-none w-[120px]">{d.searches.toLocaleString("en-US")}</span>
+                    <span className="flex-none w-[110px]">{d.seats.toLocaleString("en-US")}</span>
+                    <span className="flex-none w-[110px] font-extrabold text-accent-700">{d.gap.toLocaleString("en-US")}</span>
+                    <span className="flex-1 min-w-[220px] text-xs">{L(d.action)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       )}
