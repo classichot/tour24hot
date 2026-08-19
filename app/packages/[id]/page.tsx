@@ -5,10 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { agencyById, DATA, pkgById } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { similarTours, statusInfo, tagLabel } from "@/lib/helpers";
+import { similarTours, statusInfo, tagLabel, depUnavailable } from "@/lib/helpers";
 import PhotoSlot from "@/components/PhotoSlot";
 import ScoreBar from "@/components/ScoreBar";
+import PriceIntel from "@/components/PriceIntel";
+import SoldOutAlts from "@/components/SoldOutAlts";
 import { AlertTriangle, Check, ChevronLeft, ShieldCheck, Sparkle, StarSolid, X } from "@/components/icons";
+import { pkgPhoto, pkgPhotos } from "@/lib/photos";
 
 export default function PackageDetailPage() {
   const { t, L, money, toggleCompare, inCompare, toggleSaved, saved } = useApp();
@@ -31,6 +34,8 @@ export default function PackageDetailPage() {
   const ag = agencyById(p.agency);
   const maxLine = Math.max(...p.cost.map((c) => c.amt));
   const isSaved = saved.includes(p.id);
+  const dep = p.departures[depIndex] || p.departures[0];
+  const blocked = depUnavailable(dep);
 
   const facts = [
     { label: t.fDuration, value: `${p.days} ${t.days} ${p.nights} ${t.nights}` },
@@ -89,13 +94,13 @@ export default function PackageDetailPage() {
         </div>
         <div className="grid grid-cols-[2fr_1fr] grid-rows-2 gap-0.5 min-h-[260px]">
           <div className="row-span-2 relative bg-surface">
-            <PhotoSlot label={`${L(p.city)} — 4:3`} />
+            <PhotoSlot label={L(p.city)} src={pkgPhotos(p.id)[0]} />
           </div>
           <div className="relative bg-surface">
-            <PhotoSlot label={L({ th: "ภาพประกอบ", en: "Supporting photo" })} />
+            <PhotoSlot label={L(p.city)} src={pkgPhotos(p.id)[1]} />
           </div>
           <div className="relative bg-surface">
-            <PhotoSlot label={L({ th: "ภาพประกอบ", en: "Supporting photo" })} />
+            <PhotoSlot label={L(p.city)} src={pkgPhotos(p.id)[2]} />
           </div>
         </div>
       </div>
@@ -323,17 +328,28 @@ export default function PackageDetailPage() {
                   </button>
                 );
               })}
-              <button type="button" className="btn btn-primary btn-block" onClick={() => router.push(`/book/${p.id}?dep=${depIndex}`)}>
-                {t.dBook}
-              </button>
-              <div className="flex gap-1.5">
-                <button type="button" className="btn btn-secondary flex-1" onClick={() => router.push(`/book/${p.id}?dep=${depIndex}`)}>
-                  {t.dInquire}
-                </button>
-                <button type="button" className="btn btn-secondary flex-1" onClick={() => toggleCompare(p.id)}>
-                  {inCompare(p.id) ? t.inCompare : t.addCompare}
-                </button>
-              </div>
+              {blocked ? (
+                <>
+                  <SoldOutAlts p={p} depIndex={depIndex} onPickDate={setDepIndex} />
+                  <button type="button" className="btn btn-secondary btn-block" onClick={() => toggleCompare(p.id)}>
+                    {inCompare(p.id) ? t.inCompare : t.addCompare}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button type="button" className="btn btn-primary btn-block" onClick={() => router.push(`/book/${p.id}?dep=${depIndex}`)}>
+                    {t.dBook}
+                  </button>
+                  <div className="flex gap-1.5">
+                    <button type="button" className="btn btn-secondary flex-1" onClick={() => router.push(`/book/${p.id}?dep=${depIndex}`)}>
+                      {t.dInquire}
+                    </button>
+                    <button type="button" className="btn btn-secondary flex-1" onClick={() => toggleCompare(p.id)}>
+                      {inCompare(p.id) ? t.inCompare : t.addCompare}
+                    </button>
+                  </div>
+                </>
+              )}
               <button type="button" className="btn btn-secondary btn-block" onClick={() => toggleSaved(p.id)}>
                 {isSaved ? t.tSaved : t.dSave}
               </button>
@@ -343,6 +359,8 @@ export default function PackageDetailPage() {
               </div>
             </div>
           </div>
+
+          <PriceIntel p={p} />
 
           {/* quality score */}
           <div className="border-2 border-divider px-4 py-3.5">
@@ -399,8 +417,12 @@ export default function PackageDetailPage() {
               key={s.id}
               type="button"
               onClick={() => router.push(`/packages/${s.id}`)}
-              className="bg-bg border-2 border-divider p-3.5 text-left cursor-pointer text-text"
+              className="bg-bg border-2 border-divider text-left cursor-pointer text-text overflow-hidden"
             >
+              <div className="relative aspect-[16/9] bg-surface">
+                <PhotoSlot label={L(s.city)} src={pkgPhoto(s.id)} />
+              </div>
+              <div className="p-3.5">
               <div className="text-[10px] tracking-[0.12em] uppercase text-accent-700 font-extrabold">
                 {L(s.country)} · {L(s.city)}
               </div>
@@ -409,6 +431,7 @@ export default function PackageDetailPage() {
                 {s.days} {t.days} · {s.airlineName} · {t.shopScore} {s.shopping === 0 ? t.shopNone : s.shopping}
               </div>
               <div className="font-extrabold text-[22px] text-accent-700 mt-2">{money(s.real)}</div>
+              </div>
             </button>
           ))}
         </div>

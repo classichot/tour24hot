@@ -37,7 +37,7 @@ Copied from the Modernist design system in `design.zip`:
 
 - Warm-neutral ground, **zero radius**, 2px rules
 - Archivo + Noto Sans Thai
-- Amber accent `#f2b01e` / `#ffc61a` on the 24 mark
+- Gold-yellow accent `#f2b01e` / `#ffc61a` on the 24 mark
 - Photography as grayscale plates (deliberate empty slots in this prototype)
 
 ## Stack

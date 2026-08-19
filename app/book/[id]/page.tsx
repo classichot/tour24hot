@@ -5,8 +5,9 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { agencyById, pkgById } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { statusInfo } from "@/lib/helpers";
+import { statusInfo, depUnavailable } from "@/lib/helpers";
 import { Check, ShieldCheck } from "@/components/icons";
+import SoldOutAlts from "@/components/SoldOutAlts";
 
 export default function BookPage() {
   return (
@@ -47,6 +48,7 @@ function BookInner() {
 
   const ag = agencyById(p.agency);
   const dep = p.departures[depIndex] || p.departures[0];
+  const blocked = depUnavailable(dep);
   const pax = adults + children;
   const childPrice = p.real - 2000;
   const roomSup = room === "single" ? 6500 : 0;
@@ -77,6 +79,12 @@ function BookInner() {
       <div className="pt-6 pb-3.5 border-b-2 border-divider">
         <h1 className="text-[clamp(24px,3vw,38px)]">{t.bookTitle}</h1>
       </div>
+      {blocked ? (
+        <div className="pt-6 max-w-[640px]">
+          <SoldOutAlts p={p} depIndex={depIndex} onPickDate={setDepIndex} />
+        </div>
+      ) : (
+      <>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-0 bg-divider border-b-2 border-divider">
         {[
           { n: "01", label: t.bkStep1 },
@@ -326,6 +334,8 @@ function BookInner() {
           </div>
         </aside>
       </div>
+      </>
+      )}
     </main>
   );
 }

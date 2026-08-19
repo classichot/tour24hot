@@ -9,6 +9,7 @@ import { burnDeals } from "@/lib/helpers";
 import PackageCard from "@/components/PackageCard";
 import PhotoSlot from "@/components/PhotoSlot";
 import { ArrowRight, Check, StarSolid } from "@/components/icons";
+import { destPhoto, PHOTO, pkgPhoto } from "@/lib/photos";
 
 export default function HomePage() {
   const { t, L, money } = useApp();
@@ -71,9 +72,9 @@ export default function HomePage() {
                   <label>{t.fDays}</label>
                   <select className="input" value={dur} onChange={(e) => setDur(e.target.value)}>
                     <option value="any">{L({ th: "ทั้งหมด", en: "Any" })}</option>
-              <option value="short">{L({ th: "4–5 วัน", en: "4–5 days" })}</option>
-              <option value="mid">{L({ th: "5–6 วัน", en: "5–6 days" })}</option>
-              <option value="long">{L({ th: "6 วันขึ้นไป", en: "6+ days" })}</option>
+                    <option value="short">{L({ th: "4–5 วัน", en: "4–5 days" })}</option>
+                    <option value="mid">{L({ th: "5–6 วัน", en: "5–6 days" })}</option>
+                    <option value="long">{L({ th: "6 วันขึ้นไป", en: "6+ days" })}</option>
                   </select>
                 </div>
                 <div className="field">
@@ -93,7 +94,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="min-h-[340px] border-l-2 border-divider relative">
-            <PhotoSlot label={t.heroPhoto} />
+            <PhotoSlot label={t.heroPhoto} src={PHOTO.hero} />
           </div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] border-b-2 border-divider">
@@ -129,8 +130,12 @@ export default function HomePage() {
                 key={b.p.id}
                 type="button"
                 onClick={() => router.push(`/packages/${b.p.id}`)}
-                className="bg-bg border border-divider px-4 pt-3.5 pb-4 cursor-pointer text-left flex flex-col gap-[5px] text-text"
+                className="bg-bg border border-divider p-0 cursor-pointer text-left flex flex-col text-text"
               >
+                <div className="relative aspect-[16/9] bg-surface">
+                  <PhotoSlot label={L(b.p.city)} src={pkgPhoto(b.p.id)} />
+                </div>
+                <div className="px-4 pt-3.5 pb-4 flex flex-col gap-[5px]">
                 <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="font-[family-name:var(--font-heading)] font-extrabold text-[30px] leading-none text-accent-700">
                     {b.days}
@@ -151,6 +156,7 @@ export default function HomePage() {
                     {money(b.now)}
                   </span>
                   <span className="text-xs text-neutral-700 line-through">{money(b.p.real)}</span>
+                </div>
                 </div>
               </button>
             );
@@ -178,7 +184,7 @@ export default function HomePage() {
               className="bg-bg border border-divider p-0 cursor-pointer text-left flex flex-col"
             >
               <div className="aspect-[5/4] relative bg-surface">
-                <PhotoSlot label={`${L(d.name)} — 5:4`} />
+                <PhotoSlot label={L(d.name)} src={destPhoto(d.id)} />
               </div>
               <div className="px-3 pt-2.5 pb-3">
                 <div className="font-[family-name:var(--font-heading)] font-extrabold text-lg">{L(d.name)}</div>

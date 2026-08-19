@@ -200,6 +200,7 @@ const packages: Pkg[] = [
       { date: { th: "12–16 ต.ค. 2026", en: "12–16 Oct 2026" }, status: "confirmed", seats: 6 },
       { date: { th: "19–23 ต.ค. 2026", en: "19–23 Oct 2026" }, status: "nearly", seats: 11 },
       { date: { th: "02–06 พ.ย. 2026", en: "02–06 Nov 2026" }, status: "open", seats: 24 },
+      { date: { th: "05–09 ต.ค. 2026", en: "05–09 Oct 2026" }, status: "sold", seats: 0 },
     ],
     review: { score: 4.8, count: 96 },
     itinerary: [
@@ -249,7 +250,7 @@ const packages: Pkg[] = [
     ],
     tags: ["budget", "direct"],
     departures: [
-      { date: { th: "12–16 ต.ค. 2026", en: "12–16 Oct 2026" }, status: "limited", seats: 3 },
+      { date: { th: "12–16 ต.ค. 2026", en: "12–16 Oct 2026" }, status: "sold", seats: 0 },
       { date: { th: "19–23 ต.ค. 2026", en: "19–23 Oct 2026" }, status: "open", seats: 22 },
     ],
     review: { score: 3.8, count: 41 },

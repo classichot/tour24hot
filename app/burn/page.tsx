@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { agencyById, DATA } from "@/lib/data";
 import { useApp } from "@/lib/store";
 import { burnDeals, statusInfo } from "@/lib/helpers";
+import PhotoSlot from "@/components/PhotoSlot";
+import { pkgPhoto } from "@/lib/photos";
 
 export default function BurnPage() {
   const { t, L, money } = useApp();
@@ -43,6 +45,9 @@ export default function BurnPage() {
               key={b.p.id}
               className="border-b-2 border-divider py-5 grid grid-cols-[repeat(auto-fit,minmax(270px,1fr))] gap-[22px] items-start"
             >
+              <div className="relative min-h-[160px] aspect-[16/10] bg-surface">
+                <PhotoSlot label={L(b.p.city)} src={pkgPhoto(b.p.id)} />
+              </div>
               <div className="flex gap-4">
                 <div className="flex-none w-[78px]">
                   <div className="font-[family-name:var(--font-heading)] font-extrabold text-[46px] leading-[0.9] text-accent-700">

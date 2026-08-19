@@ -6,6 +6,7 @@ import { useApp } from "@/lib/store";
 import { statusInfo } from "@/lib/helpers";
 import ScoreBar from "@/components/ScoreBar";
 import { Check, Circle, Spinner, UploadIcon } from "@/components/icons";
+import { extractBrochure, type ExtractRow } from "@/lib/brochure";
 
 type Tab = "upload" | "packages" | "inventory" | "bookings" | "analytics";
 
@@ -23,21 +24,36 @@ export default function AgencyWorkspacePage() {
   const an = DATA.analytics;
   const [tab, setTab] = useState<Tab>("upload");
   const [upStage, setUpStage] = useState(0);
+  const [fileName, setFileName] = useState("");
+  const [fields, setFields] = useState<ExtractRow[]>([]);
+  const [editing, setEditing] = useState(false);
+  const [edits, setEdits] = useState<string[]>([]);
+  const [published, setPublished] = useState<{ title: string; file: string }[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
-  const startUpload = () => {
+  const startUpload = (name: string) => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
+    setFileName(name);
+    setEditing(false);
     setUpStage(1);
+    const extracted = extractBrochure(name);
     [
-      [2, 900],
-      [3, 1800],
-      [4, 2700],
+      [2, 800],
+      [3, 1600],
+      [4, 2500],
     ].forEach(([stage, ms]) => {
       timers.current.push(setTimeout(() => setUpStage(stage as number), ms as number));
     });
+    timers.current.push(
+      setTimeout(() => {
+        setFields(extracted);
+        setEdits(extracted.map((f) => (typeof f.value === "string" ? f.value : f.value.en)));
+      }, 2500)
+    );
   };
 
   const tabCls = (active: boolean) =>
@@ -98,15 +114,33 @@ export default function AgencyWorkspacePage() {
           <div>
             <h2 className="mb-1.5 text-[22px]">{t.upTitle}</h2>
             <p className="mb-4 text-sm text-neutral-800 max-w-[460px]">{t.upSub}</p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) startUpload(file.name);
+                e.target.value = "";
+              }}
+            />
             <button
               type="button"
-              onClick={startUpload}
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files?.[0];
+                if (file) startUpload(file.name);
+              }}
               className={`w-full flex flex-col items-start gap-2.5 p-[26px] cursor-pointer text-left text-text border-2 border-dashed border-divider ${
                 upStage > 0 ? "bg-surface" : "bg-bg"
               }`}
             >
               <UploadIcon stroke="var(--color-accent-700)" />
               <span className="font-[family-name:var(--font-heading)] font-extrabold text-[15px]">{t.upDrop}</span>
+              {fileName && <span className="text-[12px] text-neutral-700">{fileName}</span>}
               <span className="btn btn-primary pointer-events-none">{upStage === 0 ? t.upBrowse : upStage < 4 ? t.upStage2 : t.upAgain}</span>
             </button>
             <div className="mt-[18px] flex flex-col gap-0.5 bg-divider border-2 border-divider">
@@ -136,23 +170,32 @@ export default function AgencyWorkspacePage() {
             </div>
           </div>
           <div>
-            {upStage === 4 && (
+            {upStage === 4 && fields.length > 0 && (
               <div className="border-2 border-text">
                 <div className="px-3.5 py-3 border-b-2 border-divider flex items-center justify-between gap-3 flex-wrap">
                   <div>
                     <div className="font-[family-name:var(--font-heading)] font-extrabold text-base">{t.upExtracted}</div>
                     <div className="text-[11px] text-neutral-700">
-                      {DATA.extraction.length} {t.upFields} · 38 {t.upSeconds}
+                      {fields.length} {t.upFields} · {fileName || "brochure.pdf"}
                     </div>
                   </div>
-                  <span className="tag tag-accent">TOKYO-FUJI-5D3N-OCT26.pdf</span>
+                  <span className="tag tag-accent">{fileName || "TOKYO-FUJI-5D3N-OCT26.pdf"}</span>
                 </div>
+                <p className="px-3.5 pt-2 text-[12px] text-neutral-700">{t.upEditHint}</p>
                 <div className="max-h-[420px] overflow-auto">
-                  {DATA.extraction.map((f, i) => (
+                  {fields.map((f, i) => (
                     <div key={i} className="flex gap-3 px-3.5 py-[9px] border-b border-divider">
                       <div className="flex-none w-[34%] text-xs text-neutral-700">{L(f.field)}</div>
                       <div className="flex-1 text-[13px]">
-                        <div>{L(f.value)}</div>
+                        {editing ? (
+                          <input
+                            className="input"
+                            value={edits[i] || ""}
+                            onChange={(e) => setEdits((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))}
+                          />
+                        ) : (
+                          <div>{typeof f.value === "string" ? f.value : L(f.value)}</div>
+                        )}
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           <div className="w-[70px]">
                             <ScoreBar pct={f.conf} fill={f.conf >= 85 ? "var(--color-text)" : "var(--color-accent)"} height={3} />
@@ -160,7 +203,7 @@ export default function AgencyWorkspacePage() {
                           <span className="text-[10px] text-neutral-700">
                             {t.upConfidence} {f.conf}%
                           </span>
-                          {"check" in f && f.check && (
+                          {f.check && (
                             <span className="tag tag-accent text-[10px]">{t.upNeedsCheck}</span>
                           )}
                         </div>
@@ -169,10 +212,19 @@ export default function AgencyWorkspacePage() {
                   ))}
                 </div>
                 <div className="px-3.5 py-3 border-t-2 border-divider flex gap-2 flex-wrap">
-                  <button type="button" className="btn btn-primary" onClick={() => setTab("packages")}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      const title = edits[0] || fileName || L({ th: "แพ็กเกจใหม่", en: "New package" });
+                      setPublished((prev) => [{ title, file: fileName }, ...prev]);
+                      setUpStage(0);
+                      setTab("packages");
+                    }}
+                  >
                     {t.upPublish}
                   </button>
-                  <button type="button" className="btn btn-secondary">
+                  <button type="button" className="btn btn-secondary" onClick={() => setEditing((v) => !v)}>
                     {t.upEdit}
                   </button>
                   <button type="button" className="btn btn-ghost" onClick={() => setUpStage(0)}>
@@ -348,6 +400,26 @@ export default function AgencyWorkspacePage() {
               <span className="flex-none w-[70px]">{t.quality}</span>
               <span className="flex-none w-[130px]">{t.bkStatus}</span>
             </div>
+            {published.map((row) => (
+              <div key={row.file} className="flex gap-3 px-3.5 py-2.5 border-b border-divider items-center text-[13px]">
+                <span className="flex-1 min-w-[240px]">
+                  <span className="block font-[family-name:var(--font-heading)] font-extrabold text-[13px]">
+                    {row.title}
+                  </span>
+                  <span className="block text-[11px] text-neutral-700">{row.file}</span>
+                </span>
+                <span className="flex-none w-[110px] text-xs">—</span>
+                <span className="flex-none w-[110px] font-[family-name:var(--font-heading)] font-extrabold">—</span>
+                <span className="flex-none w-[90px]">—</span>
+                <span className="flex-none w-[110px]">—</span>
+                <span className="flex-none w-[70px]">—</span>
+                <span className="flex-none w-[130px]">
+                  <span className="bg-accent-200 text-accent-800 text-[11px] font-extrabold uppercase tracking-[0.04em] px-2.5 py-1">
+                    {t.upPending}
+                  </span>
+                </span>
+              </div>
+            ))}
             {pkgRows.map((p) => {
               const st = statusInfo(p.departures[0].status, t);
               return (

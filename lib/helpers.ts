@@ -1,5 +1,5 @@
 import type { Dict } from "./i18n";
-import { agencyById, type DepartureStatus, type Loc, type Pkg } from "./data";
+import { agencyById, type Departure, type DepartureStatus, type Loc, type L10n, type Pkg } from "./data";
 
 export type LFn = (v: Loc | null | undefined) => string;
 export type MoneyFn = (n: number) => string;
@@ -266,7 +266,41 @@ export function similarTours(p: Pkg, all: Pkg[], n = 3) {
 export interface AdvisorParse {
   answers: Record<string, string>;
   dest: string | null;
+  region: string | null;
+  shopExplicit: boolean;
   notes: { th: string; en: string }[];
+}
+
+export interface AdvisorFollowUp {
+  id: "dest" | "region" | "shop";
+  q: L10n;
+  opts: { v: string; label: L10n }[];
+}
+
+export interface AdvisorExtras {
+  dest?: string | null;
+  region?: string | null;
+  shop?: string;
+}
+
+export interface PriceIntel {
+  n: number;
+  low: number;
+  avg: number;
+  high: number;
+  pct: number;
+  band: "great" | "fair" | "high";
+}
+
+export interface GroupBid {
+  agency: string;
+  price: number;
+  days: number;
+  hotel: L10n;
+  shopping: L10n;
+  airline: L10n;
+  note: L10n;
+  delay: number;
 }
 
 export function parseAdvisorQuery(text: string): AdvisorParse {
@@ -284,13 +318,20 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
   const notes: { th: string; en: string }[] = [];
 
   let dest: string | null = null;
+  let region: string | null = null;
   if (/hokkaido|ฮอกไกโด|sapporo|ซัปโปโร/.test(q)) {
     dest = "Japan";
+    region = "hokkaido";
     notes.push({ th: "จุดหมาย: ฮอกไกโด / ญี่ปุ่น", en: "Destination: Hokkaido / Japan" });
   } else if (/osaka|โอซาก้า|kyoto|เกียวโต/.test(q)) {
     dest = "Japan";
+    region = "kansai";
     notes.push({ th: "จุดหมาย: โอซาก้า / เกียวโต", en: "Destination: Osaka / Kyoto" });
-  } else if (/japan|ญี่ปุ่น|tokyo|โตเกียว|fuji|ฟูจิ/.test(q)) {
+  } else if (/tokyo|โตเกียว|fuji|ฟูจิ|kawaguchiko|คาวากุชิโกะ/.test(q)) {
+    dest = "Japan";
+    region = "kanto";
+    notes.push({ th: "จุดหมาย: โตเกียว / ฟูจิ", en: "Destination: Tokyo / Fuji" });
+  } else if (/japan|ญี่ปุ่น/.test(q)) {
     dest = "Japan";
     notes.push({ th: "จุดหมาย: ญี่ปุ่น", en: "Destination: Japan" });
   } else if (/korea|เกาหลี|seoul|โซล|busan|ปูซาน/.test(q)) {
@@ -302,6 +343,9 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
   } else if (/taiwan|ไต้หวัน|taipei|ไทเป/.test(q)) {
     dest = "Taiwan";
     notes.push({ th: "จุดหมาย: ไต้หวัน", en: "Destination: Taiwan" });
+  } else if (/vietnam|เวียดนาม|hoi an|ฮอยอัน/.test(q)) {
+    dest = "Vietnam";
+    notes.push({ th: "จุดหมาย: เวียดนาม", en: "Destination: Vietnam" });
   }
 
   if (/parent|elderly|ผู้สูงอายุ|พ่อแม่|คุณแม่|คุณพ่อ|เดินน้อย|minimal walking/.test(q)) {
@@ -343,8 +387,10 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
     notes.push({ th: "ระยะ: 5–6 วัน", en: "Duration: 5–6 days" });
   }
 
+  let shopExplicit = false;
   if (/no shop|ไม่.*ช้อป|minimal shopping|ไม่ลงร้าน|ไม่มีร้าน/.test(q)) {
     answers.shop = "no";
+    shopExplicit = true;
     notes.push({ th: "ร้านช้อป: ไม่รับเลย", en: "Shopping: none" });
   }
 
@@ -361,7 +407,88 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
     notes.push({ th: "ต้องการวันอิสระ", en: "Wants a free day" });
   }
 
-  return { answers, dest, notes };
+  return { answers, dest, region, shopExplicit, notes };
+}
+
+export function advisorFollowups(parse: AdvisorParse): AdvisorFollowUp[] {
+  const out: AdvisorFollowUp[] = [];
+  if (!parse.dest) {
+    out.push({
+      id: "dest",
+      q: { th: "อยากไปประเทศไหนเป็นหลัก", en: "Which destination should we search first?" },
+      opts: [
+        { v: "Japan", label: { th: "ญี่ปุ่น", en: "Japan" } },
+        { v: "Korea", label: { th: "เกาหลี", en: "Korea" } },
+        { v: "China", label: { th: "จีน", en: "China" } },
+        { v: "Taiwan", label: { th: "ไต้หวัน", en: "Taiwan" } },
+        { v: "any", label: { th: "ไม่จำกัด", en: "No preference" } },
+      ],
+    });
+  } else if (parse.dest === "Japan" && !parse.region) {
+    out.push({
+      id: "region",
+      q: { th: "ญี่ปุ่นโซนไหน — โตเกียว/ฟูจิ โอซาก้า/เกียวโต หรือฮอกไกโด", en: "Japan — Tokyo/Fuji, Osaka/Kyoto, or Hokkaido?" },
+      opts: [
+        { v: "kanto", label: { th: "โตเกียว / ฟูจิ", en: "Tokyo / Fuji" } },
+        { v: "kansai", label: { th: "โอซาก้า / เกียวโต", en: "Osaka / Kyoto" } },
+        { v: "hokkaido", label: { th: "ฮอกไกโด", en: "Hokkaido" } },
+        { v: "any", label: { th: "อะไรก็ได้", en: "Any Japan" } },
+      ],
+    });
+  }
+  if (!parse.shopExplicit) {
+    out.push({
+      id: "shop",
+      q: { th: "ร้านช้อปบังคับรับได้แค่ไหน", en: "How do you feel about compulsory shopping stops?" },
+      opts: [
+        { v: "no", label: { th: "ไม่รับเลย", en: "None — skip shopping tours" } },
+        { v: "some", label: { th: "มีได้บ้าง", en: "A little is fine" } },
+      ],
+    });
+  }
+  return out.slice(0, 2);
+}
+
+function regionMatch(p: Pkg, region: string | null) {
+  if (!region || region === "any") return true;
+  const hay = `${p.city.en} ${p.city.th} ${p.title.en} ${p.title.th}`.toLowerCase();
+  if (region === "hokkaido") return /hokkaido|sapporo|ฮอกไกโด|ซัปโปโร/.test(hay);
+  if (region === "kansai") return /osaka|kyoto|โอซาก้า|เกียวโต/.test(hay);
+  if (region === "kanto") return /tokyo|fuji|โตเกียว|ฟูจิ/.test(hay);
+  return true;
+}
+
+export function applyAdvisorExtras(parse: AdvisorParse, extras?: AdvisorExtras): AdvisorParse {
+  if (!extras) return parse;
+  const next: AdvisorParse = {
+    ...parse,
+    answers: { ...parse.answers },
+    notes: parse.notes.slice(),
+  };
+  if (extras.dest && extras.dest !== "any") {
+    next.dest = extras.dest;
+    next.notes.push({ th: `จุดหมาย: ${extras.dest}`, en: `Destination: ${extras.dest}` });
+  }
+  if (extras.dest === "any") next.dest = null;
+  if (extras.region && extras.region !== "any") {
+    next.region = extras.region;
+    const labels: Record<string, L10n> = {
+      kanto: { th: "โซน: โตเกียว / ฟูจิ", en: "Region: Tokyo / Fuji" },
+      kansai: { th: "โซน: โอซาก้า / เกียวโต", en: "Region: Osaka / Kyoto" },
+      hokkaido: { th: "โซน: ฮอกไกโด", en: "Region: Hokkaido" },
+    };
+    if (labels[extras.region]) next.notes.push(labels[extras.region]);
+  }
+  if (extras.shop) {
+    next.answers.shop = extras.shop;
+    next.shopExplicit = true;
+    next.notes.push(
+      extras.shop === "no"
+        ? { th: "ร้านช้อป: ไม่รับเลย", en: "Shopping: none" }
+        : { th: "ร้านช้อป: มีได้บ้าง", en: "Shopping: a little is fine" }
+    );
+  }
+  return next;
 }
 
 export function advisorResults(
@@ -369,12 +496,81 @@ export function advisorResults(
   t: Dict,
   L: LFn,
   money: MoneyFn,
-  all: Pkg[]
-): { parse: AdvisorParse; results: MatchResult[] } {
-  const parse = parseAdvisorQuery(text);
+  all: Pkg[],
+  extras?: AdvisorExtras
+): { parse: AdvisorParse; followups: AdvisorFollowUp[]; results: MatchResult[] } {
+  const parse = applyAdvisorExtras(parseAdvisorQuery(text), extras);
+  const followups = extras ? [] : advisorFollowups(parse);
   const pool = parse.dest ? all.filter((p) => p.country.en === parse.dest) : all;
+  const regional = pool.filter((p) => regionMatch(p, parse.region));
   const durationHint = /5.?6|6.?วัน|5.?วัน|5–6|5-6/.test(text.toLowerCase());
-  const narrowed = durationHint ? pool.filter((p) => p.days >= 5 && p.days <= 6) : pool;
-  const results = matchResults(parse.answers, t, L, money, narrowed.length ? narrowed : pool);
-  return { parse, results };
+  const narrowed = durationHint ? regional.filter((p) => p.days >= 5 && p.days <= 6) : regional;
+  const base = narrowed.length ? narrowed : regional.length ? regional : pool;
+  const results = followups.length ? [] : matchResults(parse.answers, t, L, money, base.length ? base : all);
+  return { parse, followups, results };
+}
+
+export function priceIntel(p: Pkg, all: Pkg[]): PriceIntel | null {
+  const peers = all.filter((x) => x.country.en === p.country.en && Math.abs(x.days - p.days) <= 2);
+  if (peers.length < 2) return null;
+  const prices = peers.map((x) => x.real).sort((a, b) => a - b);
+  const low = prices[0];
+  const high = prices[prices.length - 1];
+  const avg = Math.round(prices.reduce((s, n) => s + n, 0) / prices.length / 100) * 100;
+  const pct = Math.round(((p.real - avg) / avg) * 100);
+  const band: PriceIntel["band"] = pct <= -8 ? "great" : pct >= 8 ? "high" : "fair";
+  return { n: peers.length, low, avg, high, pct, band };
+}
+
+export function depUnavailable(d: Departure) {
+  return d.status === "sold" || d.status === "cancelled" || d.seats <= 0;
+}
+
+export function soldOutAlts(p: Pkg, depIndex: number, all: Pkg[]) {
+  const dates = p.departures
+    .map((d, i) => ({ d, i }))
+    .filter(({ d, i }) => i !== depIndex && !depUnavailable(d));
+  const tours = similarTours(p, all, 4).filter((x) => x.departures.some((d) => !depUnavailable(d)));
+  return { dates, tours };
+}
+
+export function groupBids(dest: string, pax: number, budget: number, notes: string): GroupBid[] {
+  const roster: Record<string, string[]> = {
+    Japan: ["siam", "orient", "vela"],
+    Korea: ["orient", "vela", "bkkjet"],
+    China: ["siam", "nakara", "vela"],
+    Taiwan: ["orient", "siam", "vela"],
+    Vietnam: ["nakara", "bkkjet", "vela"],
+    Europe: ["vela", "siam", "orient"],
+  };
+  const ids = roster[dest] || ["siam", "orient", "vela"];
+  const noshop = /no shop|ไม่ลงร้าน|ไม่มีร้าน|noshop/i.test(notes);
+  const cap = Math.max(12000, budget || 45000);
+  const paxAdj = pax >= 20 ? -800 : pax >= 15 ? 0 : 1200;
+  return ids.map((agency, i) => {
+    const price = Math.round((cap * (0.94 + i * 0.05) + paxAdj) / 100) * 100;
+    const days = dest === "Europe" ? 8 + i : 6 + (i === 2 ? 1 : 0);
+    return {
+      agency,
+      price,
+      days,
+      hotel: i === 0
+        ? { th: "โรงแรม 4 ดาว มีชื่อ", en: "Named 4-star hotels" }
+        : i === 1
+          ? { th: "โรงแรม 4 ดาว + ออนเซ็น 1 คืน", en: "4-star + one onsen night" }
+          : { th: "โรงแรม 5 ดาว ทำเลกลางเมือง", en: "5-star central hotels" },
+      shopping: noshop || i === 0
+        ? { th: "ไม่มีร้านช้อปบังคับ", en: "No compulsory shopping" }
+        : { th: `${i} ร้านช้อป`, en: `${i} shopping stop${i > 1 ? "s" : ""}` },
+      airline: i === 1
+        ? { th: "บินตรง ฟูลเซอร์วิส", en: "Direct full-service" }
+        : { th: "บินตรง", en: "Direct flight" },
+      note: i === 0
+        ? { th: "กลุ่มส่วนตัวตามจำนวนที่ขอ · ไกด์ภาษาไทย", en: "Private group at your size · Thai-speaking guide" }
+        : i === 1
+          ? { th: "เพิ่มวันอิสระครึ่งวัน · กระเป๋า 30 กก.", en: "Half free day added · 30 kg baggage" }
+          : { th: "ห้องพักอัปเกรด · ประกันการเดินทางรวม", en: "Room upgrade · travel insurance included" },
+      delay: 700 + i * 900,
+    };
+  });
 }

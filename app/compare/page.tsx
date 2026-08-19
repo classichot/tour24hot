@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { agencyById, pkgById } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { aiDiffFor, statusInfo } from "@/lib/helpers";
+import { aiDiffFor, statusInfo, priceIntel } from "@/lib/helpers";
 import PhotoSlot from "@/components/PhotoSlot";
 import { Check, Sparkle } from "@/components/icons";
+import { pkgPhoto } from "@/lib/photos";
+import { DATA } from "@/lib/data";
 
 export default function ComparePage() {
   const { t, L, money, compare, toggleCompare } = useApp();
@@ -30,7 +32,20 @@ export default function ComparePage() {
       label: t.cAdvertised,
       cells: cols.map((c) => ({ text: `${money(c.price)}  (+${money(c.real - c.price)})` })),
     },
-    { label: t.cAgency, cells: cols.map((c) => ({ text: L(agencyById(c.agency).name) })) },
+    {
+      label: t.piTitle,
+      cells: cols.map((c) => {
+        const intel = priceIntel(c, DATA.packages);
+        if (!intel) return { text: "—" };
+        const line =
+          intel.band === "great"
+            ? `${Math.abs(intel.pct)}% ${t.piBelow}`
+            : intel.band === "high"
+              ? `${intel.pct}% ${t.piAbove}`
+              : t.piInLine;
+        return { text: line, badge: intel.band === "great" ? t.piGreatDeal : null };
+      }),
+    },
     { label: t.cTrust, cells: cols.map((c) => ({ text: String(agencyById(c.agency).trust) })) },
     {
       label: t.cQuality,
@@ -126,7 +141,7 @@ export default function ComparePage() {
               {cols.map((c) => (
                 <div key={c.id} className="flex-1 min-w-[200px] px-3 py-3 border-l border-divider">
                   <div className="aspect-[16/10] bg-surface mb-2 relative">
-                    <PhotoSlot label={L(c.city)} />
+                    <PhotoSlot label={L(c.city)} src={pkgPhoto(c.id)} />
                   </div>
                   <div className="font-[family-name:var(--font-heading)] font-extrabold text-[15px] leading-[1.2]">
                     {L(c.title)}

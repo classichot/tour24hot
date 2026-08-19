@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { agencyById, DATA } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { advisorResults } from "@/lib/helpers";
+import { advisorResults, type AdvisorExtras, type AdvisorFollowUp } from "@/lib/helpers";
 import { ArrowRight, Check, Sparkle } from "@/components/icons";
 
 const EXAMPLE = {
@@ -13,23 +13,38 @@ const EXAMPLE = {
   en: "I want Japan in October, around ฿35,000, 5–6 days, travelling with my parents. I don't want too much shopping.",
 };
 
+type Run = ReturnType<typeof advisorResults>;
+
 export default function AdvisorPage() {
   const { t, L, money, lang, toggleCompare, inCompare } = useApp();
   const router = useRouter();
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
-  const [run, setRun] = useState<ReturnType<typeof advisorResults> | null>(null);
+  const [run, setRun] = useState<Run | null>(null);
+  const [picks, setPicks] = useState<AdvisorExtras>({});
 
-  const ask = (text: string) => {
+  const apply = (text: string, extras?: AdvisorExtras) => {
     const trimmed = text.trim();
     if (!trimmed) return;
     setQ(trimmed);
     setBusy(true);
-    setRun(null);
     window.setTimeout(() => {
-      setRun(advisorResults(trimmed, t, L, money, DATA.packages));
+      setRun(advisorResults(trimmed, t, L, money, DATA.packages, extras));
       setBusy(false);
-    }, 700);
+    }, 550);
+  };
+
+  const ask = (text: string) => {
+    setPicks({});
+    setRun(null);
+    apply(text);
+  };
+
+  const pickOpt = (fu: AdvisorFollowUp, v: string) => {
+    const next: AdvisorExtras = { ...picks, [fu.id]: v === "any" && fu.id === "dest" ? "any" : v };
+    setPicks(next);
+    const remaining = (run?.followups || []).filter((f) => f.id !== fu.id && next[f.id] === undefined);
+    if (remaining.length === 0) apply(q, next);
   };
 
   return (
@@ -80,14 +95,44 @@ export default function AdvisorPage() {
             )}
           </div>
 
-          {run.results.length === 0 ? (
+          {run.followups.length > 0 && (
+            <div className="border-2 border-text p-4 mb-6 flex flex-col gap-4">
+              <div>
+                <div className="kicker">{t.advClarify}</div>
+              </div>
+              {run.followups.map((fu) => (
+                <div key={fu.id}>
+                  <div className="text-[15px] font-extrabold mb-2">{L(fu.q)}</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {fu.opts.map((o) => (
+                      <button
+                        key={o.v}
+                        type="button"
+                        className={`btn ${picks[fu.id] === o.v || (fu.id === "dest" && picks.dest === o.v) ? "btn-primary" : "btn-secondary"}`}
+                        onClick={() => pickOpt(fu, o.v)}
+                      >
+                        {L(o.label)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="btn btn-ghost self-start" onClick={() => apply(q, picks)}>
+                {t.advSkip}
+              </button>
+            </div>
+          )}
+
+          {run.results.length === 0 && run.followups.length === 0 && (
             <div className="border-2 border-divider px-6 py-10">
               <h3 className="mb-1.5">{t.advEmpty}</h3>
               <Link href="/search" className="btn btn-primary no-underline">
                 {t.navSearch}
               </Link>
             </div>
-          ) : (
+          )}
+
+          {run.results.length > 0 && (
             <div className="flex flex-col gap-0.5 bg-divider border-2 border-divider">
               {run.results.map((m) => (
                 <div

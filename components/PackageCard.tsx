@@ -1,11 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { agencyById, type Pkg } from "@/lib/data";
+import { agencyById, DATA, type Pkg } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { shopLabel, shopLevel, statusInfo, tagLabel, valueBadge } from "@/lib/helpers";
+import { shopLabel, shopLevel, statusInfo, tagLabel, valueBadge, priceIntel } from "@/lib/helpers";
 import PhotoSlot from "./PhotoSlot";
 import { AlertTriangle } from "./icons";
+import { pkgPhoto } from "@/lib/photos";
 
 export default function PackageCard({ p }: { p: Pkg }) {
   const { t, L, money, toggleCompare, inCompare } = useApp();
@@ -14,6 +15,8 @@ export default function PackageCard({ p }: { p: Pkg }) {
   const dep = p.departures[0];
   const st = statusInfo(dep.status, t);
   const gap = p.real - p.price;
+  const intel = priceIntel(p, DATA.packages);
+  const deal = intel?.band === "great" ? t.piGreatDeal : valueBadge(p, t);
   const flagNote = p.truth.length
     ? L({ th: `${p.truth.length} ข้อควรตรวจสอบก่อนจอง`, en: `${p.truth.length} points to check before booking` })
     : null;
@@ -21,14 +24,14 @@ export default function PackageCard({ p }: { p: Pkg }) {
   return (
     <article className="flex flex-col bg-bg border-2 border-divider h-full">
       <div className="relative aspect-[4/3] bg-surface">
-        <PhotoSlot label={`${L(p.city)} — 4:3`} />
+        <PhotoSlot label={L(p.city)} src={pkgPhoto(p.id)} />
         <div className="absolute left-0 top-0 flex flex-col items-start gap-0.5 pointer-events-none">
           <span className={st.cls}>{st.label}</span>
           {p.shopping === 0 && (
             <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">{t.noShopFlag}</span>
           )}
-          {valueBadge(p, t) && (
-            <span className="bg-accent text-text text-[11px] font-extrabold px-2.5 py-1">{valueBadge(p, t)}</span>
+          {deal && (
+            <span className="bg-accent text-text text-[11px] font-extrabold px-2.5 py-1">{deal}</span>
           )}
         </div>
       </div>
