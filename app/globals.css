@@ -1,0 +1,248 @@
+@import "tailwindcss";
+
+/* ── Modernist design system, tuned for TOUR24 (amber accent, Archivo + Noto Sans Thai) ── */
+@theme {
+  --color-bg: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-text: #201e1d;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+
+  --color-accent: #f2b01e;
+  --color-accent-100: #fff8e3;
+  --color-accent-200: #ffefbe;
+  --color-accent-300: #ffdd85;
+  --color-accent-400: #f9c644;
+  --color-accent-500: #f2b01e;
+  --color-accent-600: #cd8f00;
+  --color-accent-700: #875e00;
+  --color-accent-800: #714e04;
+  --color-accent-900: #47320e;
+
+  --color-neutral-100: #f8f4f4;
+  --color-neutral-200: #eae7e7;
+  --color-neutral-300: #d7d3d3;
+  --color-neutral-400: #bab6b6;
+  --color-neutral-500: #9b9797;
+  --color-neutral-600: #7d7979;
+  --color-neutral-700: #605d5d;
+  --color-neutral-800: #444141;
+  --color-neutral-900: #2d2b2b;
+
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+}
+
+@theme inline {
+  --font-heading: var(--font-archivo), var(--font-noto-thai), system-ui, sans-serif;
+  --font-body: var(--font-archivo), var(--font-noto-thai), system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  p {
+    margin: 0;
+  }
+  a {
+    color: var(--color-accent-700);
+    text-underline-offset: 3px;
+  }
+  button {
+    font-family: var(--font-body);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent-700);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+  }
+  input[type="range"] {
+    accent-color: var(--color-accent);
+  }
+}
+
+@layer components {
+  /* — buttons — */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 8px 14px;
+    border-radius: 0;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .btn svg {
+    display: block;
+  }
+  .btn-primary {
+    background: var(--color-accent);
+    color: var(--color-text);
+  }
+  .btn-primary:hover {
+    background: var(--color-accent-400);
+  }
+  .btn-primary:active {
+    background: var(--color-accent-600);
+  }
+  .btn-secondary {
+    border-color: var(--color-divider);
+  }
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+  .btn-secondary:active {
+    background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  }
+  .btn-ghost {
+    color: var(--color-accent-700);
+    padding-inline: 4px;
+  }
+  .btn-ghost:hover {
+    background: color-mix(in srgb, var(--color-accent-500) 14%, transparent);
+  }
+  .btn-block {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+  }
+
+  /* — forms — */
+  .field > label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  }
+  .input {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+    caret-color: var(--color-accent-700);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+  }
+  .input:hover {
+    border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+  .input:focus-visible {
+    border-color: var(--color-accent-700);
+    outline: none;
+  }
+  .radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .radio input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+  .radio .dot {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-divider);
+    background: var(--color-bg);
+  }
+  .radio:hover .dot {
+    border-color: var(--color-accent-700);
+  }
+  .radio input:checked + .dot {
+    border-color: var(--color-accent-700);
+    background: var(--color-accent);
+    box-shadow: inset 0 0 0 4px var(--color-bg);
+  }
+
+  /* — tags — */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    padding: 3px 10px;
+  }
+  .tag-accent {
+    background: var(--color-accent-100);
+    color: var(--color-accent-800);
+  }
+  .tag-neutral {
+    background: var(--color-neutral-100);
+    color: var(--color-neutral-800);
+  }
+  .tag-outline {
+    border: 1px solid var(--color-accent-700);
+    color: var(--color-accent-700);
+  }
+
+  /* — labels & badges — */
+  .kicker {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--color-accent-700);
+  }
+  .microlabel {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--color-neutral-700);
+  }
+
+  /* — photo plates (deliberate empty slots, not gaps) — */
+  .plate {
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-divider);
+    color: var(--color-neutral-500);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    transition: color 200ms ease;
+  }
+  .plate:hover {
+    color: var(--color-accent-700);
+  }
+}
