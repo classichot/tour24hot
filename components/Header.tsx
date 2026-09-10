@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
 
 function navBtnCls(active: boolean) {
@@ -11,16 +12,18 @@ function navBtnCls(active: boolean) {
 }
 
 function segBtnCls(active: boolean) {
-  return `px-3 py-1.5 cursor-pointer text-xs font-extrabold font-[family-name:var(--font-heading)] border-0 ${
+  return `px-2.5 py-1.5 cursor-pointer text-xs font-extrabold font-[family-name:var(--font-heading)] border-0 ${
     active ? "bg-accent text-text" : "bg-transparent text-text"
   }`;
 }
 
 export default function Header() {
-  const { t, lang, setLang, inboundMode, inboundLang, setInboundLang } = useApp();
+  const { t, lang, setLang, inboundMode } = useApp();
   const path = usePathname();
 
   const at = (p: string) => path === p;
+  const outboundNav = path === "/search" && !inboundMode;
+  const inboundNav = path.startsWith("/inbound") || (path === "/search" && inboundMode);
 
   return (
     <header className="sticky top-0 z-[60] bg-bg border-b-2 border-divider">
@@ -33,10 +36,10 @@ export default function Header() {
         </Link>
         <span className="text-[11px] leading-tight max-w-[200px] text-neutral-700">{t.tagline}</span>
         <nav className="flex gap-3.5 ml-auto flex-wrap items-center">
-          <Link href="/search" className={`${navBtnCls(at("/search"))} no-underline`}>
+          <Link href="/search?dir=outbound" className={`${navBtnCls(outboundNav)} no-underline`}>
             {t.navSearch}
           </Link>
-          <Link href="/inbound" className={`${navBtnCls(path.startsWith("/inbound"))} no-underline`}>
+          <Link href="/inbound" className={`${navBtnCls(inboundNav)} no-underline`}>
             {t.navInbound}
           </Link>
           <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
@@ -57,27 +60,16 @@ export default function Header() {
         </nav>
         <div className="flex items-center gap-2">
           <div className="inline-flex border border-divider">
-            {inboundMode ? (
-              <>
-                <button type="button" onClick={() => setInboundLang("zh")} className={segBtnCls(inboundLang === "zh")}>
-                  中文
-                </button>
-                <button type="button" onClick={() => setInboundLang("en")} className={segBtnCls(inboundLang === "en")}>
-                  EN
-                </button>
-              </>
-            ) : (
-              <>
-                <button type="button" onClick={() => setLang("th")} className={segBtnCls(lang === "th")}>
-                  ไทย
-                </button>
-                <button type="button" onClick={() => setLang("en")} className={segBtnCls(lang === "en")}>
-                  EN
-                </button>
-              </>
-            )}
+            {LANGS.map((item) => (
+              <button key={item.id} type="button" onClick={() => setLang(item.id)} className={segBtnCls(lang === item.id)}>
+                {item.short}
+              </button>
+            ))}
           </div>
-          <Link href="/agency" className="btn btn-secondary no-underline">
+          <Link href="/os" className="btn btn-secondary no-underline">
+            {t.navOs}
+          </Link>
+          <Link href="/agency" className="btn btn-ghost no-underline text-[12px]">
             {t.navAgency}
           </Link>
           <Link href="/admin" className="btn btn-ghost no-underline text-[12px]">

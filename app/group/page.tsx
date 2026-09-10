@@ -52,6 +52,13 @@ export default function GroupPage() {
         <div className="kicker">{t.navGroup}</div>
         <h1 className="my-1.5 text-[clamp(28px,3.4vw,44px)] leading-[1.03]">{t.grpTitle}</h1>
         <p className="text-[15px] text-neutral-800 max-w-[620px]">{t.grpSub}</p>
+        <p className="text-[13px] mt-2">
+          <a href="/os/sales" className="font-extrabold">
+            {t.navOs}
+          </a>
+          {" — "}
+          {L({ th: "งานกลุ่มเข้าท่อขายของระบบปฏิบัติการ", en: "Group briefs open in the operator sales pipe." })}
+        </p>
       </div>
 
       {phase === "form" && (

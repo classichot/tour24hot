@@ -33,6 +33,23 @@ const DEFAULTS: Filters = {
   flags: [],
 };
 
+function filtersFromSearch(params: URLSearchParams): Filters {
+  const next: Filters = { ...DEFAULTS };
+  const q = params.get("q");
+  if (q) next.q = q;
+  const country = params.get("country");
+  if (country) next.country = country;
+  const dir = params.get("dir");
+  if (dir) next.dir = dir;
+  const price = params.get("price");
+  if (price && !isNaN(Number(price))) next.price = Number(price);
+  const dur = params.get("dur");
+  if (dur) next.dur = dur;
+  const flag = params.get("flag");
+  if (flag) next.flags = [flag];
+  return next;
+}
+
 export default function SearchPage() {
   return (
     <Suspense fallback={<main className="max-w-[1400px] mx-auto px-[22px] pt-[22px]" />}>
@@ -42,42 +59,25 @@ export default function SearchPage() {
 }
 
 function SearchInner() {
-  const { t, L, money } = useApp();
+  const { t, L, money, inboundMode } = useApp();
   const params = useSearchParams();
   useInboundScope(params.get("dir") === "inbound" || params.get("country") === "Thailand");
-  const [f, setF] = useState<Filters>(DEFAULTS);
+  const [f, setF] = useState<Filters>(() => filtersFromSearch(params));
   const [sort, setSort] = useState("real");
-  const [initialized, setInitialized] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
-    const next: Filters = { ...DEFAULTS };
-    const q = params.get("q");
-    if (q) next.q = q;
-    const country = params.get("country");
-    if (country) next.country = country;
-    const dir = params.get("dir");
-    if (dir) next.dir = dir;
-    const price = params.get("price");
-    if (price && !isNaN(Number(price))) next.price = Number(price);
-    const dur = params.get("dur");
-    if (dur) next.dur = dur;
-    const flag = params.get("flag");
-    if (flag) next.flags = [flag];
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setF(next);
-    setInitialized(true);
+    setF(filtersFromSearch(params));
   }, [params]);
 
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((prev) => ({ ...prev, [k]: v }));
 
   const results = useMemo(() => {
-    if (!initialized) return [];
     const q = f.q.trim().toLowerCase();
     let out = DATA.packages.filter((p) => {
       if (q) {
         const locText = (v: typeof p.title | typeof p.airlineName) =>
-          typeof v === "string" ? v : `${v.th} ${v.en} ${v.zh || ""}`;
+          typeof v === "string" ? v : `${v.th} ${v.en} ${v.zh || ""} ${v.ru || ""}`;
         const hay = [locText(p.title), locText(p.city), locText(p.country), locText(p.airlineName)]
           .join(" ")
           .toLowerCase();
@@ -109,7 +109,7 @@ function SearchInner() {
       return a.real - b.real;
     });
     return out;
-  }, [f, sort, initialized]);
+  }, [f, sort]);
 
   const flagOpts = ["noshop", "freeday", "direct", "smallgroup", "confirmed"].map((v) => ({
     v,
@@ -166,7 +166,7 @@ function SearchInner() {
       <div className="pt-5 pb-4 border-b-2 border-divider">
         <div className="flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <div className="kicker">{t.navSearch}</div>
+            <div className="kicker">{inboundMode ? t.navInbound : t.navSearch}</div>
             <h1 className="mt-1 text-[clamp(26px,3vw,36px)]">
               {results.length} {t.resultsIn}
             </h1>

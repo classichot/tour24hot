@@ -1,9 +1,10 @@
-// TOUR24 — prototype dataset. Values are {th, en, zh?}; plain strings are language-neutral.
-export type L10n = { th: string; en: string; zh?: string };
+// TOUR24 — prototype dataset. Values are {th, en, zh?, ru?}; plain strings may still be filled at read time.
+import { hydrateTree } from "./l10n-pack";
+export type L10n = { th: string; en: string; zh?: string; ru?: string };
 export type Loc = string | L10n;
 export type TourDirection = "outbound" | "inbound";
 
-const z = (th: string, en: string, zh: string): L10n => ({ th, en, zh });
+const z = (th: string, en: string, zh?: string, ru?: string): L10n => ({ th, en, zh, ru });
 
 export type DepartureStatus = "confirmed" | "nearly" | "open" | "limited" | "sold" | "cancelled";
 
@@ -566,11 +567,11 @@ const packages: Pkg[] = [
   {
     id: "th01", code: "TR24-TH-IN-1101", agency: "siam",
     direction: "inbound",
-    market: z("จีน", "China", "中国"),
-    guideLang: z("จีน / อังกฤษ", "Chinese / English", "中文 / 英语"),
-    country: z("ไทย", "Thailand", "泰国"),
-    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角"),
-    title: z("เชียงใหม่ เชียงราย สามเหลี่ยมทองคำ ไม่ลงร้าน", "Chiang Mai, Chiang Rai & Golden Triangle — no shopping", "清迈清莱金三角纯玩无购物"),
+    market: z("จีน", "China", "中国", "Китай"),
+    guideLang: z("จีน / อังกฤษ", "Chinese / English", "中文 / 英语", "Китайский / английский"),
+    country: z("ไทย", "Thailand", "泰国", "Таиланд"),
+    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角", "Чиангмай · Чианграй · Золотой треугольник"),
+    title: z("เชียงใหม่ เชียงราย สามเหลี่ยมทองคำ ไม่ลงร้าน", "Chiang Mai, Chiang Rai & Golden Triangle — no shopping", "清迈清莱金三角纯玩无购物", "Чиангмай, Чианграй и Золотой треугольник — без магазинов"),
     days: 6, nights: 5, price: 21900, real: 23900,
     cost: [
       { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 21900 },
@@ -617,11 +618,11 @@ const packages: Pkg[] = [
   {
     id: "th02", code: "TR24-TH-IN-2288", agency: "bkkjet",
     direction: "inbound",
-    market: z("จีน", "China", "中国"),
-    guideLang: z("จีน", "Chinese", "中文"),
-    country: z("ไทย", "Thailand", "泰国"),
-    city: z("เชียงใหม่ · เชียงราย", "Chiang Mai · Chiang Rai", "清迈 · 清莱"),
-    title: z("เชียงใหม่ เชียงราย ราคาเบา", "Chiang Mai & Chiang Rai value run", "清迈清莱特价团"),
+    market: z("จีน", "China", "中国", "Китай"),
+    guideLang: z("จีน", "Chinese", "中文", "Китайский"),
+    country: z("ไทย", "Thailand", "泰国", "Таиланд"),
+    city: z("เชียงใหม่ · เชียงราย", "Chiang Mai · Chiang Rai", "清迈 · 清莱", "Чиангмай · Чианграй"),
+    title: z("เชียงใหม่ เชียงราย ราคาเบา", "Chiang Mai & Chiang Rai value run", "清迈清莱特价团", "Чиангмай и Чианграй — выгодный тур"),
     days: 5, nights: 4, price: 12900, real: 18400,
     cost: [
       { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 12900 },
@@ -668,11 +669,11 @@ const packages: Pkg[] = [
   {
     id: "th03", code: "TR24-TH-IN-3310", agency: "nakara",
     direction: "inbound",
-    market: z("จีน", "China", "中国"),
-    guideLang: z("จีน", "Chinese", "中文"),
-    country: z("ไทย", "Thailand", "泰国"),
-    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角"),
-    title: z("เชียงใหม่ วัดร่องขุ่น สามเหลี่ยมทองคำ กลุ่มจีน", "Chiang Mai, White Temple & Golden Triangle — Chinese group", "清迈白庙金三角华语团"),
+    market: z("จีน", "China", "中国", "Китай"),
+    guideLang: z("จีน", "Chinese", "中文", "Китайский"),
+    country: z("ไทย", "Thailand", "泰国", "Таиланд"),
+    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角", "Чиангмай · Чианграй · Золотой треугольник"),
+    title: z("เชียงใหม่ วัดร่องขุ่น สามเหลี่ยมทองคำ กลุ่มจีน", "Chiang Mai, White Temple & Golden Triangle — Chinese group", "清迈白庙金三角华语团", "Чиангмай, Белый храм и Золотой треугольник — китайская группа"),
     days: 5, nights: 4, price: 17900, real: 20400,
     cost: [
       { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 17900 },
@@ -717,19 +718,19 @@ const packages: Pkg[] = [
 ];
 
 export const destinations = [
-  { id: "jp", name: { th: "ญี่ปุ่น", en: "Japan", zh: "日本" }, count: 128, from: 27900 },
-  { id: "kr", name: { th: "เกาหลี", en: "Korea", zh: "韩国" }, count: 74, from: 19900 },
-  { id: "cn", name: { th: "จีน", en: "China", zh: "中国" }, count: 63, from: 16900 },
-  { id: "tw", name: { th: "ไต้หวัน", en: "Taiwan", zh: "台湾" }, count: 41, from: 18900 },
-  { id: "vn", name: { th: "เวียดนาม", en: "Vietnam", zh: "越南" }, count: 38, from: 11900 },
-  { id: "eu", name: { th: "ยุโรป", en: "Europe", zh: "欧洲" }, count: 26, from: 78900 },
-  { id: "th", name: { th: "ไทย", en: "Thailand", zh: "泰国" }, count: 86, from: 12900 },
+  { id: "jp", name: { th: "ญี่ปุ่น", en: "Japan", zh: "日本", ru: "Япония" }, count: 128, from: 27900 },
+  { id: "kr", name: { th: "เกาหลี", en: "Korea", zh: "韩国", ru: "Корея" }, count: 74, from: 19900 },
+  { id: "cn", name: { th: "จีน", en: "China", zh: "中国", ru: "Китай" }, count: 63, from: 16900 },
+  { id: "tw", name: { th: "ไต้หวัน", en: "Taiwan", zh: "台湾", ru: "Тайвань" }, count: 41, from: 18900 },
+  { id: "vn", name: { th: "เวียดนาม", en: "Vietnam", zh: "越南", ru: "Вьетнам" }, count: 38, from: 11900 },
+  { id: "eu", name: { th: "ยุโรป", en: "Europe", zh: "欧洲", ru: "Европа" }, count: 26, from: 78900 },
+  { id: "th", name: { th: "ไทย", en: "Thailand", zh: "泰国", ru: "Таиланд" }, count: 86, from: 12900 },
 ];
 
 export const inboundRegions = [
-  { id: "cnx", name: z("เชียงใหม่", "Chiang Mai", "清迈"), count: 42, from: 17900, q: "Chiang Mai" },
-  { id: "cei", name: z("เชียงราย", "Chiang Rai", "清莱"), count: 28, from: 17900, q: "Chiang Rai" },
-  { id: "gtr", name: z("สามเหลี่ยมทองคำ", "Golden Triangle", "金三角"), count: 16, from: 20400, q: "Golden Triangle" },
+  { id: "cnx", name: z("เชียงใหม่", "Chiang Mai", "清迈", "Чиангмай"), count: 42, from: 17900, q: "Chiang Mai" },
+  { id: "cei", name: z("เชียงราย", "Chiang Rai", "清莱", "Чианграй"), count: 28, from: 17900, q: "Chiang Rai" },
+  { id: "gtr", name: z("สามเหลี่ยมทองคำ", "Golden Triangle", "金三角", "Золотой треугольник"), count: 16, from: 20400, q: "Golden Triangle" },
 ];
 
 export const reviews = [
@@ -874,6 +875,16 @@ export const analytics = {
     { pkg: "cn02", delta: 2.8, note: "pricier" },
   ],
 };
+
+hydrateTree(agencies);
+hydrateTree(packages);
+hydrateTree(destinations);
+hydrateTree(inboundRegions);
+hydrateTree(reviews);
+hydrateTree(quiz);
+hydrateTree(trips);
+hydrateTree(agencyBookings);
+hydrateTree(extraction);
 
 export const DATA = { agencies, packages, destinations, inboundRegions, reviews, quiz, trips, agencyBookings, extraction, analytics };
 

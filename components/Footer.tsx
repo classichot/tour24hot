@@ -14,7 +14,7 @@ export default function Footer() {
           <div className="text-xs text-neutral-700 max-w-[230px] mt-1">{t.tagline}</div>
         </div>
         <div className="text-xs text-neutral-800 flex flex-col gap-[5px]">
-          <a href="/search" className="font-extrabold no-underline text-text">{t.navSearch}</a>
+          <a href="/search?dir=outbound" className="font-extrabold no-underline text-text">{t.navSearch}</a>
           <a href="/inbound" className="no-underline text-neutral-800">{t.navInbound}</a>
           <a href="/compare" className="no-underline text-neutral-800">{t.compareTitle}</a>
           <a href="/advisor" className="no-underline text-neutral-800">{t.advTitle}</a>
@@ -28,7 +28,9 @@ export default function Footer() {
           <a href="/trips" className="no-underline text-neutral-800">{t.tSupport}</a>
         </div>
         <div className="text-xs text-neutral-800 flex flex-col gap-[5px]">
-          <a href="/agency" className="font-extrabold no-underline text-text">{t.navAgency}</a>
+          <a href="/os" className="font-extrabold no-underline text-text">{t.navOs}</a>
+          <a href="/os-product" className="no-underline text-neutral-800">{t.osProduct}</a>
+          <a href="/agency" className="no-underline text-neutral-800">{t.navAgency}</a>
           <a href="/agent-direct" className="no-underline text-neutral-800">{t.agntHomeDev}</a>
           <span>{t.upTitle}</span>
           <span>{t.agBookings}</span>

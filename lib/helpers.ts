@@ -468,7 +468,7 @@ export function advisorFollowups(parse: AdvisorParse): AdvisorFollowUp[] {
 
 function regionMatch(p: Pkg, region: string | null) {
   if (!region || region === "any") return true;
-  const hay = `${p.city.en} ${p.city.th} ${p.city.zh || ""} ${p.title.en} ${p.title.th} ${p.title.zh || ""}`.toLowerCase();
+  const hay = `${p.city.en} ${p.city.th} ${p.city.zh || ""} ${p.city.ru || ""} ${p.title.en} ${p.title.th} ${p.title.zh || ""} ${p.title.ru || ""}`.toLowerCase();
   if (region === "hokkaido") return /hokkaido|sapporo|ฮอกไกโด|ซัปโปโร/.test(hay);
   if (region === "kansai") return /osaka|kyoto|โอซาก้า|เกียวโต/.test(hay);
   if (region === "kanto") return /tokyo|fuji|โตเกียว|ฟูจิ/.test(hay);

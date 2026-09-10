@@ -1,12 +1,20 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
-import { I18N, type Dict, type InboundLang, type Lang } from "./i18n";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { htmlLang, I18N, isLang, type Dict, type Lang } from "./i18n";
+import { resolveLoc } from "./l10n-pack";
 import { pkgById, type Loc } from "./data";
 
 function inboundPath(path: string) {
   return path.startsWith("/inbound") || /^\/(packages|book)\/th\d+/.test(path);
+}
+
+function inboundFromUrl(path: string, params: { get: (k: string) => string | null }) {
+  if (inboundPath(path)) return true;
+  if (path !== "/search") return false;
+  if (params.get("dir") === "outbound") return false;
+  return params.get("dir") === "inbound" || params.get("country") === "Thailand";
 }
 
 interface AppState {
@@ -14,8 +22,6 @@ interface AppState {
   setLang: (l: Lang) => void;
   inboundMode: boolean;
   setInboundMode: (v: boolean) => void;
-  inboundLang: InboundLang;
-  setInboundLang: (l: InboundLang) => void;
   t: Dict;
   L: (v: Loc | null | undefined) => string;
   money: (n: number) => string;
@@ -29,22 +35,23 @@ interface AppState {
 
 const AppCtx = createContext<AppState | null>(null);
 
-function pickLoc(v: { th: string; en: string; zh?: string }, lang: Lang) {
-  if (lang === "zh") return v.zh || v.en;
-  if (lang === "th") return v.th !== undefined ? v.th : v.en;
-  return v.en;
+function pickLoc(v: { th: string; en: string; zh?: string; ru?: string } | string, lang: Lang) {
+  return resolveLoc(v, lang);
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const path = usePathname() || "";
+  const params = useSearchParams();
   const [lang, setLangState] = useState<Lang>("th");
   const [inboundMode, setInboundMode] = useState(false);
-  const [inboundLang, setInboundLangState] = useState<InboundLang>("zh");
-  const inboundDesk = inboundMode || inboundPath(path);
+  const [inboundLang, setInboundLangState] = useState<Lang>("zh");
+  const inboundDesk = inboundFromUrl(path, params) || (path !== "/search" && inboundMode);
+  const inboundDeskRef = useRef(inboundDesk);
+  inboundDeskRef.current = inboundDesk;
   const [compare, setCompare] = useState<string[]>([]);
   const [saved, setSaved] = useState<string[]>(["jp03"]);
 
-  const setHydrated = useCallback((h: { lang: Lang | null; inboundLang: InboundLang | null; compare: string[] | null; saved: string[] | null }) => {
+  const setHydrated = useCallback((h: { lang: Lang | null; inboundLang: Lang | null; compare: string[] | null; saved: string[] | null }) => {
     if (h.lang) setLangState(h.lang);
     if (h.inboundLang) setInboundLangState(h.inboundLang);
     if (h.compare) setCompare(h.compare);
@@ -53,12 +60,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const l = window.localStorage.getItem("t24lang") as Lang | null;
-      const ib = window.localStorage.getItem("t24inblang") as InboundLang | null;
+      const l = window.localStorage.getItem("t24lang");
+      const ib = window.localStorage.getItem("t24inblang");
       const c = window.localStorage.getItem("t24compare");
       const s = window.localStorage.getItem("t24saved");
-      const lang = l === "th" || l === "en" || l === "zh" ? l : null;
-      const inboundLang = ib === "zh" || ib === "en" ? ib : "zh";
+      const lang = isLang(l) ? l : null;
+      const inboundLang = isLang(ib) ? ib : "zh";
       const compare = c ? (JSON.parse(c) as string[]) : null;
       const saved = s ? (JSON.parse(s) as string[]) : null;
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -81,23 +88,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [saved]);
 
   const setLang = useCallback((l: Lang) => {
+    if (inboundDeskRef.current) {
+      setInboundLangState(l);
+      try {
+        window.localStorage.setItem("t24inblang", l);
+      } catch { /* noop */ }
+      return;
+    }
     setLangState(l);
     try {
       window.localStorage.setItem("t24lang", l);
     } catch { /* noop */ }
   }, []);
 
-  const setInboundLang = useCallback((l: InboundLang) => {
-    setInboundLangState(l);
-    try {
-      window.localStorage.setItem("t24inblang", l);
-    } catch { /* noop */ }
-  }, []);
-
   const activeLang: Lang = inboundDesk ? inboundLang : lang;
 
   useEffect(() => {
-    document.documentElement.lang = activeLang === "zh" ? "zh-CN" : activeLang;
+    document.documentElement.lang = htmlLang(activeLang);
   }, [activeLang]);
 
   const t = useMemo<Dict>(() => ({ ...I18N.en, ...I18N[activeLang] }), [activeLang]);
@@ -105,8 +112,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const L = useCallback(
     (v: Loc | null | undefined) => {
       if (v === null || v === undefined) return "";
-      if (typeof v === "object") return pickLoc(v, activeLang);
-      return v;
+      return pickLoc(v, activeLang);
     },
     [activeLang]
   );
@@ -138,8 +144,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setLang,
       inboundMode: inboundDesk,
       setInboundMode,
-      inboundLang,
-      setInboundLang,
       t,
       L,
       money,
@@ -150,7 +154,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       saved,
       toggleSaved,
     }),
-    [activeLang, setLang, inboundDesk, inboundLang, setInboundLang, t, L, money, compare, toggleCompare, clearCompare, inCompare, saved, toggleSaved]
+    [activeLang, setLang, inboundDesk, t, L, money, compare, toggleCompare, clearCompare, inCompare, saved, toggleSaved]
   );
 
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
@@ -165,8 +169,7 @@ export function useApp() {
 export function useInboundScope(on: boolean) {
   const { setInboundMode } = useApp();
   useEffect(() => {
-    if (!on) return;
-    setInboundMode(true);
+    setInboundMode(on);
     return () => setInboundMode(false);
   }, [on, setInboundMode]);
 }

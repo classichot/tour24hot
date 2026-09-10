@@ -34,8 +34,8 @@
 }
 
 @theme inline {
-  --font-heading: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), system-ui, sans-serif;
-  --font-body: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), system-ui, sans-serif;
+  --font-heading: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), var(--font-noto), system-ui, sans-serif;
+  --font-body: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), var(--font-noto), system-ui, sans-serif;
 }
 
 @layer base {

@@ -34,7 +34,8 @@ export default function HomePage() {
     if (from !== "BKK") params.set("from", from);
     if (dur !== "any") params.set("dur", dur);
     if (budget !== "80000") params.set("price", budget);
-    router.push(`/search${params.toString() ? `?${params}` : ""}`);
+    params.set("dir", "outbound");
+    router.push(`/search?${params.toString()}`);
   };
 
   return (
@@ -191,7 +192,7 @@ export default function HomePage() {
             <h2 className="mb-1 text-[clamp(24px,2.6vw,32px)]">{t.popular}</h2>
             <p className="text-[13px] text-neutral-700">{t.popularSub}</p>
           </div>
-          <Link href="/search" className="btn btn-ghost no-underline">
+          <Link href="/search?dir=outbound" className="btn btn-ghost no-underline">
             {t.seeAll}
           </Link>
         </div>
@@ -200,7 +201,7 @@ export default function HomePage() {
             <button
               key={d.id}
               type="button"
-              onClick={() => router.push(d.id === "th" ? "/inbound" : `/search?country=${encodeURIComponent(d.name.en)}`)}
+              onClick={() => router.push(d.id === "th" ? "/inbound" : `/search?dir=outbound&country=${encodeURIComponent(d.name.en)}`)}
               className="bg-bg border border-divider p-0 cursor-pointer text-left flex flex-col"
             >
               <div className="aspect-[5/4] relative bg-surface">
@@ -243,7 +244,7 @@ export default function HomePage() {
             <h2 className="mb-1 text-[clamp(24px,2.6vw,32px)]">{t.confirmed}</h2>
             <p className="text-[13px] text-neutral-700">{t.confirmedSub}</p>
           </div>
-          <Link href="/search?flag=confirmed" className="btn btn-ghost no-underline">
+          <Link href="/search?dir=outbound&flag=confirmed" className="btn btn-ghost no-underline">
             {t.seeAll}
           </Link>
         </div>
@@ -261,7 +262,7 @@ export default function HomePage() {
             <h2 className="mb-1 text-[clamp(24px,2.6vw,32px)]">{t.bestValue}</h2>
             <p className="text-[13px] text-neutral-700">{t.bestValueSub}</p>
           </div>
-          <Link href="/search" className="btn btn-ghost no-underline">
+          <Link href="/search?dir=outbound" className="btn btn-ghost no-underline">
             {t.seeAll}
           </Link>
         </div>
@@ -279,7 +280,7 @@ export default function HomePage() {
             <h2 className="mb-1 text-[clamp(24px,2.6vw,32px)]">{t.noShop}</h2>
             <p className="text-[13px] text-neutral-700">{t.noShopSub}</p>
           </div>
-          <Link href="/search?flag=noshop" className="btn btn-ghost no-underline">
+          <Link href="/search?flag=noshop&dir=outbound" className="btn btn-ghost no-underline">
             {t.seeAll}
           </Link>
         </div>
@@ -369,11 +370,14 @@ export default function HomePage() {
             <p className="text-sm max-w-[520px] text-neutral-800">{t.agencyCtaSub}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Link href="/agency" className="btn btn-primary no-underline">
-              {t.agencyCtaBtn}
+            <Link href="/os" className="btn btn-primary no-underline">
+              {t.navOs}
+            </Link>
+            <Link href="/os-product" className="btn btn-secondary no-underline">
+              {t.osProduct}
             </Link>
             <Link href="/agency" className="btn btn-secondary no-underline">
-              {t.agencyCtaAlt}
+              {t.agencyCtaBtn}
             </Link>
           </div>
         </div>

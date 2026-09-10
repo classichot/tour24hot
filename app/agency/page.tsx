@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { agencyById, DATA, pkgById } from "@/lib/data";
 import { useApp } from "@/lib/store";
 import { statusInfo } from "@/lib/helpers";
@@ -80,6 +81,9 @@ export default function AgencyWorkspacePage() {
         <div>
           <div className="kicker">{L(me.name)}</div>
           <h1 className="mt-1 text-[clamp(24px,3vw,38px)]">{t.agTitle}</h1>
+          <Link href="/os" className="btn btn-primary no-underline mt-2 inline-flex text-[13px]">
+            {t.navOs}
+          </Link>
         </div>
         <div className="flex gap-4 flex-wrap">
           {[

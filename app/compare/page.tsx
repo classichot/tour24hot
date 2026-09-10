@@ -64,7 +64,7 @@ export default function ComparePage() {
     },
     { label: t.inboundMarket, cells: cols.map((c) => ({ text: c.market ? L(c.market) : "—" })) },
     { label: t.inboundGuide, cells: cols.map((c) => ({ text: c.guideLang ? L(c.guideLang) : "—" })) },
-    { label: t.cFlight, cells: cols.map((c) => ({ text: `${c.flight.out}   /   ${c.flight.back}` })) },
+    { label: t.cFlight, cells: cols.map((c) => ({ text: `${L(c.flight.out)}   /   ${L(c.flight.back)}` })) },
     { label: t.cBaggage, cells: cols.map((c) => ({ text: c.baggage })) },
     {
       label: t.cHotels,

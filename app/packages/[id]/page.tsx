@@ -62,7 +62,7 @@ export default function PackageDetailPage() {
   return (
     <main className="max-w-[1400px] mx-auto px-[22px] pb-20">
       <div className="pt-4">
-        <Link href={p.direction === "inbound" ? "/inbound" : "/search"} className="btn btn-ghost pl-0 no-underline">
+        <Link href={p.direction === "inbound" ? "/inbound" : "/search?dir=outbound"} className="btn btn-ghost pl-0 no-underline">
           <ChevronLeft />
           <span>{p.direction === "inbound" ? t.navInbound : t.navSearch}</span>
         </Link>
@@ -166,10 +166,10 @@ export default function PackageDetailPage() {
                   {L(p.airlineName)} · {p.airlineType === "land" ? t.landPackage : p.direct ? t.directFlight : L({ th: "ต่อเครื่อง", en: "With connection", zh: "转机" })}
                 </div>
                 <div className="text-[13px] text-neutral-800">
-                  {L({ th: "ขาไป", en: "Outbound" })} {p.flight.out}
+                  {L({ th: "ขาไป", en: "Outbound" })} {L(p.flight.out)}
                 </div>
                 <div className="text-[13px] text-neutral-800">
-                  {L({ th: "ขากลับ", en: "Return" })} {p.flight.back}
+                  {L({ th: "ขากลับ", en: "Return" })} {L(p.flight.back)}
                 </div>
                 <div className="text-xs text-neutral-700 mt-1.5">
                   {t.cBaggage} {p.baggage}

@@ -4,6 +4,7 @@
  */
 
 import { agencyById, DATA, pkgById, type Loc, type Pkg } from "./data";
+import { resolveLoc } from "./l10n-pack";
 
 export const TAP_VERSION = "0.1.0";
 
@@ -177,19 +178,19 @@ function books() {
   return g.__tapBooks;
 }
 
-function locOf(v: Loc, lang: "en" | "th" | "zh" = "en") {
-  if (typeof v === "string") return v;
-  if (lang === "th") return v.th;
-  if (lang === "zh") return v.zh || v.en;
-  return v.en;
+function locOf(v: Loc, lang: "en" | "th" | "zh" | "ru" = "en") {
+  return resolveLoc(v, lang);
 }
 
-function guideOf(p: Pkg, lang: "en" | "th" | "zh" = "en") {
+function guideOf(p: Pkg, lang: "en" | "th" | "zh" | "ru" = "en") {
   if (p.guideLang) return locOf(p.guideLang, lang);
-  return lang === "th" ? "ไทย" : lang === "zh" ? "泰语" : "Thai";
+  if (lang === "th") return "ไทย";
+  if (lang === "zh") return "泰语";
+  if (lang === "ru") return "тайский";
+  return "Thai";
 }
 
-export function toAgentOffer(p: Pkg, lang: "en" | "th" | "zh" = "en"): TapOffer | null {
+export function toAgentOffer(p: Pkg, lang: "en" | "th" | "zh" | "ru" = "en"): TapOffer | null {
   const ag = agencyById(p.agency);
   const tap = TAP_AGENCIES[p.agency];
   if (!ag || !tap) return null;

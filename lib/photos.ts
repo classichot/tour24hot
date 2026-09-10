@@ -11,10 +11,10 @@ export const PHOTO = {
     tw: u("1741004419862-5f3600cc7a97"), // Taipei 101
     vn: u("1528127269322-539801943592"), // Hoi An
     eu: u("1502602898657-3e91760cbb34"), // Paris
-    th: u("1528183429750-300ca275f2e0"), // Thai temple
-    cnx: u("1537996194471-e6774cf933b6"),
-    cei: u("1563492065599-9528f74fb4ae"),
-    gtr: u("1519451241324-776f6f6c1c19"),
+    th: u("1773929291087-ba04f053a765"), // Chiang Mai Lanna temple
+    cnx: u("1651792999885-85301e235a62"), // Chiang Mai golden Buddha
+    cei: u("1671188893377-ee825a53d27f"), // Chiang Rai White Temple
+    gtr: u("1641382676951-293859d30138"), // Mekong at the Golden Triangle
   } as Record<string, string>,
   pkg: {
     jp01: [u("1490806843957-31f4c9a91c65"), u("1540959733332-eab4deabeeaf"), u("1545569341-9eb8b30979d9")],
@@ -26,9 +26,21 @@ export const PHOTO = {
     cn01: [u("1564349683136-77e08dba1ef7"), u("1565967511849-76a60a516170"), u("1548013146-72479768bada")],
     cn02: [u("1508804185872-d7badad00f7d"), u("1469474968028-56623f02e42e"), u("1506905925346-21bda4d32df4")],
     tw01: [u("1741004419862-5f3600cc7a97"), u("1747687759065-0c415cc1cf28"), u("1441974231531-c6227db76b6e")],
-    th01: [u("1528183429750-300ca275f2e0"), u("1537996194471-e6774cf933b6"), u("1519451241324-776f6f6c1c19")],
-    th02: [u("1508009603885-50cf9c13a3b6"), u("1563492065599-9528f74fb4ae"), u("1548013146-72479768bada")],
-    th03: [u("1519451241324-776f6f6c1c19"), u("1528183429750-300ca275f2e0"), u("1469474968028-56623f02e42e")],
+    th01: [
+      u("1651792999885-85301e235a62"), // Chiang Mai
+      u("1671188893377-ee825a53d27f"), // Chiang Rai White Temple
+      u("1641382676951-293859d30138"), // Golden Triangle / Mekong
+    ],
+    th02: [
+      u("1773929291087-ba04f053a765"), // Chiang Mai
+      u("1665068551186-1010e3867f99"), // Chiang Rai White Temple
+      u("1642941961821-36c416a39d59"), // White Temple naga stairs
+    ],
+    th03: [
+      u("1671188893377-ee825a53d27f"), // White Temple
+      u("1651792999885-85301e235a62"), // Chiang Mai
+      u("1641382676951-293859d30138"), // Golden Triangle / Mekong
+    ],
   } as Record<string, string[]>,
 };
 
