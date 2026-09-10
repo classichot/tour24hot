@@ -34,6 +34,9 @@ export default function PackageRow({ p }: { p: Pkg }) {
           {p.shopping === 0 && (
             <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">{t.noShopFlag}</span>
           )}
+          {p.direction === "inbound" && (
+            <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">{t.inboundBadge}</span>
+          )}
           {isAgentDirect(p.agency) && (
             <span className="bg-text text-bg text-[11px] font-extrabold px-2.5 py-1">✓ {t.agntBadgeShort}</span>
           )}
@@ -52,7 +55,7 @@ export default function PackageRow({ p }: { p: Pkg }) {
           <span>
             {p.days} {t.days} {p.nights} {t.nights}
           </span>
-          <span>{p.airlineName}</span>
+          <span>{L(p.airlineName)}</span>
           <span>
             {p.hotelStar} {t.stars}
           </span>

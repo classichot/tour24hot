@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { agencyById, pkgById } from "@/lib/data";
-import { useApp } from "@/lib/store";
+import { useApp, useInboundScope } from "@/lib/store";
 import { statusInfo, depUnavailable } from "@/lib/helpers";
 import { Check, ShieldCheck } from "@/components/icons";
 import SoldOutAlts from "@/components/SoldOutAlts";
@@ -23,6 +23,7 @@ function BookInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const p = pkgById(routeParams.id);
+  useInboundScope(!!p && p.direction === "inbound");
 
   const [step, setStep] = useState(1);
   const [depIndex, setDepIndex] = useState(() => {

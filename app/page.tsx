@@ -21,10 +21,11 @@ export default function HomePage() {
   const [budget, setBudget] = useState("80000");
 
   const D = DATA;
-  const deals = burnDeals(D.packages);
-  const byReal = D.packages.slice().sort((a, b) => a.real - b.real);
-  const confirmed = D.packages.filter((p) => p.departures.some((d) => d.status === "confirmed" || d.status === "nearly"));
-  const noShop = D.packages.filter((p) => p.shopping === 0);
+  const outbound = D.packages.filter((p) => p.direction !== "inbound");
+  const deals = burnDeals(outbound);
+  const byReal = outbound.slice().sort((a, b) => a.real - b.real);
+  const confirmed = outbound.filter((p) => p.departures.some((d) => d.status === "confirmed" || d.status === "nearly"));
+  const noShop = outbound.filter((p) => p.shopping === 0);
 
   const goSearch = () => {
     const params = new URLSearchParams();
@@ -199,7 +200,7 @@ export default function HomePage() {
             <button
               key={d.id}
               type="button"
-              onClick={() => router.push(`/search?country=${encodeURIComponent(d.name.en)}`)}
+              onClick={() => router.push(d.id === "th" ? "/inbound" : `/search?country=${encodeURIComponent(d.name.en)}`)}
               className="bg-bg border border-divider p-0 cursor-pointer text-left flex flex-col"
             >
               <div className="aspect-[5/4] relative bg-surface">
@@ -213,6 +214,25 @@ export default function HomePage() {
               </div>
             </button>
           ))}
+        </div>
+      </section>
+
+      {/* — inbound Thailand — */}
+      <section className="max-w-[1400px] mx-auto px-[22px] pt-[34px]">
+        <div className="border-2 border-text p-5 grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-6 items-end">
+          <div>
+            <div className="kicker">{t.inbKicker}</div>
+            <h2 className="mt-2 mb-2 text-[clamp(24px,2.8vw,36px)] max-w-[560px]">{t.inbTitle}</h2>
+            <p className="text-sm text-neutral-800 max-w-[520px]">{t.inbSub}</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Link href="/inbound" className="btn btn-primary no-underline">
+              {t.navInbound}
+            </Link>
+            <Link href="/search?dir=inbound" className="btn btn-secondary no-underline">
+              {t.inbCta}
+            </Link>
+          </div>
         </div>
       </section>
 

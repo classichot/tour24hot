@@ -71,7 +71,7 @@ export default function SoldOutAlts({
                   <span>
                     <span className="block font-extrabold text-[13px] leading-[1.2]">{L(s.title)}</span>
                     <span className="block text-[11px] text-neutral-700 mt-0.5">
-                      {L(open.date)} · {s.airlineName}
+                      {L(open.date)} · {L(s.airlineName)}
                     </span>
                   </span>
                   <span className="font-extrabold text-[15px] text-accent-700 flex-none">{money(s.real)}</span>

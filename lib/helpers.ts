@@ -30,8 +30,9 @@ export function tagLabel(tag: string, t: Dict, L: LFn) {
     direct: t.directFlight,
     adventure: L({ th: "แอดเวนเจอร์", en: "Adventure" }),
     honeymoon: L({ th: "ฮันนีมูน", en: "Honeymoon" }),
-    festival: L({ th: "เทศกาล", en: "Festival" }),
-    food: L({ th: "อาหารและวัฒนธรรม", en: "Food & culture" }),
+    festival: L({ th: "เทศกาล", en: "Festival", zh: "节庆" }),
+    food: L({ th: "อาหารและวัฒนธรรม", en: "Food & culture", zh: "美食文化" }),
+    inbound: t.inboundBadge,
   };
   return m[tag] || tag;
 }
@@ -49,8 +50,9 @@ export function aiDiffFor(cols: Pkg[], t: Dict, L: LFn, money: MoneyFn) {
   if (best.airlineType !== cheap.airlineType) {
     b.push(
       L({
-        th: `บิน ${best.airlineName} (ฟูลเซอร์วิส) แทน ${cheap.airlineName} (โลว์คอสต์) และกระเป๋า ${best.baggage} แทน ${cheap.baggage}`,
-        en: `${best.airlineName} full service instead of ${cheap.airlineName} low cost, with ${best.baggage} baggage instead of ${cheap.baggage}`,
+        th: `${L(best.airlineName)} (${airLabel(best, t)}) แทน ${L(cheap.airlineName)} (${airLabel(cheap, t)}) และกระเป๋า ${best.baggage} แทน ${cheap.baggage}`,
+        en: `${L(best.airlineName)} (${airLabel(best, t)}) instead of ${L(cheap.airlineName)} (${airLabel(cheap, t)}), with ${best.baggage} baggage instead of ${cheap.baggage}`,
+        zh: `${L(best.airlineName)}（${airLabel(best, t)}）对比 ${L(cheap.airlineName)}（${airLabel(cheap, t)}），行李 ${best.baggage} 对 ${cheap.baggage}`,
       })
     );
   }
@@ -158,7 +160,7 @@ export function matchResults(answers: Record<string, string>, t: Dict, L: LFn, m
       if (a.air === "full") {
         if (p.airlineType === "full") {
           sc += 10;
-          why.push(L({ th: `บิน ${p.airlineName} ฟูลเซอร์วิส กระเป๋า ${p.baggage}`, en: `${p.airlineName} full service, ${p.baggage} baggage` }));
+          why.push(L({ th: `บิน ${L(p.airlineName)} ฟูลเซอร์วิส กระเป๋า ${p.baggage}`, en: `${L(p.airlineName)} full service, ${p.baggage} baggage` }));
         } else sc -= 12;
       }
       if (a.air === "direct") {
@@ -246,11 +248,21 @@ export function valueBadge(p: Pkg, t: Dict) {
   return null;
 }
 
+export function isInbound(p: Pkg) {
+  return p.direction === "inbound";
+}
+
+export function airLabel(p: Pkg, t: Dict) {
+  if (p.airlineType === "land") return t.landPackage;
+  return p.airlineType === "full" ? t.fullService : t.lowCost;
+}
+
 export function similarTours(p: Pkg, all: Pkg[], n = 3) {
   return all
     .filter((x) => x.id !== p.id)
     .map((x) => {
       let s = 0;
+      if ((x.direction === "inbound") === (p.direction === "inbound")) s += 25;
       if (x.country.en === p.country.en) s += 40;
       if (x.city.en === p.city.en) s += 20;
       s += 20 - Math.min(20, Math.abs(x.days - p.days) * 6);
@@ -268,7 +280,7 @@ export interface AdvisorParse {
   dest: string | null;
   region: string | null;
   shopExplicit: boolean;
-  notes: { th: string; en: string }[];
+  notes: L10n[];
 }
 
 export interface AdvisorFollowUp {
@@ -315,7 +327,7 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
     air: "any",
     free: "no",
   };
-  const notes: { th: string; en: string }[] = [];
+  const notes: L10n[] = [];
 
   let dest: string | null = null;
   let region: string | null = null;
@@ -334,6 +346,10 @@ export function parseAdvisorQuery(text: string): AdvisorParse {
   } else if (/japan|ญี่ปุ่น/.test(q)) {
     dest = "Japan";
     notes.push({ th: "จุดหมาย: ญี่ปุ่น", en: "Destination: Japan" });
+  } else if (/golden triangle|สามเหลี่ยมทองคำ|金三角|chiang mai|chiang rai|เชียงใหม่|เชียงราย|清迈|清莱|inbound|อินบาวด์|入境/.test(q)) {
+    dest = "Thailand";
+    region = "north";
+    notes.push({ th: "จุดหมาย: เชียงใหม่ / เชียงราย / สามเหลี่ยมทองคำ", en: "Destination: Chiang Mai / Chiang Rai / Golden Triangle", zh: "目的地：清迈 / 清莱 / 金三角" });
   } else if (/korea|เกาหลี|seoul|โซล|busan|ปูซาน/.test(q)) {
     dest = "Korea";
     notes.push({ th: "จุดหมาย: เกาหลี", en: "Destination: Korea" });
@@ -421,6 +437,7 @@ export function advisorFollowups(parse: AdvisorParse): AdvisorFollowUp[] {
         { v: "Korea", label: { th: "เกาหลี", en: "Korea" } },
         { v: "China", label: { th: "จีน", en: "China" } },
         { v: "Taiwan", label: { th: "ไต้หวัน", en: "Taiwan" } },
+        { v: "Thailand", label: { th: "ไทยอินบาวด์", en: "Thailand inbound", zh: "泰国入境" } },
         { v: "any", label: { th: "ไม่จำกัด", en: "No preference" } },
       ],
     });
@@ -451,10 +468,11 @@ export function advisorFollowups(parse: AdvisorParse): AdvisorFollowUp[] {
 
 function regionMatch(p: Pkg, region: string | null) {
   if (!region || region === "any") return true;
-  const hay = `${p.city.en} ${p.city.th} ${p.title.en} ${p.title.th}`.toLowerCase();
+  const hay = `${p.city.en} ${p.city.th} ${p.city.zh || ""} ${p.title.en} ${p.title.th} ${p.title.zh || ""}`.toLowerCase();
   if (region === "hokkaido") return /hokkaido|sapporo|ฮอกไกโด|ซัปโปโร/.test(hay);
   if (region === "kansai") return /osaka|kyoto|โอซาก้า|เกียวโต/.test(hay);
   if (region === "kanto") return /tokyo|fuji|โตเกียว|ฟูจิ/.test(hay);
+  if (region === "north") return /chiang mai|chiang rai|golden|เชียงใหม่|เชียงราย|สามเหลี่ยม|清迈|清莱|金三角/.test(hay);
   return true;
 }
 
@@ -542,6 +560,7 @@ export function groupBids(dest: string, pax: number, budget: number, notes: stri
     Taiwan: ["orient", "siam", "vela"],
     Vietnam: ["nakara", "bkkjet", "vela"],
     Europe: ["vela", "siam", "orient"],
+    Thailand: ["siam", "nakara", "vela"],
   };
   const ids = roster[dest] || ["siam", "orient", "vela"];
   const noshop = /no shop|ไม่ลงร้าน|ไม่มีร้าน|noshop/i.test(notes);
@@ -555,18 +574,22 @@ export function groupBids(dest: string, pax: number, budget: number, notes: stri
       price,
       days,
       hotel: i === 0
-        ? { th: "โรงแรม 4 ดาว มีชื่อ", en: "Named 4-star hotels" }
+        ? { th: "โรงแรม 4 ดาว มีชื่อ", en: "Named 4-star hotels", zh: "具名四星酒店" }
         : i === 1
-          ? { th: "โรงแรม 4 ดาว + ออนเซ็น 1 คืน", en: "4-star + one onsen night" }
-          : { th: "โรงแรม 5 ดาว ทำเลกลางเมือง", en: "5-star central hotels" },
+          ? { th: dest === "Thailand" ? "โรงแรม 4 ดาวริมน้ำ" : "โรงแรม 4 ดาว + ออนเซ็น 1 คืน", en: dest === "Thailand" ? "4-star riverside hotels" : "4-star + one onsen night", zh: dest === "Thailand" ? "四星河景酒店" : "四星+一晚温泉" }
+          : { th: dest === "Thailand" ? "โรงแรม 5 ดาวเชียงใหม่" : "โรงแรม 5 ดาว ทำเลกลางเมือง", en: dest === "Thailand" ? "5-star Chiang Mai hotels" : "5-star central hotels", zh: dest === "Thailand" ? "清迈五星酒店" : "市中心五星酒店" },
       shopping: noshop || i === 0
-        ? { th: "ไม่มีร้านช้อปบังคับ", en: "No compulsory shopping" }
-        : { th: `${i} ร้านช้อป`, en: `${i} shopping stop${i > 1 ? "s" : ""}` },
-      airline: i === 1
-        ? { th: "บินตรง ฟูลเซอร์วิส", en: "Direct full-service" }
-        : { th: "บินตรง", en: "Direct flight" },
+        ? { th: "ไม่มีร้านช้อปบังคับ", en: "No compulsory shopping", zh: "无强制购物" }
+        : { th: `${i} ร้านช้อป`, en: `${i} shopping stop${i > 1 ? "s" : ""}`, zh: `${i} 家购物店` },
+      airline: dest === "Thailand"
+        ? { th: "แพ็กเกจที่ดิน รับเชียงใหม่", en: "Land package · CNX pickup", zh: "落地安排 · 清迈接机" }
+        : i === 1
+          ? { th: "บินตรง ฟูลเซอร์วิส", en: "Direct full-service" }
+          : { th: "บินตรง", en: "Direct flight" },
       note: i === 0
-        ? { th: "กลุ่มส่วนตัวตามจำนวนที่ขอ · ไกด์ภาษาไทย", en: "Private group at your size · Thai-speaking guide" }
+        ? dest === "Thailand"
+          ? { th: "กลุ่มส่วนตัวตามจำนวนที่ขอ · ไกด์ภาษาจีน", en: "Private group at your size · Chinese-speaking guide", zh: "按人数独立成团 · 中文导游" }
+          : { th: "กลุ่มส่วนตัวตามจำนวนที่ขอ · ไกด์ภาษาไทย", en: "Private group at your size · Thai-speaking guide" }
         : i === 1
           ? { th: "เพิ่มวันอิสระครึ่งวัน · กระเป๋า 30 กก.", en: "Half free day added · 30 kg baggage" }
           : { th: "ห้องพักอัปเกรด · ประกันการเดินทางรวม", en: "Room upgrade · travel insurance included" },

@@ -71,7 +71,7 @@ export default function AdvisorPage() {
             <span>{busy ? t.advThinking : t.advAsk}</span>
             <ArrowRight />
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => ask(EXAMPLE[lang])}>
+          <button type="button" className="btn btn-secondary" onClick={() => ask(EXAMPLE[lang === "th" ? "th" : "en"])}>
             {t.advExample}
           </button>
           <Link href="/match" className="btn btn-ghost no-underline">

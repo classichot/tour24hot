@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { agencyById, DATA, pkgById } from "@/lib/data";
-import { useApp } from "@/lib/store";
-import { similarTours, statusInfo, tagLabel, depUnavailable } from "@/lib/helpers";
+import { useApp, useInboundScope } from "@/lib/store";
+import { airLabel, similarTours, statusInfo, tagLabel, depUnavailable } from "@/lib/helpers";
 import PhotoSlot from "@/components/PhotoSlot";
 import ScoreBar from "@/components/ScoreBar";
 import PriceIntel from "@/components/PriceIntel";
@@ -21,6 +21,7 @@ export default function PackageDetailPage() {
   const router = useRouter();
   const p = pkgById(routeParams.id);
   const [depIndex, setDepIndex] = useState(0);
+  useInboundScope(!!p && p.direction === "inbound");
 
   if (!p) {
     return (
@@ -39,15 +40,18 @@ export default function PackageDetailPage() {
   const dep = p.departures[depIndex] || p.departures[0];
   const blocked = depUnavailable(dep);
 
+  const none = L({ th: "ไม่มี", en: "None", zh: "无" });
   const facts = [
     { label: t.fDuration, value: `${p.days} ${t.days} ${p.nights} ${t.nights}` },
-    { label: t.cAirline, value: `${p.airlineName} · ${p.airlineType === "full" ? t.fullService : t.lowCost}` },
+    { label: t.cAirline, value: `${L(p.airlineName)} · ${airLabel(p, t)}` },
     { label: t.fHotel, value: `${p.hotelStar} ${t.stars}` },
-    { label: t.cMeals, value: `${p.meals} ${L({ th: "มื้อ", en: "meals" })}` },
+    { label: t.cMeals, value: `${p.meals} ${L({ th: "มื้อ", en: "meals", zh: "餐" })}` },
     { label: t.cAttractions, value: String(p.attractions) },
-    { label: t.cFreeDay, value: p.freeDays ? `${p.freeDays} ${t.days}` : L({ th: "ไม่มี", en: "None" }) },
-    { label: t.cShopping, value: p.shopping === 0 ? L({ th: "ไม่มี", en: "None" }) : String(p.shopping) },
+    { label: t.cFreeDay, value: p.freeDays ? `${p.freeDays} ${t.days}` : none },
+    { label: t.cShopping, value: p.shopping === 0 ? none : String(p.shopping) },
     { label: t.cGroup, value: `${p.group} ${t.people}` },
+    ...(p.market ? [{ label: t.inboundMarket, value: L(p.market) }] : []),
+    ...(p.guideLang ? [{ label: t.inboundGuide, value: L(p.guideLang) }] : []),
   ];
 
   const depBtn = (selected: boolean) =>
@@ -58,9 +62,9 @@ export default function PackageDetailPage() {
   return (
     <main className="max-w-[1400px] mx-auto px-[22px] pb-20">
       <div className="pt-4">
-        <Link href="/search" className="btn btn-ghost pl-0 no-underline">
+        <Link href={p.direction === "inbound" ? "/inbound" : "/search"} className="btn btn-ghost pl-0 no-underline">
           <ChevronLeft />
-          <span>{t.navSearch}</span>
+          <span>{p.direction === "inbound" ? t.navInbound : t.navSearch}</span>
         </Link>
       </div>
 
@@ -159,7 +163,7 @@ export default function PackageDetailPage() {
             <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-0.5 bg-divider border-2 border-divider">
               <div className="bg-bg p-3.5">
                 <div className="font-[family-name:var(--font-heading)] font-extrabold text-[15px] mb-1.5">
-                  {p.airlineName} · {p.direct ? t.directFlight : L({ th: "ต่อเครื่อง", en: "With connection" })}
+                  {L(p.airlineName)} · {p.airlineType === "land" ? t.landPackage : p.direct ? t.directFlight : L({ th: "ต่อเครื่อง", en: "With connection", zh: "转机" })}
                 </div>
                 <div className="text-[13px] text-neutral-800">
                   {L({ th: "ขาไป", en: "Outbound" })} {p.flight.out}
@@ -191,12 +195,14 @@ export default function PackageDetailPage() {
                 <h3 className="mb-2 text-[17px]">{t.dInclude}</h3>
                 <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
                   {[
-                    L({ th: `ตั๋วเครื่องบินไป-กลับ ${p.airlineName}`, en: `Return flights on ${p.airlineName}` }),
-                    L({ th: `ที่พัก ${p.nights} คืน`, en: `${p.nights} nights accommodation` }),
-                    L({ th: `อาหาร ${p.meals} มื้อ`, en: `${p.meals} meals` }),
-                    L({ th: `ค่าเข้าสถานที่ ${p.attractions} แห่ง`, en: `Entrance to ${p.attractions} attractions` }),
-                    L({ th: "หัวหน้าทัวร์และไกด์ท้องถิ่น", en: "Tour leader and local guide" }),
-                    L({ th: "รถโค้ชปรับอากาศตลอดรายการ", en: "Air-conditioned coach throughout" }),
+                    p.airlineType === "land"
+                      ? L({ th: L(p.airlineName), en: L(p.airlineName), zh: L(p.airlineName) })
+                      : L({ th: `ตั๋วเครื่องบินไป-กลับ ${L(p.airlineName)}`, en: `Return flights on ${L(p.airlineName)}`, zh: `往返机票 ${L(p.airlineName)}` }),
+                    L({ th: `ที่พัก ${p.nights} คืน`, en: `${p.nights} nights accommodation`, zh: `住宿 ${p.nights} 晚` }),
+                    L({ th: `อาหาร ${p.meals} มื้อ`, en: `${p.meals} meals`, zh: `${p.meals} 餐` }),
+                    L({ th: `ค่าเข้าสถานที่ ${p.attractions} แห่ง`, en: `Entrance to ${p.attractions} attractions`, zh: `景点门票 ${p.attractions} 处` }),
+                    L({ th: "หัวหน้าทัวร์และไกด์ท้องถิ่น", en: "Tour leader and local guide", zh: "领队与当地导游" }),
+                    L({ th: "รถโค้ชปรับอากาศตลอดรายการ", en: "Air-conditioned coach throughout", zh: "全程空调大巴" }),
                   ].map((i, idx) => (
                     <li key={idx} className="flex gap-2 text-[13px]">
                       <Check className="flex-none mt-[3px]" stroke="var(--color-accent-700)" width={14} height={14} />
@@ -209,12 +215,12 @@ export default function PackageDetailPage() {
                 <h3 className="mb-2 text-[17px]">{t.dExclude}</h3>
                 <ul className="m-0 p-0 list-none flex flex-col gap-1.5">
                   {[
-                    L({ th: `ทิปไกด์และคนขับ ${money(p.tips)}`, en: `Guide and driver tips ${money(p.tips)}` }),
+                    L({ th: `ทิปไกด์และคนขับ ${money(p.tips)}`, en: `Guide and driver tips ${money(p.tips)}`, zh: `导游司机小费 ${money(p.tips)}` }),
                     p.visa
-                      ? L({ th: `ค่าวีซ่า ${money(p.visa)}`, en: `Visa fee ${money(p.visa)}` })
-                      : L({ th: "ค่าวีซ่า (ไม่ต้องขอวีซ่า)", en: "Visa (not required for this destination)" }),
-                    L({ th: "ค่าห้องพักเดี่ยว 6,500 บาท", en: "Single room supplement ฿6,500" }),
-                    L({ th: "ค่าใช้จ่ายส่วนตัวและทัวร์เสริม", en: "Personal expenses and optional tours" }),
+                      ? L({ th: `ค่าวีซ่า ${money(p.visa)}`, en: `Visa fee ${money(p.visa)}`, zh: `签证费 ${money(p.visa)}` })
+                      : L({ th: "ค่าวีซ่า (ไม่ต้องขอวีซ่า)", en: "Visa (not required for this destination)", zh: "签证（本线路无需签证）" }),
+                    L({ th: "ค่าห้องพักเดี่ยว 6,500 บาท", en: "Single room supplement ฿6,500", zh: "单房差 ฿6,500" }),
+                    L({ th: "ค่าใช้จ่ายส่วนตัวและทัวร์เสริม", en: "Personal expenses and optional tours", zh: "个人消费与自费项目" }),
                   ].map((e, idx) => (
                     <li key={idx} className="flex gap-2 text-[13px] text-neutral-800">
                       <X className="flex-none mt-[3px]" width={14} height={14} />
@@ -432,7 +438,7 @@ export default function PackageDetailPage() {
               </div>
               <div className="font-extrabold text-[17px] mt-1 leading-[1.2]">{L(s.title)}</div>
               <div className="text-xs text-neutral-700 mt-1">
-                {s.days} {t.days} · {s.airlineName} · {t.shopScore} {s.shopping === 0 ? t.shopNone : s.shopping}
+                {s.days} {t.days} · {L(s.airlineName)} · {t.shopScore} {s.shopping === 0 ? t.shopNone : s.shopping}
               </div>
               <div className="font-extrabold text-[22px] text-accent-700 mt-2">{money(s.real)}</div>
               </div>

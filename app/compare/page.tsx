@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { agencyById, pkgById } from "@/lib/data";
-import { useApp } from "@/lib/store";
-import { aiDiffFor, statusInfo, priceIntel } from "@/lib/helpers";
+import { useApp, useInboundScope } from "@/lib/store";
+import { aiDiffFor, airLabel, statusInfo, priceIntel } from "@/lib/helpers";
 import PhotoSlot from "@/components/PhotoSlot";
 import { Check, Sparkle } from "@/components/icons";
 import { pkgPhoto } from "@/lib/photos";
@@ -14,14 +14,15 @@ export default function ComparePage() {
   const { t, L, money, compare, toggleCompare } = useApp();
   const router = useRouter();
   const cols = compare.map(pkgById).filter(Boolean) as NonNullable<ReturnType<typeof pkgById>>[];
+  useInboundScope(cols.some((c) => c.direction === "inbound"));
 
   const diff = aiDiffFor(cols, t, L, money);
   const minReal = cols.length ? Math.min(...cols.map((c) => c.real)) : 0;
   const maxQ = cols.length ? Math.max(...cols.map((c) => c.quality.score)) : 0;
-  const none = L({ th: "ไม่มี", en: "None" });
-  const mealsWord = L({ th: "มื้อ", en: "meals" });
-  const flagsWord = L({ th: "จุดที่ต้องดู", en: "flags" });
-  const cleanWord = L({ th: "ผ่าน", en: "Clean" });
+  const none = L({ th: "ไม่มี", en: "None", zh: "无" });
+  const mealsWord = L({ th: "มื้อ", en: "meals", zh: "餐" });
+  const flagsWord = L({ th: "จุดที่ต้องดู", en: "flags", zh: "需注意" });
+  const cleanWord = L({ th: "ผ่าน", en: "Clean", zh: "通过" });
 
   const rows: { label: string; cells: { text: string; badge?: string | null; strong?: boolean }[] }[] = [
     {
@@ -59,8 +60,10 @@ export default function ComparePage() {
     },
     {
       label: t.cAirline,
-      cells: cols.map((c) => ({ text: `${c.airlineName} · ${c.airlineType === "full" ? t.fullService : t.lowCost}` })),
+      cells: cols.map((c) => ({ text: `${L(c.airlineName)} · ${airLabel(c, t)}` })),
     },
+    { label: t.inboundMarket, cells: cols.map((c) => ({ text: c.market ? L(c.market) : "—" })) },
+    { label: t.inboundGuide, cells: cols.map((c) => ({ text: c.guideLang ? L(c.guideLang) : "—" })) },
     { label: t.cFlight, cells: cols.map((c) => ({ text: `${c.flight.out}   /   ${c.flight.back}` })) },
     { label: t.cBaggage, cells: cols.map((c) => ({ text: c.baggage })) },
     {

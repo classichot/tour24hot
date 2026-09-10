@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Modernist design system, tuned for TOUR24 (gold-yellow accent, Archivo + Noto Sans Thai) ── */
+/* ── Modernist design system, tuned for TOUR24 (gold-yellow accent, Archivo + Noto Sans Thai / SC) ── */
 @theme {
   --color-bg: #f3f2f2;
   --color-surface: #eae9e9;
@@ -34,8 +34,8 @@
 }
 
 @theme inline {
-  --font-heading: var(--font-archivo), var(--font-noto-thai), system-ui, sans-serif;
-  --font-body: var(--font-archivo), var(--font-noto-thai), system-ui, sans-serif;
+  --font-heading: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), system-ui, sans-serif;
+  --font-body: var(--font-archivo), var(--font-noto-thai), var(--font-noto-sc), system-ui, sans-serif;
 }
 
 @layer base {

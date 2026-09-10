@@ -17,7 +17,7 @@ function segBtnCls(active: boolean) {
 }
 
 export default function Header() {
-  const { t, lang, setLang } = useApp();
+  const { t, lang, setLang, inboundMode, inboundLang, setInboundLang } = useApp();
   const path = usePathname();
 
   const at = (p: string) => path === p;
@@ -35,6 +35,9 @@ export default function Header() {
         <nav className="flex gap-3.5 ml-auto flex-wrap items-center">
           <Link href="/search" className={`${navBtnCls(at("/search"))} no-underline`}>
             {t.navSearch}
+          </Link>
+          <Link href="/inbound" className={`${navBtnCls(path.startsWith("/inbound"))} no-underline`}>
+            {t.navInbound}
           </Link>
           <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
             {t.navAdvisor}
@@ -54,12 +57,25 @@ export default function Header() {
         </nav>
         <div className="flex items-center gap-2">
           <div className="inline-flex border border-divider">
-            <button type="button" onClick={() => setLang("th")} className={segBtnCls(lang === "th")}>
-              ไทย
-            </button>
-            <button type="button" onClick={() => setLang("en")} className={segBtnCls(lang === "en")}>
-              EN
-            </button>
+            {inboundMode ? (
+              <>
+                <button type="button" onClick={() => setInboundLang("zh")} className={segBtnCls(inboundLang === "zh")}>
+                  中文
+                </button>
+                <button type="button" onClick={() => setInboundLang("en")} className={segBtnCls(inboundLang === "en")}>
+                  EN
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={() => setLang("th")} className={segBtnCls(lang === "th")}>
+                  ไทย
+                </button>
+                <button type="button" onClick={() => setLang("en")} className={segBtnCls(lang === "en")}>
+                  EN
+                </button>
+              </>
+            )}
           </div>
           <Link href="/agency" className="btn btn-secondary no-underline">
             {t.navAgency}

@@ -3,7 +3,7 @@
  *  verified tour operators. Same inventory as the human marketplace.
  */
 
-import { agencyById, DATA, pkgById, type Pkg } from "./data";
+import { agencyById, DATA, pkgById, type Loc, type Pkg } from "./data";
 
 export const TAP_VERSION = "0.1.0";
 
@@ -40,8 +40,8 @@ export type TapAgencyProfile = {
 export const TAP_AGENCIES: Record<string, TapAgencyProfile> = {
   siam: {
     tour24Id: "TH-SIAM-00231",
-    destinations: ["Japan", "China"],
-    languages: ["Thai", "English"],
+    destinations: ["Japan", "China", "Thailand"],
+    languages: ["Thai", "English", "Chinese"],
     origin: "Thailand",
     instantBooking: true,
     liveInventory: true,
@@ -73,7 +73,7 @@ export const TAP_AGENCIES: Record<string, TapAgencyProfile> = {
   },
   nakara: {
     tour24Id: "TH-NAKARA-00112",
-    destinations: ["China", "Vietnam"],
+    destinations: ["China", "Vietnam", "Thailand"],
     languages: ["Thai", "English", "Chinese"],
     origin: "Thailand",
     instantBooking: false,
@@ -120,7 +120,7 @@ export type TapOffer = {
   free_days: number;
   shopping_stops: number;
   compulsory_shopping: boolean;
-  guide_language: "Thai";
+  guide_language: string;
   group_size: number;
   visa: number;
   baggage: string;
@@ -177,12 +177,24 @@ function books() {
   return g.__tapBooks;
 }
 
-export function toAgentOffer(p: Pkg, lang: "en" | "th" = "en"): TapOffer | null {
+function locOf(v: Loc, lang: "en" | "th" | "zh" = "en") {
+  if (typeof v === "string") return v;
+  if (lang === "th") return v.th;
+  if (lang === "zh") return v.zh || v.en;
+  return v.en;
+}
+
+function guideOf(p: Pkg, lang: "en" | "th" | "zh" = "en") {
+  if (p.guideLang) return locOf(p.guideLang, lang);
+  return lang === "th" ? "ไทย" : lang === "zh" ? "泰语" : "Thai";
+}
+
+export function toAgentOffer(p: Pkg, lang: "en" | "th" | "zh" = "en"): TapOffer | null {
   const ag = agencyById(p.agency);
   const tap = TAP_AGENCIES[p.agency];
   if (!ag || !tap) return null;
   const dep = p.departures.find((d) => d.status !== "sold" && d.seats > 0) || p.departures[0];
-  const loc = (v: { th: string; en: string } | string) => (typeof v === "string" ? v : v[lang]);
+  const loc = (v: Loc) => locOf(v, lang);
   return {
     package_id: p.id,
     code: p.code,
@@ -194,7 +206,7 @@ export function toAgentOffer(p: Pkg, lang: "en" | "th" = "en"): TapOffer | null 
     advertised_price: p.price,
     real_total: p.real,
     currency: "THB",
-    airline: p.airlineName,
+    airline: loc(p.airlineName),
     airline_type: p.airlineType,
     direct_flight: p.direct,
     hotel_class: p.hotelStar,
@@ -204,7 +216,7 @@ export function toAgentOffer(p: Pkg, lang: "en" | "th" = "en"): TapOffer | null 
     free_days: p.freeDays,
     shopping_stops: p.shopping,
     compulsory_shopping: p.shopping > 0,
-    guide_language: "Thai",
+    guide_language: guideOf(p, lang),
     group_size: p.group,
     visa: p.visa,
     baggage: p.baggage,
@@ -262,6 +274,7 @@ export const DEMAND = [
   { destination: "Japan", window: "October 2026", budget: "฿30,000–40,000", duration: "5–6 days", constraint: "No compulsory shopping", searches: 8420, seats: 1900, gap: 6520, action: { en: "Launch extra Tokyo/Fuji departures 12–18 Oct around ฿35,000–39,000.", th: "เปิดรอบโตเกียว/ฟูจิเพิ่ม 12–18 ต.ค. ราว ฿35,000–39,000" } },
   { destination: "Korea", window: "October 2026", budget: "฿18,000–25,000", duration: "5 days", constraint: "Family pace", searches: 3110, seats: 2460, gap: 650, action: { en: "Demand is covered. Keep Busan no-shop inventory live.", th: "ที่นั่งพอแล้ว คงคลังปูซานไม่ลงร้านไว้" } },
   { destination: "Taiwan", window: "November 2026", budget: "฿18,000–22,000", duration: "5 days", constraint: "Direct flight", searches: 1980, seats: 420, gap: 1560, action: { en: "Add one Taipei 5D3N direct-flight departure in early November.", th: "เพิ่มรอบไทเป 5 วันบินตรงต้นพฤศจิกายน" } },
+  { destination: "Thailand inbound", window: "October 2026", budget: "฿18,000–24,000", duration: "5–6 days", constraint: "Chinese guide, no shopping", searches: 2140, seats: 45, gap: 2095, action: { en: "Open extra Chiang Mai–Chiang Rai–Golden Triangle land departures for Chinese groups, no shops, around ฿20,000–24,000.", th: "เปิดรอบอินบาวด์เชียงใหม่-เชียงราย-สามเหลี่ยมทองคำ กรุ๊ปจีน ไม่ลงร้าน ราว ฿20,000–24,000" } },
 ];
 
 export const SAMPLE_QUERIES = [
@@ -282,6 +295,13 @@ export const SAMPLE_QUERIES = [
     en: "Hokkaido snow tour around ฿45,000, 6 days, full-service airline.",
     th: "ทัวร์หิมะฮอกไกโดราว ฿45,000 6 วัน สายการบินฟูลเซอร์วิส",
     args: { origin: "Bangkok", destination: "Hokkaido", duration_min: 6, duration_max: 7, budget_max: 55000, airline_type: "full" },
+  },
+  {
+    id: "th",
+    en: "Inbound northern Thailand for a Chinese group: Chiang Mai, Chiang Rai and Golden Triangle, land package, no shopping, around ฿22,000.",
+    th: "ทัวร์อินบาวด์เหนือไทย กรุ๊ปจีน เชียงใหม่ เชียงราย สามเหลี่ยมทองคำ แพ็กเกจที่ดิน ไม่ลงร้าน ราว ฿22,000",
+    zh: "中国团入境北泰：清迈、清莱、金三角落地团，无购物，预算约 ฿22,000。",
+    args: { destination: "Thailand", duration_min: 5, duration_max: 6, budget_max: 25000, shopping_stops: 0, guide_language: "Chinese" },
   },
 ];
 
@@ -405,6 +425,21 @@ export function buildAgentJson(origin: string) {
   };
 }
 
+function guideMatches(p: Pkg, guide: string) {
+  const g = guide.toLowerCase();
+  const raw = p.guideLang
+    ? typeof p.guideLang === "string"
+      ? p.guideLang
+      : `${p.guideLang.en} ${p.guideLang.th} ${p.guideLang.zh || ""}`
+    : "Thai ไทย 泰语";
+  const hay = raw.toLowerCase();
+  if (hay.includes(g)) return true;
+  if (["thai", "th", "ไทย", "泰语"].includes(g)) return /thai|ไทย|泰/.test(hay) || !p.guideLang;
+  if (["chinese", "zh", "中文", "华语", "mandarin"].includes(g)) return /chinese|中文|华语|mandarin/.test(hay);
+  if (["english", "en", "英文"].includes(g)) return /english|英文/.test(hay);
+  return false;
+}
+
 function searchPackages(a: Args) {
   const dest = str(a, "destination").toLowerCase();
   const dmin = num(a, "duration_min");
@@ -418,13 +453,13 @@ function searchPackages(a: Args) {
     const tap = TAP_AGENCIES[p.agency];
     if (!tap?.agentDirect) return false;
     if (agency && p.agency !== agency) return false;
-    const hay = `${p.country.en} ${p.country.th} ${p.city.en} ${p.city.th} ${p.title.en} ${p.title.th}`.toLowerCase();
+    const hay = `${p.country.en} ${p.country.th} ${p.country.zh || ""} ${p.city.en} ${p.city.th} ${p.city.zh || ""} ${p.title.en} ${p.title.th} ${p.title.zh || ""}`.toLowerCase();
     if (dest && !hay.includes(dest)) return false;
     if (dmin && p.days < dmin) return false;
     if (dmax && p.days > dmax) return false;
     if (p.real > budget) return false;
     if (shop !== null && p.shopping > shop) return false;
-    if (guide && !["thai", "th", "ไทย"].includes(guide)) return false;
+    if (guide && !guideMatches(p, guide)) return false;
     if (airline && airline !== p.airlineType) return false;
     return true;
   });
@@ -480,7 +515,7 @@ export function tapFeed() {
           country: p.country.en,
           cities: p.city.en,
           duration_days: p.days,
-          airline: p.airlineName,
+          airline: locOf(p.airlineName),
           hotel_class: p.hotelStar,
           shopping_stops: p.shopping,
           trust_score: ag.trust,

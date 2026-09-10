@@ -15,6 +15,7 @@ export default function Footer() {
         </div>
         <div className="text-xs text-neutral-800 flex flex-col gap-[5px]">
           <a href="/search" className="font-extrabold no-underline text-text">{t.navSearch}</a>
+          <a href="/inbound" className="no-underline text-neutral-800">{t.navInbound}</a>
           <a href="/compare" className="no-underline text-neutral-800">{t.compareTitle}</a>
           <a href="/advisor" className="no-underline text-neutral-800">{t.advTitle}</a>
           <a href="/agents" className="no-underline text-neutral-800">{t.navAgents}</a>

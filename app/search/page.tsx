@@ -3,13 +3,14 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { DATA, agencyById } from "@/lib/data";
-import { useApp } from "@/lib/store";
-import { tagLabel } from "@/lib/helpers";
+import { useApp, useInboundScope } from "@/lib/store";
+import { isInbound, tagLabel } from "@/lib/helpers";
 import PackageRow from "@/components/PackageRow";
 
 interface Filters {
   q: string;
   country: string;
+  dir: string;
   dur: string;
   price: number;
   air: string;
@@ -22,6 +23,7 @@ interface Filters {
 const DEFAULTS: Filters = {
   q: "",
   country: "any",
+  dir: "any",
   dur: "any",
   price: 80000,
   air: "any",
@@ -42,6 +44,7 @@ export default function SearchPage() {
 function SearchInner() {
   const { t, L, money } = useApp();
   const params = useSearchParams();
+  useInboundScope(params.get("dir") === "inbound" || params.get("country") === "Thailand");
   const [f, setF] = useState<Filters>(DEFAULTS);
   const [sort, setSort] = useState("real");
   const [initialized, setInitialized] = useState(false);
@@ -53,6 +56,8 @@ function SearchInner() {
     if (q) next.q = q;
     const country = params.get("country");
     if (country) next.country = country;
+    const dir = params.get("dir");
+    if (dir) next.dir = dir;
     const price = params.get("price");
     if (price && !isNaN(Number(price))) next.price = Number(price);
     const dur = params.get("dur");
@@ -71,12 +76,16 @@ function SearchInner() {
     const q = f.q.trim().toLowerCase();
     let out = DATA.packages.filter((p) => {
       if (q) {
-        const hay = [p.title.th, p.title.en, p.city.th, p.city.en, p.country.th, p.country.en, p.airlineName]
+        const locText = (v: typeof p.title | typeof p.airlineName) =>
+          typeof v === "string" ? v : `${v.th} ${v.en} ${v.zh || ""}`;
+        const hay = [locText(p.title), locText(p.city), locText(p.country), locText(p.airlineName)]
           .join(" ")
           .toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (f.country !== "any" && p.country.en !== f.country) return false;
+      if (f.dir === "inbound" && !isInbound(p)) return false;
+      if (f.dir === "outbound" && isInbound(p)) return false;
       if (f.dur === "short" && (p.days < 3 || p.days > 4)) return false;
       if (f.dur === "mid" && (p.days < 5 || p.days > 6)) return false;
       if (f.dur === "long" && (p.days < 7 || p.days > 9)) return false;
@@ -109,7 +118,7 @@ function SearchInner() {
   }));
 
   const countryOpts = [
-    { v: "any", label: L({ th: "ทุกประเทศ", en: "All countries" }) },
+    { v: "any", label: L({ th: "ทุกประเทศ", en: "All countries", zh: "全部国家" }) },
     ...DATA.destinations
       .filter((d) => DATA.packages.some((p) => p.country.en === d.name.en))
       .map((d) => ({ v: d.name.en, label: L(d.name) })),
@@ -120,6 +129,13 @@ function SearchInner() {
   if (f.country !== "any") {
     const c = countryOpts.find((o) => o.v === f.country);
     chips.push({ key: "country", label: c?.label || f.country, clear: () => set("country", "any") });
+  }
+  if (f.dir !== "any") {
+    chips.push({
+      key: "dir",
+      label: f.dir === "inbound" ? t.dirInbound : t.dirOutbound,
+      clear: () => set("dir", "any"),
+    });
   }
   if (f.dur !== "any") {
     const durLabel =
@@ -133,7 +149,7 @@ function SearchInner() {
     chips.push({ key: "dur", label: durLabel, clear: () => set("dur", "any") });
   }
   if (f.price < 80000) chips.push({ key: "price", label: `${t.fPrice} ${money(f.price)}`, clear: () => set("price", 80000) });
-  if (f.air !== "any") chips.push({ key: "air", label: f.air === "full" ? t.fullService : t.lowCost, clear: () => set("air", "any") });
+  if (f.air !== "any") chips.push({ key: "air", label: f.air === "full" ? t.fullService : f.air === "land" ? t.landPackage : t.lowCost, clear: () => set("air", "any") });
   if (f.hotel !== "any") chips.push({ key: "hotel", label: `${f.hotel} ${t.stars}+`, clear: () => set("hotel", "any") });
   if (f.type !== "any") chips.push({ key: "type", label: tagLabel(f.type, t, L), clear: () => set("type", "any") });
   if (f.trust > 0) chips.push({ key: "trust", label: `${t.trust} ${f.trust}+`, clear: () => set("trust", 0) });
@@ -211,6 +227,14 @@ function SearchInner() {
               <input className="input" type="text" value={f.q} placeholder={t.fWherePh} onChange={(e) => set("q", e.target.value)} />
             </div>
             <div className="field">
+              <label>{t.fDirection}</label>
+              <select className="input" value={f.dir} onChange={(e) => set("dir", e.target.value)}>
+                <option value="any">{t.dirAny}</option>
+                <option value="outbound">{t.dirOutbound}</option>
+                <option value="inbound">{t.dirInbound}</option>
+              </select>
+            </div>
+            <div className="field">
               <label>{t.fCountry}</label>
               <select className="input" value={f.country} onChange={(e) => set("country", e.target.value)}>
                 {countryOpts.map((o) => (
@@ -239,10 +263,10 @@ function SearchInner() {
                 <label>{t.fDuration}</label>
                 <select className="input" value={f.dur} onChange={(e) => set("dur", e.target.value)}>
                   <option value="any">{t.any}</option>
-                  <option value="short">{L({ th: "3–4 วัน", en: "3–4 days" })}</option>
-                  <option value="mid">{L({ th: "5–6 วัน", en: "5–6 days" })}</option>
-                  <option value="long">{L({ th: "7–9 วัน", en: "7–9 days" })}</option>
-                  <option value="xl">{L({ th: "10+", en: "10+" })}</option>
+                  <option value="short">{L({ th: "3–4 วัน", en: "3–4 days", zh: "3–4 天" })}</option>
+                  <option value="mid">{L({ th: "5–6 วัน", en: "5–6 days", zh: "5–6 天" })}</option>
+                  <option value="long">{L({ th: "7–9 วัน", en: "7–9 days", zh: "7–9 天" })}</option>
+                  <option value="xl">{L({ th: "10+", en: "10+", zh: "10天以上" })}</option>
                 </select>
               </div>
               <div className="field">
@@ -251,6 +275,7 @@ function SearchInner() {
                   <option value="any">{t.any}</option>
                   <option value="full">{t.fullService}</option>
                   <option value="low">{t.lowCost}</option>
+                  <option value="land">{t.landPackage}</option>
                 </select>
               </div>
               <div className="field">
@@ -274,7 +299,7 @@ function SearchInner() {
             <div className="field">
               <label>{t.fType}</label>
               <select className="input" value={f.type} onChange={(e) => set("type", e.target.value)}>
-                <option value="any">{L({ th: "ทุกประเภท", en: "All types" })}</option>
+                <option value="any">{L({ th: "ทุกประเภท", en: "All types", zh: "全部类型" })}</option>
                 {["family", "elderly", "honeymoon", "luxury", "budget", "adventure", "food"].map((v) => (
                   <option key={v} value={v}>
                     {tagLabel(v, t, L)}

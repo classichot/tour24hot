@@ -15,10 +15,11 @@ async function invoke(tool: string, args: Record<string, unknown>) {
   return res.json() as Promise<InvokeRes>;
 }
 
-const LABELS: Record<string, { en: string; th: string }> = {
-  jp: { en: "Japan autumn", th: "ญี่ปุ่นฤดูใบไม้ร่วง" },
-  kr: { en: "Korea family", th: "เกาหลีครอบครัว" },
-  hk: { en: "Hokkaido snow", th: "ฮอกไกโดหิมะ" },
+const LABELS: Record<string, { en: string; th: string; zh?: string }> = {
+  jp: { en: "Japan autumn", th: "ญี่ปุ่นฤดูใบไม้ร่วง", zh: "日本秋季" },
+  kr: { en: "Korea family", th: "เกาหลีครอบครัว", zh: "韩国亲子" },
+  hk: { en: "Hokkaido snow", th: "ฮอกไกโดหิมะ", zh: "北海道雪季" },
+  th: { en: "Inbound North", th: "อินบาวด์เหนือ", zh: "入境北泰" },
 };
 
 export default function AgentPlayground() {
@@ -116,11 +117,11 @@ export default function AgentPlayground() {
             }`}
             onClick={() => reset(s)}
           >
-            {lang === "th" ? LABELS[s.id].th : LABELS[s.id].en}
+            {lang === "zh" ? LABELS[s.id].zh || LABELS[s.id].en : lang === "th" ? LABELS[s.id].th : LABELS[s.id].en}
           </button>
         ))}
       </div>
-      <p className="text-base max-w-[680px] mb-4">{lang === "th" ? q.th : q.en}</p>
+      <p className="text-base max-w-[680px] mb-4">{lang === "zh" ? ("zh" in q && q.zh) || q.en : lang === "th" ? q.th : q.en}</p>
       {err && <p className="text-sm text-accent-800 mb-3">{err}</p>}
 
       {step === "ask" && (

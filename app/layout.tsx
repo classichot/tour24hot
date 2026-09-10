@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Noto_Sans_Thai } from "next/font/google";
+import { Archivo, Noto_Sans_SC, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import Header from "@/components/Header";
@@ -18,6 +18,12 @@ const notoThai = Noto_Sans_Thai({
   subsets: ["thai", "latin"],
 });
 
+const notoSc = Noto_Sans_SC({
+  variable: "--font-noto-sc",
+  weight: ["400", "600", "800"],
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "TOUR24 — Compare by humans. Discoverable by AI.",
   description:
@@ -26,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="th" className={`${archivo.variable} ${notoThai.variable}`}>
+    <html lang="th" className={`${archivo.variable} ${notoThai.variable} ${notoSc.variable}`}>
       <body>
         <AppProvider>
           <div className="min-h-screen bg-bg text-text flex flex-col">

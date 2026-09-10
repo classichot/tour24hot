@@ -1,6 +1,9 @@
-// TOUR24 — prototype dataset. Bilingual values are {th, en}; plain strings are language-neutral.
-export type L10n = { th: string; en: string };
+// TOUR24 — prototype dataset. Values are {th, en, zh?}; plain strings are language-neutral.
+export type L10n = { th: string; en: string; zh?: string };
 export type Loc = string | L10n;
+export type TourDirection = "outbound" | "inbound";
+
+const z = (th: string, en: string, zh: string): L10n => ({ th, en, zh });
 
 export type DepartureStatus = "confirmed" | "nearly" | "open" | "limited" | "sold" | "cancelled";
 
@@ -19,6 +22,9 @@ export interface Pkg {
   id: string;
   code: string;
   agency: string;
+  direction?: TourDirection;
+  market?: L10n;
+  guideLang?: L10n;
   country: L10n;
   city: L10n;
   title: L10n;
@@ -28,8 +34,8 @@ export interface Pkg {
   real: number;
   cost: { label: L10n; amt: number }[];
   airline: string;
-  airlineName: string;
-  airlineType: "full" | "low";
+  airlineName: Loc;
+  airlineType: "full" | "low" | "land";
   direct: boolean;
   flight: { out: string; back: string };
   baggage: string;
@@ -72,7 +78,7 @@ export interface Agency {
 const agencies: Record<string, Agency> = {
   siam: {
     id: "siam",
-    name: { th: "สยามฮอไรซอนทัวร์", en: "Siam Horizon Tours" },
+    name: { th: "สยามฮอไรซอนทัวร์", en: "Siam Horizon Tours", zh: "暹罗地平线旅行社" },
     company: { th: "บริษัท สยามฮอไรซอน ทราเวล จำกัด", en: "Siam Horizon Travel Co., Ltd." },
     licence: "11/09876", expiry: "31/03/2028", years: 17, bookings: 1284, response: 12,
     cancelRate: 1.2, refundDays: 3, rating: 4.8, reviews: 612, trust: 94,
@@ -129,7 +135,7 @@ const agencies: Record<string, Agency> = {
   },
   nakara: {
     id: "nakara",
-    name: { th: "นาคาราฮอลิเดย์", en: "Nakara Holiday" },
+    name: { th: "นาคาราฮอลิเดย์", en: "Nakara Holiday", zh: "纳卡拉假期" },
     company: { th: "บริษัท นาคารา ฮอลิเดย์ จำกัด", en: "Nakara Holiday Co., Ltd." },
     licence: "11/11208", expiry: "22/11/2026", years: 6, bookings: 318, response: 41,
     cancelRate: 3.8, refundDays: 9, rating: 4.2, reviews: 143, trust: 79,
@@ -148,7 +154,7 @@ const agencies: Record<string, Agency> = {
   },
   bkkjet: {
     id: "bkkjet",
-    name: { th: "บางกอกเจ็ททัวร์", en: "Bangkok Jet Tour" },
+    name: { th: "บางกอกเจ็ททัวร์", en: "Bangkok Jet Tour", zh: "曼谷捷旅" },
     company: { th: "บริษัท บางกอกเจ็ท ทัวร์ จำกัด", en: "Bangkok Jet Tour Co., Ltd." },
     licence: "11/12043", expiry: "18/02/2027", years: 4, bookings: 197, response: 55,
     cancelRate: 5.1, refundDays: 12, rating: 3.9, reviews: 88, trust: 72,
@@ -557,21 +563,181 @@ const packages: Pkg[] = [
       { d: 5, title: { th: "ไทเป – สุวรรณภูมิ", en: "Taipei – Suvarnabhumi" }, body: { th: "บินกลับเที่ยง", en: "Midday flight home." }, meals: "B", hotel: "—" },
     ],
   },
+  {
+    id: "th01", code: "TR24-TH-IN-1101", agency: "siam",
+    direction: "inbound",
+    market: z("จีน", "China", "中国"),
+    guideLang: z("จีน / อังกฤษ", "Chinese / English", "中文 / 英语"),
+    country: z("ไทย", "Thailand", "泰国"),
+    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角"),
+    title: z("เชียงใหม่ เชียงราย สามเหลี่ยมทองคำ ไม่ลงร้าน", "Chiang Mai, Chiang Rai & Golden Triangle — no shopping", "清迈清莱金三角纯玩无购物"),
+    days: 6, nights: 5, price: 21900, real: 23900,
+    cost: [
+      { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 21900 },
+      { label: z("ทิปไกด์และคนขับ", "Guide & driver tips", "导游司机小费"), amt: 1200 },
+      { label: z("ประกันเดินทางในประเทศ", "Domestic travel insurance", "境内旅行保险"), amt: 800 },
+    ],
+    airline: "LAND", airlineName: z("แพ็กเกจที่ดิน · รับสนามบินเชียงใหม่", "Land arrangement · CNX airport pickup", "落地安排 · 清迈接机"),
+    airlineType: "land", direct: true,
+    flight: { out: "CNX pickup", back: "CNX drop-off" }, baggage: "—",
+    hotels: [
+      { name: "Le Meridien Chiang Mai", star: 5, nights: 2 },
+      { name: "Le Meridien Chiang Rai", star: 5, nights: 3 },
+    ],
+    hotelStar: 5, meals: 12, attractions: 11, freeDays: 1, shopping: 0, tips: 1200, visa: 0,
+    optional: [{ name: z("ล่องแม่น้ำโขงข้ามฝั่งลาว", "Mekong boat to the Laos bank", "湄公河游船至老挝岸"), price: 900 }],
+    group: 16, cancel: z("ยกเลิกก่อน 30 วัน คืนเต็ม · 15–29 วัน คืน 50%", "Free before 30 days · 50% at 15–29 days", "提前30天全额退 · 15–29天退50%"),
+    quality: {
+      score: 90, factors: [
+        { label: z("เวลานั่งรถต่อวัน", "Daily travel time", "每日车程"), score: 86 },
+        { label: z("ไกด์ภาษาจีน", "Chinese-speaking guide", "中文导游"), score: 96 },
+        { label: z("จำนวนจุดต่อวัน", "Stops per day", "每日景点"), score: 88 },
+        { label: z("ร้านช้อปซ้ำ", "Repeated shopping", "重复购物店"), score: 100 },
+        { label: z("เวลาอิสระ", "Free time", "自由活动"), score: 84 },
+        { label: z("เหมาะกับผู้สูงอายุ", "Elderly suitability", "适老程度"), score: 88 },
+      ],
+    },
+    truth: [],
+    tags: ["inbound", "noshop", "family", "elderly", "food", "smallgroup"],
+    departures: [
+      { date: z("12–17 ต.ค. 2026", "12–17 Oct 2026", "2026年10月12–17日"), status: "confirmed", seats: 8 },
+      { date: z("26–31 ต.ค. 2026", "26–31 Oct 2026", "2026年10月26–31日"), status: "nearly", seats: 12 },
+      { date: z("09–14 พ.ย. 2026", "09–14 Nov 2026", "2026年11月9–14日"), status: "open", seats: 16 },
+    ],
+    review: { score: 4.9, count: 38 },
+    itinerary: [
+      { d: 1, title: z("ถึงเชียงใหม่ – ดอยสุเทพ", "Arrive Chiang Mai – Doi Suthep", "抵达清迈 – 双龙寺"), body: z("รับที่สนามบินเชียงใหม่ ขึ้นดอยสุเทพ วัดพระธาตุดอยสุเทพ พักโรงแรมกลางเมือง", "CNX pickup, Doi Suthep and Wat Phra That, hotel in the old-city area.", "清迈机场接机，上双龙寺参观素贴山佛寺，入住古城酒店。"), meals: "D", hotel: "Le Meridien Chiang Mai" },
+      { d: 2, title: z("เชียงใหม่เมืองเก่า – วันอิสระ", "Old city – free afternoon", "清迈古城 – 自由下午"), body: z("วัดเจดีย์หลวง ถนนคนเดิน บ่ายอิสระย่านนิมมาน", "Wat Chedi Luang and the walking street; free afternoon in Nimman.", "参观契迪龙寺与步行街，下午宁曼路自由活动。"), meals: "B / L", hotel: "Le Meridien Chiang Mai" },
+      { d: 3, title: z("เชียงใหม่ – เชียงราย วัดร่องขุ่น", "Chiang Mai – Chiang Rai White Temple", "清迈赴清莱 – 白庙"), body: z("รถประมาณ 3 ชั่วโมง วัดร่องขุ่น ไม่แวะร้าน เข้าเชียงรายเย็น", "About 3 hours by coach, Wat Rong Khun, no shop stop, evening in Chiang Rai.", "大巴约3小时，参观白庙，途中不进购物店，傍晚抵清莱。"), meals: "B / L / D", hotel: "Le Meridien Chiang Rai" },
+      { d: 4, title: z("สามเหลี่ยมทองคำ – แม่โขง", "Golden Triangle – Mekong", "金三角 – 湄公河"), body: z("เชียงแสน จุดบรรจบไทย-ลาว-เมียนมา ล่องแม่น้ำโขง พิพิธภัณฑ์ฝิ่น", "Chiang Saen, Thailand–Laos–Myanmar viewpoint, Mekong boat, Hall of Opium.", "清盛金三角三国交界观景、湄公河游船、鸦片博物馆。"), meals: "B / L", hotel: "Le Meridien Chiang Rai" },
+      { d: 5, title: z("วัดร่องเสือเต้น – บ้านดำ", "Blue Temple – Black House", "蓝庙 – 黑屋"), body: z("วัดร่องเสือเต้นและบ้านดำ บ่ายอิสระเชียงราย", "Wat Rong Suea Ten and Baan Dam, free afternoon in Chiang Rai.", "参观蓝庙与黑屋，下午清莱自由活动。"), meals: "B / L", hotel: "Le Meridien Chiang Rai" },
+      { d: 6, title: z("ส่งสนามบินเชียงใหม่", "Transfer to CNX", "送机清迈"), body: z("รถกลับเชียงใหม่ ส่งสนามบินตามเที่ยวบิน", "Return coach to Chiang Mai and airport drop-off.", "返回清迈并送机。"), meals: "B", hotel: "—" },
+    ],
+  },
+  {
+    id: "th02", code: "TR24-TH-IN-2288", agency: "bkkjet",
+    direction: "inbound",
+    market: z("จีน", "China", "中国"),
+    guideLang: z("จีน", "Chinese", "中文"),
+    country: z("ไทย", "Thailand", "泰国"),
+    city: z("เชียงใหม่ · เชียงราย", "Chiang Mai · Chiang Rai", "清迈 · 清莱"),
+    title: z("เชียงใหม่ เชียงราย ราคาเบา", "Chiang Mai & Chiang Rai value run", "清迈清莱特价团"),
+    days: 5, nights: 4, price: 12900, real: 18400,
+    cost: [
+      { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 12900 },
+      { label: z("ทิปไกด์และคนขับ", "Guide & driver tips", "导游司机小费"), amt: 1500 },
+      { label: z("ร้านชาและเครื่องหนัง (บังคับ)", "Tea & leather shops (compulsory)", "茶叶皮具店（强制）"), amt: 2800 },
+      { label: z("ประกันขั้นต่ำ", "Minimum insurance", "最低保险"), amt: 1200 },
+    ],
+    airline: "LAND", airlineName: z("แพ็กเกจที่ดิน · รวมร้านช้อป", "Land arrangement · shopping stops included", "落地安排 · 含购物店"),
+    airlineType: "land", direct: true,
+    flight: { out: "CNX pickup", back: "CNX drop-off" }, baggage: "—",
+    hotels: [{ name: z("โรงแรม 3 ดาว หรือเทียบเท่า", "3-star hotel or equivalent", "三星或同级酒店"), star: 3, nights: 4 }],
+    hotelStar: 3, meals: 8, attractions: 7, freeDays: 0, shopping: 4, tips: 1500, visa: 0,
+    optional: [{ name: z("ล่องแม่โขงสามเหลี่ยมทองคำ", "Golden Triangle Mekong boat", "金三角湄公河游船"), price: 1200 }],
+    group: 38, cancel: z("ยกเลิกไม่คืนเงิน", "Non-refundable", "不可退款"),
+    quality: {
+      score: 56, factors: [
+        { label: z("เวลานั่งรถต่อวัน", "Daily travel time", "每日车程"), score: 48 },
+        { label: z("ไกด์ภาษาจีน", "Chinese-speaking guide", "中文导游"), score: 80 },
+        { label: z("จำนวนจุดต่อวัน", "Stops per day", "每日景点"), score: 52 },
+        { label: z("ร้านช้อปซ้ำ", "Repeated shopping", "重复购物店"), score: 40 },
+        { label: z("เวลาอิสระ", "Free time", "自由活动"), score: 42 },
+        { label: z("เหมาะกับผู้สูงอายุ", "Elderly suitability", "适老程度"), score: 50 },
+      ],
+    },
+    truth: [
+      { level: "warn", text: z("โรงแรมระบุแค่ “3 ดาว หรือเทียบเท่า” ไม่มีชื่อจริง", "Hotels listed only as “3-star or equivalent” — no names.", "酒店仅写“三星或同级”，无真实店名。") },
+      { level: "warn", text: z("แวะร้านชา เครื่องหนัง เครื่องเงิน และสมุนไพร รวม 4 แห่ง", "Four compulsory shops: tea, leather, silver, herbs.", "强制进店4家：茶叶、皮具、银器、药材。") },
+      { level: "info", text: z("สามเหลี่ยมทองคำเป็นทัวร์เสริม เก็บที่รถ", "Golden Triangle is an optional extra sold on the coach.", "金三角为车上加购项目。") },
+    ],
+    tags: ["inbound", "budget"],
+    departures: [
+      { date: z("10–14 ต.ค. 2026", "10–14 Oct 2026", "2026年10月10–14日"), status: "open", seats: 22 },
+      { date: z("24–28 ต.ค. 2026", "24–28 Oct 2026", "2026年10月24–28日"), status: "open", seats: 30 },
+    ],
+    review: { score: 3.6, count: 19 },
+    itinerary: [
+      { d: 1, title: z("ถึงเชียงใหม่ – ร้านชา", "Arrive Chiang Mai – tea shop", "抵清迈 – 茶叶店"), body: z("รับสนามบิน เข้าร้านชา 90 นาที ก่อนขึ้นดอยสุเทพสั้น ๆ", "Airport pickup, 90 minutes at a tea shop, short Doi Suthep stop.", "接机后先入茶叶店90分钟，再短停双龙寺。"), meals: "D", hotel: z("โรงแรม 3 ดาว หรือเทียบเท่า", "3-star or equivalent", "三星或同级") },
+      { d: 2, title: z("ร้านเครื่องหนัง – เมืองเก่า", "Leather shop – old city", "皮具店 – 古城"), body: z("เช้าเข้าโรงงานหนัง บ่ายเดินตลาดนัด", "Morning leather factory, afternoon market walk.", "上午皮具工厂，下午逛市场。"), meals: "B / L", hotel: z("โรงแรม 3 ดาว หรือเทียบเท่า", "3-star or equivalent", "三星或同级") },
+      { d: 3, title: z("เชียงราย วัดร่องขุ่น – ร้านเงิน", "Chiang Rai White Temple – silver shop", "清莱白庙 – 银器店"), body: z("แวะร้านเงินก่อนเข้าวัดร่องขุ่น", "Silver shop before Wat Rong Khun.", "先入银器店再进白庙。"), meals: "B / L / D", hotel: z("โรงแรม 3 ดาว หรือเทียบเท่า", "3-star or equivalent", "三星或同级") },
+      { d: 4, title: z("ร้านสมุนไพร – วันอิสระจำกัด", "Herb shop – limited free time", "药材店 – 有限自由"), body: z("เช้าเข้าคลินิกสมุนไพร บ่ายมีเวลาอิสระ 90 นาที", "Morning herb clinic, 90 minutes free in the afternoon.", "上午药材店，下午仅90分钟自由活动。"), meals: "B / L", hotel: z("โรงแรม 3 ดาว หรือเทียบเท่า", "3-star or equivalent", "三星或同级") },
+      { d: 5, title: z("ส่งสนามบิน", "Airport drop-off", "送机"), body: z("ออกเช้า ส่งเชียงใหม่", "Early departure to CNX.", "早出发送清迈机场。"), meals: "B", hotel: "—" },
+    ],
+  },
+  {
+    id: "th03", code: "TR24-TH-IN-3310", agency: "nakara",
+    direction: "inbound",
+    market: z("จีน", "China", "中国"),
+    guideLang: z("จีน", "Chinese", "中文"),
+    country: z("ไทย", "Thailand", "泰国"),
+    city: z("เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Chiang Mai · Chiang Rai · Golden Triangle", "清迈 · 清莱 · 金三角"),
+    title: z("เชียงใหม่ วัดร่องขุ่น สามเหลี่ยมทองคำ กลุ่มจีน", "Chiang Mai, White Temple & Golden Triangle — Chinese group", "清迈白庙金三角华语团"),
+    days: 5, nights: 4, price: 17900, real: 20400,
+    cost: [
+      { label: z("ราคาแพ็กเกจที่ดิน", "Land package price", "落地团费"), amt: 17900 },
+      { label: z("ทิปไกด์และคนขับ", "Guide & driver tips", "导游司机小费"), amt: 1300 },
+      { label: z("ประกันเดินทาง", "Travel insurance", "旅行保险"), amt: 1200 },
+    ],
+    airline: "LAND", airlineName: z("แพ็กเกจที่ดิน · ไกด์ภาษาจีน", "Land arrangement · Chinese-speaking guide", "落地安排 · 中文导游"),
+    airlineType: "land", direct: true,
+    flight: { out: "CNX pickup", back: "CNX drop-off" }, baggage: "—",
+    hotels: [
+      { name: "Shangri-La Chiang Mai", star: 5, nights: 2 },
+      { name: "The Riverie by Katathani", star: 4, nights: 2 },
+    ],
+    hotelStar: 4, meals: 10, attractions: 10, freeDays: 0, shopping: 0, tips: 1300, visa: 0,
+    optional: [{ name: z("อาบน้ำแร่ฝาง", "Fang hot springs", "芳县温泉"), price: 800 }],
+    group: 20, cancel: z("ยกเลิกก่อน 21 วัน คืนเต็ม · 8–20 วัน คืน 40%", "Free before 21 days · 40% at 8–20 days", "提前21天全额退 · 8–20天退40%"),
+    quality: {
+      score: 84, factors: [
+        { label: z("เวลานั่งรถต่อวัน", "Daily travel time", "每日车程"), score: 80 },
+        { label: z("ไกด์ภาษาจีน", "Chinese-speaking guide", "中文导游"), score: 94 },
+        { label: z("จำนวนจุดต่อวัน", "Stops per day", "每日景点"), score: 82 },
+        { label: z("ร้านช้อปซ้ำ", "Repeated shopping", "重复购物店"), score: 100 },
+        { label: z("เวลาอิสระ", "Free time", "自由活动"), score: 70 },
+        { label: z("เหมาะกับผู้สูงอายุ", "Elderly suitability", "适老程度"), score: 82 },
+      ],
+    },
+    truth: [],
+    tags: ["inbound", "noshop", "family", "food"],
+    departures: [
+      { date: z("15–19 ต.ค. 2026", "15–19 Oct 2026", "2026年10月15–19日"), status: "confirmed", seats: 9 },
+      { date: z("05–09 พ.ย. 2026", "05–09 Nov 2026", "2026年11月5–9日"), status: "open", seats: 20 },
+    ],
+    review: { score: 4.7, count: 27 },
+    itinerary: [
+      { d: 1, title: z("ถึงเชียงใหม่ – ดอยสุเทพ", "Arrive Chiang Mai – Doi Suthep", "抵达清迈 – 双龙寺"), body: z("รับสนามบิน วัดพระธาตุดอยสุเทพ คืนนี้ตลาดกลางคืน", "CNX pickup, Doi Suthep, night bazaar.", "接机后上双龙寺，晚上夜市。"), meals: "D", hotel: "Shangri-La Chiang Mai" },
+      { d: 2, title: z("เชียงใหม่ – เชียงราย วัดร่องขุ่น", "To Chiang Rai – White Temple", "赴清莱 – 白庙"), body: z("ออกเช้า วัดร่องขุ่น ไม่ลงร้าน เข้าที่พักริมน้ำ", "Morning departure, Wat Rong Khun, riverside hotel, no shops.", "早出发，参观白庙，不住店购物，入住河景酒店。"), meals: "B / L / D", hotel: "The Riverie by Katathani" },
+      { d: 3, title: z("สามเหลี่ยมทองคำ", "Golden Triangle", "金三角"), body: z("เชียงแสน จุดสามประเทศ ล่องแม่โขง พิพิธภัณฑ์ฝิ่น", "Chiang Saen, three-country viewpoint, Mekong, Hall of Opium.", "清盛三国点、湄公河、鸦片博物馆。"), meals: "B / L", hotel: "The Riverie by Katathani" },
+      { d: 4, title: z("วัดร่องเสือเต้น – กลับเชียงใหม่", "Blue Temple – return Chiang Mai", "蓝庙 – 返回清迈"), body: z("เช้าวัดสีฟ้า รถกลับเชียงใหม่เย็น", "Blue Temple in the morning, return to Chiang Mai in the evening.", "上午蓝庙，傍晚返回清迈。"), meals: "B / L", hotel: "Shangri-La Chiang Mai" },
+      { d: 5, title: z("ส่งสนามบินเชียงใหม่", "CNX drop-off", "清迈送机"), body: z("เช้าอิสระสั้น ส่งสนามบิน", "Short free morning, then airport.", "上午短暂自由后送机。"), meals: "B", hotel: "—" },
+    ],
+  },
 ];
 
 export const destinations = [
-  { id: "jp", name: { th: "ญี่ปุ่น", en: "Japan" }, count: 128, from: 27900 },
-  { id: "kr", name: { th: "เกาหลี", en: "Korea" }, count: 74, from: 19900 },
-  { id: "cn", name: { th: "จีน", en: "China" }, count: 63, from: 16900 },
-  { id: "tw", name: { th: "ไต้หวัน", en: "Taiwan" }, count: 41, from: 18900 },
-  { id: "vn", name: { th: "เวียดนาม", en: "Vietnam" }, count: 38, from: 11900 },
-  { id: "eu", name: { th: "ยุโรป", en: "Europe" }, count: 26, from: 78900 },
+  { id: "jp", name: { th: "ญี่ปุ่น", en: "Japan", zh: "日本" }, count: 128, from: 27900 },
+  { id: "kr", name: { th: "เกาหลี", en: "Korea", zh: "韩国" }, count: 74, from: 19900 },
+  { id: "cn", name: { th: "จีน", en: "China", zh: "中国" }, count: 63, from: 16900 },
+  { id: "tw", name: { th: "ไต้หวัน", en: "Taiwan", zh: "台湾" }, count: 41, from: 18900 },
+  { id: "vn", name: { th: "เวียดนาม", en: "Vietnam", zh: "越南" }, count: 38, from: 11900 },
+  { id: "eu", name: { th: "ยุโรป", en: "Europe", zh: "欧洲" }, count: 26, from: 78900 },
+  { id: "th", name: { th: "ไทย", en: "Thailand", zh: "泰国" }, count: 86, from: 12900 },
+];
+
+export const inboundRegions = [
+  { id: "cnx", name: z("เชียงใหม่", "Chiang Mai", "清迈"), count: 42, from: 17900, q: "Chiang Mai" },
+  { id: "cei", name: z("เชียงราย", "Chiang Rai", "清莱"), count: 28, from: 17900, q: "Chiang Rai" },
+  { id: "gtr", name: z("สามเหลี่ยมทองคำ", "Golden Triangle", "金三角"), count: 16, from: 20400, q: "Golden Triangle" },
 ];
 
 export const reviews = [
   { name: { th: "ปิยะวรรณ ก.", en: "Piyawan K." }, trip: { th: "โอซาก้า เกียวโต · โอเรียนท์ลิงก์", en: "Osaka Kyoto · Orient Link" }, score: 5, text: { th: "รายการเดินทางตรงกับที่เขียนไว้ทุกวัน ไม่มีร้านช้อปแทรก ไกด์ดูแลคุณแม่ที่เดินช้าได้ดีมาก", en: "Every day matched the itinerary, no shopping inserted, and the guide looked after my mother who walks slowly." } },
   { name: { th: "ธนกฤต พ.", en: "Thanakrit P." }, trip: { th: "โตเกียว ฟูจิ · สยามฮอไรซอน", en: "Tokyo Fuji · Siam Horizon" }, score: 5, text: { th: "ตัดสินใจจากราคารวมจริง ต่างกับอีกเจ้าแค่ 1,700 บาท แต่ได้บินตรงกับโรงแรมมีชื่อ", en: "I chose on real total cost — ฿1,700 more than the other one, but a direct flight and named hotels." } },
   { name: { th: "อรุณี ส.", en: "Arunee S." }, trip: { th: "ฮอกไคโด · เวลาทราเวล", en: "Hokkaido · Vela Travel" }, score: 4, text: { th: "กระเช้าปิดเพราะลมแรง เอเจนซีจัดที่เที่ยวสำรองให้ทันที แจ้งล่วงหน้าดี", en: "The ropeway closed in high wind; the agency arranged a substitute the same morning and told us early." } },
+  { name: { th: "หลิน เหวิน", en: "Lin Wen", zh: "林雯" }, trip: z("เชียงใหม่ เชียงราย · สยามฮอไรซอน", "Chiang Mai Chiang Rai · Siam Horizon", "清迈清莱 · 暹罗地平线"), score: 5, text: z("ไกด์จีนชัดเจน ไม่แวะร้าน วัดร่องขุ่นและสามเหลี่ยมทองคำตรงปก", "Chinese guide was clear, no shop stops, White Temple and Golden Triangle matched the brochure.", "中文导游讲解清楚，全程不进店，白庙和金三角与行程一致。") },
+  { name: { th: "เฉิน เจีย", en: "Chen Jia", zh: "陈佳" }, trip: z("สามเหลี่ยมทองคำ · นาคารา", "Golden Triangle · Nakara", "金三角 · 纳卡拉"), score: 5, text: z("ล่องแม่โขงไม่เร่ง โรงแรมริมน้ำดี พ่อแม่เดินไหว", "Unhurried Mekong boat, good riverside hotel, parents could keep the pace.", "湄公河不赶时间，河景酒店舒适，父母跟得上。") },
 ];
 
 export interface QuizQ {
@@ -709,7 +875,10 @@ export const analytics = {
   ],
 };
 
-export const DATA = { agencies, packages, destinations, reviews, quiz, trips, agencyBookings, extraction, analytics };
+export const DATA = { agencies, packages, destinations, inboundRegions, reviews, quiz, trips, agencyBookings, extraction, analytics };
+
+export const isInbound = (p: Pkg) => p.direction === "inbound";
+export const inboundPackages = () => packages.filter(isInbound);
 
 export const pkgById = (id: string) => packages.find((p) => p.id === id);
 export const agencyById = (id: string) => agencies[id];
