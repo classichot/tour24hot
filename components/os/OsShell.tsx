@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
 import { useOs } from "@/lib/os/store";
@@ -30,6 +30,14 @@ const LINKS = [
 ] as const;
 
 const OS_LANGS = LANGS.filter((item) => item.id !== "ru");
+const SIDE_KEY = "t24osSideW";
+const SIDE_MIN = 160;
+const SIDE_MAX = 400;
+const SIDE_DEF = 200;
+
+function clampSide(n: number) {
+  return Math.min(SIDE_MAX, Math.max(SIDE_MIN, Math.round(n)));
+}
 
 function withPlaybook(href: string) {
   return href.includes("?") ? `${href}&playbook=1` : `${href}?playbook=1`;
@@ -42,7 +50,50 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
   const pageKey = menuKeyFromPath(path);
   const [open, setOpen] = useState(false);
   const [askOpen, setAskOpen] = useState(false);
+  const [sideW, setSideW] = useState(SIDE_DEF);
+  const [dragging, setDragging] = useState(false);
+  const dragRef = useRef<{ startX: number; startW: number } | null>(null);
   const desk = snap.products[0];
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(SIDE_KEY);
+      if (raw) setSideW(clampSide(Number(raw)));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const persistSide = useCallback((w: number) => {
+    try {
+      window.localStorage.setItem(SIDE_KEY, String(w));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    function onMove(e: PointerEvent) {
+      const d = dragRef.current;
+      if (!d) return;
+      setSideW(clampSide(d.startW + e.clientX - d.startX));
+    }
+    function onUp() {
+      if (!dragRef.current) return;
+      dragRef.current = null;
+      setDragging(false);
+      setSideW((w) => {
+        persistSide(w);
+        return w;
+      });
+    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [persistSide]);
 
   useEffect(() => {
     try {
@@ -57,8 +108,11 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className={`os-desk min-h-screen grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)] ${agi.on ? "agi-layer" : ""}`}>
-      <aside className="os-side lg:min-h-screen lg:sticky lg:top-0 flex flex-col">
+    <div
+      className={`os-desk min-h-screen grid grid-cols-1 lg:grid-cols-[var(--os-side)_minmax(0,1fr)] ${agi.on ? "agi-layer" : ""} ${dragging ? "select-none" : ""}`}
+      style={{ ["--os-side" as string]: `${sideW}px` }}
+    >
+      <aside className="os-side relative lg:min-h-screen lg:sticky lg:top-0 flex flex-col overflow-hidden">
         <div className="px-4 py-5 border-b border-white/15">
           <Link href="/os" className="no-underline font-[family-name:var(--font-heading)] font-extrabold text-[26px] leading-none tracking-[-0.02em] text-[#f3f2f2]">
             TOUR<span className="text-[#ffc61a]">24</span>
@@ -106,11 +160,26 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
             <Link href="/os-product">{o.product}</Link>
           </div>
         </div>
+        <button
+          type="button"
+          className={`os-side-handle ${dragging ? "is-drag" : ""}`}
+          aria-label="Resize menu"
+          aria-orientation="vertical"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            dragRef.current = { startX: e.clientX, startW: sideW };
+            setDragging(true);
+          }}
+          onDoubleClick={() => {
+            setSideW(SIDE_DEF);
+            persistSide(SIDE_DEF);
+          }}
+        />
       </aside>
 
       <div className="min-w-0 flex flex-col bg-white">
         <div className="sticky top-0 z-40 bg-white">
-          <header className="os-topbar px-5 py-1.5 flex flex-wrap items-center justify-end gap-1">
+          <header className="os-topbar pl-10 lg:pl-14 pr-8 lg:pr-12 py-2 flex flex-wrap items-center justify-end gap-1">
             {OS_LANGS.map((item) => (
               <button
                 key={item.id}
@@ -130,21 +199,21 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
             <AgiToggle />
           </header>
           {agi.on && (
-            <div className="px-5 py-1.5 bg-[#141312] text-[#f3f2f2] text-[11px] font-extrabold tracking-[0.06em] uppercase">
+            <div className="pl-10 lg:pl-14 pr-8 lg:pr-12 py-1.5 bg-[#141312] text-[#f3f2f2] text-[11px] font-extrabold tracking-[0.06em] uppercase">
               {a.agiOn} — {a.promise}
             </div>
           )}
         </div>
 
         {drafts.length > 0 && !agi.on && (
-          <div className="px-5 pt-4 flex flex-col gap-2">
+          <div className="pl-10 lg:pl-14 pr-8 lg:pr-12 pt-5 flex flex-col gap-2">
             {drafts.map((d) => (
               <AiCard key={d.id} draft={d} />
             ))}
           </div>
         )}
 
-        <div className="px-5 py-6 pb-24 max-w-[1180px]">{children}</div>
+        <div className="pl-10 lg:pl-14 pr-8 lg:pr-12 py-8 pb-24 w-full">{children}</div>
         <AskDock open={askOpen} onOpen={() => setAskOpen(true)} onClose={() => setAskOpen(false)} />
         <PlaybookPanel menuKey={pageKey} open={open} onClose={() => setOpen(false)} />
       </div>

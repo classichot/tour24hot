@@ -41,9 +41,9 @@ export function LocText({ v }: { v: L10n | string }) {
 
 export function Stat({ n, l }: { n: string; l: string }) {
   return (
-    <div className="py-4 pr-8 min-w-[140px]">
+    <div className="py-3 pr-10 min-w-[120px]">
       <div className="os-kpi">{n}</div>
-      <div className="text-[11px] text-neutral-600 mt-2 uppercase tracking-[0.06em]">{l}</div>
+      <div className="text-[11px] text-neutral-600 mt-1.5 uppercase tracking-[0.06em]">{l}</div>
     </div>
   );
 }

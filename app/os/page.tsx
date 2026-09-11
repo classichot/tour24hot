@@ -26,7 +26,7 @@ export default function OsHomePage() {
 
       <DemoBar />
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2 border-t border-b border-divider">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-x-6 gap-y-3 border-t border-b border-divider">
         <Stat n={String(t.pax)} l={o.pax} />
         <Stat n={money(t.sell)} l="Sell" />
         <Stat n={money(t.cost)} l="Cost" />
