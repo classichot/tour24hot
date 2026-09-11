@@ -34,10 +34,19 @@ function speechLang(lang: Lang) {
   return "en-US";
 }
 
-export default function AskDock() {
+export default function AskDock({
+  open,
+  onOpen,
+  onClose,
+}: {
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}) {
   const { lang } = useApp();
   const { o, a, ask, setAsk, runAsk, assignObjective, ingestFile, ingestVoice, agi } = useOs();
   const fileRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const recRef = useRef<InstanceType<SpeechCtor> | null>(null);
   const wantListen = useRef(false);
   const spoken = useRef("");
@@ -45,6 +54,7 @@ export default function AskDock() {
   const [voiceErr, setVoiceErr] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const latest = agi.ingests[0];
+  const shown = open || listening;
 
   function finishTranscript() {
     const text = spoken.current.trim();
@@ -64,6 +74,7 @@ export default function AskDock() {
     const Ctor = speechCtor();
     if (!Ctor) {
       setVoiceErr(o.voiceUnsupported);
+      onOpen();
       return;
     }
     setVoiceErr("");
@@ -102,6 +113,7 @@ export default function AskDock() {
     recRef.current = rec;
     wantListen.current = true;
     setListening(true);
+    onOpen();
     try {
       rec.start();
     } catch {
@@ -114,7 +126,6 @@ export default function AskDock() {
   useEffect(() => {
     if (!wantListen.current) return;
     startVoice();
-    // Restart recognition when OS language changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang]);
 
@@ -129,13 +140,37 @@ export default function AskDock() {
 
   useEffect(() => () => stopVoice(), []);
 
+  useEffect(() => {
+    if (shown) inputRef.current?.focus();
+  }, [shown]);
+
   function takeFile(file?: File | null) {
     if (file) void ingestFile(file);
   }
 
+  function submit() {
+    if (agi.on) assignObjective(ask);
+    else runAsk();
+  }
+
+  if (!shown) {
+    return (
+      <button
+        type="button"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-2 border border-text bg-white px-3 py-2 shadow-none"
+        onClick={onOpen}
+        aria-label={o.askAi}
+      >
+        <span className="h-2 w-2 bg-[#f2b01e]" aria-hidden />
+        <Sparkle width={14} height={14} />
+        <span className="text-[12px] font-extrabold">{o.askAi}</span>
+      </button>
+    );
+  }
+
   return (
     <div
-      className={`border-b-2 border-text px-4 py-3.5 ${listening ? "bg-[#f2b01e]" : agi.on ? "bg-accent" : "bg-accent-200"}`}
+      className={`fixed bottom-5 right-5 z-50 w-[min(380px,calc(100vw-24px))] border border-text bg-white ${listening ? "outline outline-1 outline-[#f2b01e]" : ""} ${dragOver ? "outline outline-1 outline-text" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         setDragOver(true);
@@ -148,54 +183,50 @@ export default function AskDock() {
       }}
     >
       <form
-        className={`flex flex-col gap-2 ${dragOver ? "outline outline-2 outline-text" : ""}`}
+        className="flex flex-col"
         onSubmit={(e) => {
           e.preventDefault();
-          if (agi.on) assignObjective(ask);
-          else runAsk();
+          submit();
         }}
       >
-        <div className="flex items-center gap-2">
-          <Sparkle width={18} height={18} />
-          <div className="microlabel text-accent-900">{agi.on ? a.askAgi : o.askAi}</div>
-        </div>
-        <textarea
-          className="input min-h-[88px] bg-bg text-[15px] rounded-none"
-          value={ask}
-          placeholder={agi.on ? a.askAgiPh : o.askPh}
-          onChange={(e) => setAsk(e.target.value)}
-        />
-        <p className="text-[12px] text-accent-900">{agi.on ? a.askAgiIngestHint : o.askIngestHint}</p>
-        <p className="text-[12px] text-accent-900">{o.askVoiceHint}</p>
-        {listening && (
-          <div className="flex flex-wrap items-center justify-between gap-2 border-2 border-text bg-[#f2b01e] px-3 py-2">
-            <span className="font-extrabold text-[13px]">{o.listening}</span>
-            <button type="button" className="btn btn-secondary bg-bg rounded-none" onClick={stopVoice}>
-              {o.voiceStop}
-            </button>
+        <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-divider">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="h-2 w-2 shrink-0 bg-[#f2b01e]" aria-hidden />
+            <Sparkle width={14} height={14} />
+            <span className="text-[12px] font-extrabold truncate">{agi.on ? a.askAgi : o.askAi}</span>
           </div>
-        )}
-        {voiceErr && <p className="text-[12px] font-extrabold">{voiceErr}</p>}
-        <div className="flex flex-wrap gap-2">
-          <button type="submit" className="btn btn-primary rounded-none">
+          <button type="button" className="os-topbtn text-neutral-700" onClick={onClose} aria-label={o.hidePlaybook}>
+            −
+          </button>
+        </div>
+        <div className="flex items-center gap-1 px-2 py-2">
+          <input
+            ref={inputRef}
+            className="input min-h-[36px] border-0 bg-transparent text-[13px]"
+            value={ask}
+            placeholder={agi.on ? a.askAgiPh : o.askPh}
+            onChange={(e) => setAsk(e.target.value)}
+          />
+          <button type="submit" className="btn btn-primary text-[11px] px-2.5 py-1.5 shrink-0">
             {agi.on ? a.assign : o.ask}
           </button>
-          <button type="button" className="btn btn-secondary bg-bg rounded-none" onClick={() => fileRef.current?.click()}>
+        </div>
+        <div className="flex items-center gap-0 px-2 pb-2">
+          <button type="button" className="os-topbtn" onClick={() => fileRef.current?.click()} title={o.attach}>
             <Paperclip />
-            {o.attach}
           </button>
           <button
             type="button"
-            className={`btn rounded-none ${listening ? "border-2 border-text bg-[#f2b01e] text-text" : "btn-secondary bg-bg"}`}
+            className={`os-topbtn ${listening ? "is-on" : ""}`}
             onClick={() => (listening ? stopVoice() : startVoice())}
+            title={listening ? o.listening : o.voice}
           >
             <Mic />
-            {listening ? o.listening : o.voice}
           </button>
           {agi.on && (
             <button
               type="button"
-              className="btn btn-secondary bg-bg rounded-none"
+              className="os-topbtn text-[11px]"
               onClick={() => {
                 setAsk(FLAGSHIP_BRIEF);
                 assignObjective(FLAGSHIP_BRIEF);
@@ -215,31 +246,19 @@ export default function AskDock() {
             }}
           />
         </div>
+        {listening && <p className="px-3 pb-2 text-[11px] font-extrabold">{o.listening}</p>}
+        {voiceErr && <p className="px-3 pb-2 text-[11px] font-extrabold">{voiceErr}</p>}
         {latest && (
-          <div className="border-2 border-text bg-bg p-3">
+          <div className="px-3 pb-3 border-t border-divider pt-2">
             <div className="flex flex-wrap gap-2 items-center">
               <Pill tone="warn">{latest.kind}</Pill>
-              <span className="font-extrabold text-[13px]">
+              <span className="font-extrabold text-[11px] truncate">
                 {o.attached}: {latest.name}
               </span>
             </div>
-            <p className="text-[12px] mt-1">
+            <p className="text-[11px] mt-1 text-neutral-700">
               <LocText v={latest.note} />
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
-              {(["confirmed", "estimate", "missing"] as const).map((k) => (
-                <div key={k}>
-                  <div className="microlabel mb-1">{k === "confirmed" ? a.confirmed : k === "estimate" ? a.estimate : a.missing}</div>
-                  {latest.facts
-                    .filter((f) => f.klass === k)
-                    .map((f) => (
-                      <p key={f.id} className="text-[12px]">
-                        <LocText v={f.label} /> — <LocText v={f.value} />
-                      </p>
-                    ))}
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </form>

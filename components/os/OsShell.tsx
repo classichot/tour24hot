@@ -12,6 +12,7 @@ import type { AiDraft } from "@/lib/os/types";
 import PlaybookPanel from "./Playbook";
 import AgiToggle from "./AgiToggle";
 import AskDock from "./AskDock";
+import { LocText } from "./ui";
 
 const LINKS = [
   ["agi", "/os/agi"],
@@ -28,7 +29,7 @@ const LINKS = [
   ["scope", "/os/scope"],
 ] as const;
 
-const PLAYBOOK_KEY = "t24osPlaybook";
+const OS_LANGS = LANGS.filter((item) => item.id !== "ru");
 
 function withPlaybook(href: string) {
   return href.includes("?") ? `${href}&playbook=1` : `${href}?playbook=1`;
@@ -40,142 +41,112 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
   const { o, a, drafts, runDemo, reset, snap, agi } = useOs();
   const pageKey = menuKeyFromPath(path);
   const [open, setOpen] = useState(false);
+  const [askOpen, setAskOpen] = useState(false);
+  const desk = snap.products[0];
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem(PLAYBOOK_KEY);
-      const fromUrl = new URLSearchParams(window.location.search).get("playbook") === "1";
-      setOpen(fromUrl || saved === "1");
+      setOpen(new URLSearchParams(window.location.search).get("playbook") === "1");
     } catch {
       setOpen(false);
     }
   }, [path]);
 
   function togglePlaybook() {
-    setOpen((prev) => {
-      const next = !prev;
-      try {
-        window.localStorage.setItem(PLAYBOOK_KEY, next ? "1" : "0");
-      } catch {
-        /* ignore */
-      }
-      return next;
-    });
-  }
-
-  function rememberOpen() {
-    try {
-      window.localStorage.setItem(PLAYBOOK_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    setOpen(true);
+    setOpen((prev) => !prev);
   }
 
   return (
-    <div className={`min-h-screen bg-bg text-text grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] ${agi.on ? "agi-layer" : ""}`}>
-      <aside className={`border-b-2 lg:border-b-0 lg:border-r-2 border-divider lg:min-h-screen lg:sticky lg:top-0 ${agi.on ? "bg-accent-100" : "bg-bg"}`}>
-        <div className="px-4 py-4 border-b-2 border-divider">
-          <Link href="/os" className="no-underline text-text font-[family-name:var(--font-heading)] font-extrabold text-[28px] leading-none">
+    <div className={`os-desk min-h-screen grid grid-cols-1 lg:grid-cols-[200px_minmax(0,1fr)] ${agi.on ? "agi-layer" : ""}`}>
+      <aside className="os-side lg:min-h-screen lg:sticky lg:top-0 flex flex-col">
+        <div className="px-4 py-5 border-b border-white/15">
+          <Link href="/os" className="no-underline font-[family-name:var(--font-heading)] font-extrabold text-[26px] leading-none tracking-[-0.02em] text-[#f3f2f2]">
             TOUR<span className="text-[#ffc61a]">24</span>
           </Link>
-          <div className="kicker mt-2">{agi.on ? a.agiLayer : o.os}</div>
-          <div className="mt-3">
-            <AgiToggle />
+          <div className="mt-3 text-[12px] font-extrabold leading-snug text-[#f3f2f2]">
+            {desk ? <LocText v={desk.title} /> : o.os}
           </div>
+          <div className="mt-1.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#ffc61a]">{o.osSystem}</div>
         </div>
-        <nav className="flex lg:flex-col gap-0 overflow-auto">
+        <nav className="flex lg:flex-col gap-0 overflow-auto flex-1 py-2">
           {LINKS.map(([key, href]) => {
             const active = href === "/os" ? path === "/os" : href === "/os/agi" ? path.startsWith("/os/agi") : path.startsWith(href.split("?")[0]);
             return (
-              <div
-                key={key}
-                className={`flex items-stretch ${active ? "bg-text text-bg" : "text-text"}`}
-              >
-                <Link
-                  href={href}
-                  className="flex-1 px-4 py-2.5 no-underline text-[13px] font-extrabold whitespace-nowrap text-inherit"
-                >
+              <div key={key} className={`os-nav-item flex items-stretch ${active ? "is-active" : ""}`}>
+                <Link href={href} className="flex-1 px-4 py-2.5 no-underline text-[13px] font-bold whitespace-nowrap">
                   {o[key]}
                 </Link>
                 <Link
                   href={withPlaybook(href)}
-                  className={`px-2 py-2.5 no-underline text-[10px] font-extrabold uppercase tracking-[0.06em] whitespace-nowrap ${
-                    active ? "bg-accent text-text" : "text-neutral-700"
-                  }`}
-                  onClick={rememberOpen}
-                >
-                  {o.playbook}
-                </Link>
+                  className={`w-2 shrink-0 ${active ? "bg-[#f2b01e]" : "bg-transparent"}`}
+                  onClick={(e) => {
+                    if (active) {
+                      e.preventDefault();
+                      setOpen(true);
+                    }
+                  }}
+                  aria-label={o.playbook}
+                />
               </div>
             );
           })}
         </nav>
-        <div className="px-4 py-3 flex flex-col gap-2 border-t-2 border-divider">
-          <button type="button" className="btn btn-primary w-full" onClick={runDemo}>
+        <div className="px-4 py-4 mt-auto border-t border-white/15 flex flex-col gap-2">
+          <button type="button" className="btn btn-primary w-full text-[12px]" onClick={runDemo}>
             {o.run}
           </button>
-          <button type="button" className="btn btn-secondary w-full" onClick={reset}>
+          <button type="button" className="os-topbtn w-full justify-center text-[#f3f2f2] border border-white/20" onClick={reset}>
             {o.reset}
           </button>
-          <div className="text-[11px] text-neutral-700">Demo · {snap.demoStage}</div>
-        </div>
-        <div className="px-4 pb-4 flex flex-col gap-1.5 text-[12px]">
-          <Link href="/" className="no-underline">
-            {o.website}
-          </Link>
-          <Link href="/search?dir=outbound" className="no-underline">
-            {o.marketplace}
-          </Link>
-          <Link href="/agents" className="no-underline">
-            {o.agents}
-          </Link>
-          <Link href="/os-product" className="no-underline">
-            {o.product}
-          </Link>
+          <div className="text-[10px] uppercase tracking-[0.08em] text-white/50">Demo · {snap.demoStage}</div>
+          <div className="flex flex-col gap-1 text-[11px] text-white/70">
+            <Link href="/">{o.website}</Link>
+            <Link href="/search?dir=outbound">{o.marketplace}</Link>
+            <Link href="/agents">{o.agents}</Link>
+            <Link href="/os-product">{o.product}</Link>
+          </div>
         </div>
       </aside>
 
-      <div className="min-w-0 flex flex-col">
-        <div className="sticky top-0 z-40">
-          <header className={`border-b-2 border-divider px-4 py-1.5 flex flex-wrap items-center justify-end gap-2 ${agi.on ? "bg-accent-100" : "bg-bg"}`}>
-            <AgiToggle />
-            <button type="button" className="btn btn-secondary" onClick={togglePlaybook}>
-              {open ? o.hidePlaybook : o.playbook}
+      <div className="min-w-0 flex flex-col bg-white">
+        <div className="sticky top-0 z-40 bg-white">
+          <header className="os-topbar px-5 py-1.5 flex flex-wrap items-center justify-end gap-1">
+            {OS_LANGS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setLang(item.id)}
+                className={`os-topbtn ${lang === item.id ? "is-on" : ""}`}
+              >
+                {item.short}
+              </button>
+            ))}
+            <button type="button" className={`os-topbtn ${askOpen ? "is-on" : ""}`} onClick={() => setAskOpen((v) => !v)}>
+              {o.askAi}
             </button>
-            <div className="inline-flex border border-divider">
-              {LANGS.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setLang(item.id)}
-                  className={`px-2 py-1.5 text-xs font-extrabold border-0 ${lang === item.id ? "bg-accent" : "bg-transparent"}`}
-                >
-                  {item.short}
-                </button>
-              ))}
-            </div>
+            <button type="button" className={`os-topbtn ${open ? "is-on" : ""}`} onClick={togglePlaybook}>
+              {o.playbook}
+            </button>
+            <AgiToggle />
           </header>
           {agi.on && (
-            <div className="px-4 py-1.5 bg-text text-bg text-[11px] font-extrabold tracking-[0.04em] uppercase">
+            <div className="px-5 py-1.5 bg-[#141312] text-[#f3f2f2] text-[11px] font-extrabold tracking-[0.06em] uppercase">
               {a.agiOn} — {a.promise}
             </div>
           )}
-          <AskDock />
         </div>
 
         {drafts.length > 0 && !agi.on && (
-          <div className="px-4 pt-3 flex flex-col gap-2">
+          <div className="px-5 pt-4 flex flex-col gap-2">
             {drafts.map((d) => (
               <AiCard key={d.id} draft={d} />
             ))}
           </div>
         )}
 
-        <div className="px-4 py-5 pb-16">
-          <PlaybookPanel menuKey={pageKey} open={open} onToggle={togglePlaybook} />
-          {children}
-        </div>
+        <div className="px-5 py-6 pb-24 max-w-[1180px]">{children}</div>
+        <AskDock open={askOpen} onOpen={() => setAskOpen(true)} onClose={() => setAskOpen(false)} />
+        <PlaybookPanel menuKey={pageKey} open={open} onClose={() => setOpen(false)} />
       </div>
     </div>
   );
@@ -186,12 +157,12 @@ function AiCard({ draft }: { draft: AiDraft }) {
   const { o, applyDraft } = useOs();
   const [text, setText] = useState(draft.editable);
   return (
-    <div className="border-2 border-text bg-accent-100 p-3 flex flex-col gap-2">
+    <div className="border border-text bg-accent-100 p-3 flex flex-col gap-2">
       <div className="font-extrabold text-[14px]">
         {draft.feature} — {L(draft.title)}
       </div>
       <p className="text-[13px]">{L(draft.body)}</p>
-      <textarea className="input min-h-[64px]" value={text} onChange={(e) => setText(e.target.value)} />
+      <textarea className="input min-h-[64px] bg-white" value={text} onChange={(e) => setText(e.target.value)} />
       <div>
         <button type="button" className="btn btn-primary" onClick={() => applyDraft(draft.id, text)} disabled={draft.applied}>
           {draft.applied ? "✓" : o.apply}

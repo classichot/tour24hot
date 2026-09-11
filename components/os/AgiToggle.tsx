@@ -13,19 +13,11 @@ export default function AgiToggle() {
   }
 
   return (
-    <div className="inline-flex border-2 border-text" role="group" aria-label={a.agi}>
-      <button
-        type="button"
-        className={`px-2.5 py-1.5 text-[11px] font-extrabold border-0 ${!agi.on ? "bg-surface text-text" : "bg-transparent text-neutral-700"}`}
-        onClick={() => turn(false)}
-      >
+    <div className="inline-flex items-center" role="group" aria-label={a.agi}>
+      <button type="button" className={`os-topbtn ${!agi.on ? "is-on" : ""}`} onClick={() => turn(false)}>
         {a.normalAi}
       </button>
-      <button
-        type="button"
-        className={`t24-agi-on px-2.5 py-1.5 text-[11px] font-extrabold border-0 ${agi.on ? "bg-accent text-text" : "bg-transparent text-neutral-700"}`}
-        onClick={() => turn(true)}
-      >
+      <button type="button" className={`t24-agi-on os-topbtn ${agi.on ? "is-on" : ""}`} onClick={() => turn(true)}>
         {a.agi}
       </button>
     </div>

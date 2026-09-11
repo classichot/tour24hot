@@ -588,6 +588,21 @@ export const MENU_KEYS: MenuKey[] = [
   "agi",
 ];
 
+export const PLAYBOOK_CODE: Record<MenuKey, string> = {
+  home: "PB-01",
+  sales: "PB-02",
+  builder: "PB-03",
+  departure: "PB-04",
+  flights: "PB-05",
+  suppliers: "PB-06",
+  live: "PB-07",
+  finance: "PB-08",
+  analytics: "PB-09",
+  portals: "PB-10",
+  scope: "PB-11",
+  agi: "PB-12",
+};
+
 export function menuKeyFromPath(path: string): MenuKey {
   if (path.startsWith("/os/agi")) return "agi";
   if (path.startsWith("/os/sales")) return "sales";

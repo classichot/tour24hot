@@ -41,9 +41,9 @@ export function LocText({ v }: { v: L10n | string }) {
 
 export function Stat({ n, l }: { n: string; l: string }) {
   return (
-    <div className="p-3.5 border-r-2 border-divider last:border-r-0 min-w-[140px]">
-      <div className="font-[family-name:var(--font-heading)] font-extrabold text-[24px] leading-none">{n}</div>
-      <div className="text-[11px] text-neutral-700 mt-1">{l}</div>
+    <div className="py-4 pr-8 min-w-[140px]">
+      <div className="os-kpi">{n}</div>
+      <div className="text-[11px] text-neutral-600 mt-2 uppercase tracking-[0.06em]">{l}</div>
     </div>
   );
 }
@@ -62,9 +62,9 @@ export function ImpactCard({
   const { lang } = useApp();
   const h = lang === "th" ? ["เกิดอะไร", "ทำไมสำคัญ", "ผลทางการเงิน", "ขั้นถัดไป"] : ["What happened", "Why it matters", "Financial effect", "Next action"];
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 border-2 border-divider">
+    <div className="grid grid-cols-1 md:grid-cols-4 border border-divider">
       {[title, why, finance, next].map((cell, i) => (
-        <div key={h[i]} className="p-3.5 border-t-2 md:border-t-0 md:border-l-2 border-divider first:border-l-0 first:border-t-0">
+        <div key={h[i]} className="p-4 border-t md:border-t-0 md:border-l border-divider first:border-l-0 first:border-t-0">
           <div className="microlabel mb-1">{h[i]}</div>
           <div className="text-[13px] leading-[1.4]">{cell}</div>
         </div>
@@ -75,12 +75,12 @@ export function ImpactCard({
 
 export function Table({ heads, rows }: { heads: string[]; rows: React.ReactNode[][] }) {
   return (
-    <div className="overflow-auto border-2 border-divider">
+    <div className="overflow-auto border border-divider">
       <table className="w-full text-[13px] border-collapse">
         <thead>
-          <tr className="bg-surface">
+          <tr>
             {heads.map((h) => (
-              <th key={h} className="text-left font-extrabold px-2.5 py-2 border-b-2 border-divider whitespace-nowrap">
+              <th key={h} className="text-left font-extrabold px-0 py-2 pr-4 border-b border-divider whitespace-nowrap">
                 {h}
               </th>
             ))}

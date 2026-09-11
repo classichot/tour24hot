@@ -2,6 +2,7 @@ import type { Lang } from "../i18n";
 
 const en = {
   os: "Operator OS",
+  osSystem: "AI tour operating system",
   product: "TOUR24 OS",
   home: "Operations",
   sales: "Sales",
@@ -89,6 +90,7 @@ const en = {
 const th: typeof en = {
   ...en,
   os: "ระบบปฏิบัติการทัวร์",
+  osSystem: "ระบบปฏิบัติการทัวร์ด้วย AI",
   product: "TOUR24 OS",
   home: "ปฏิบัติการ",
   sales: "ขาย",
@@ -176,6 +178,7 @@ const th: typeof en = {
 const zh: typeof en = {
   ...en,
   os: "运营商系统",
+  osSystem: "AI 旅游操作系统",
   home: "运营",
   sales: "销售",
   builder: "线路搭建",
@@ -218,6 +221,7 @@ const zh: typeof en = {
 const ru: typeof en = {
   ...en,
   os: "ОС туроператора",
+  osSystem: "ИИ-система туроператора",
   home: "Операции",
   sales: "Продажи",
   builder: "Конструктор",
