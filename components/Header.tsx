@@ -77,7 +77,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-[60] bg-bg border-b-2 border-divider">
-      <div className="max-w-[1400px] mx-auto px-[22px] py-2.5 flex items-start gap-3">
+      <div className="max-w-[1400px] mx-auto px-[22px] py-2.5 flex items-start gap-4">
         <div className="flex shrink-0 flex-col gap-1">
           <Link
             href={inboundMode ? "/inbound" : "/"}
@@ -86,16 +86,8 @@ export default function Header() {
             TOUR<span className="text-[#ffc61a]">24</span>
           </Link>
           <span className="text-[11px] leading-tight max-w-[220px] text-neutral-700">{t.tagline}</span>
-          <nav className="flex items-center gap-2 flex-wrap mt-0.5">
-            <Link href="/os" className="btn btn-secondary no-underline">
-              {t.navOs}
-            </Link>
-            <Link href="/admin" className="btn btn-ghost no-underline text-[12px]">
-              {t.navAdmin}
-            </Link>
-          </nav>
         </div>
-        <nav className="flex gap-2 flex-nowrap items-center min-w-0 flex-1 pt-2">
+        <nav className="flex gap-2 flex-nowrap items-center min-w-0 flex-1 pt-2" aria-label="Marketplace">
           <div className="inline-flex shrink-0 border border-divider" role="group" aria-label={t.fDirection}>
             <button type="button" onClick={() => switchMode(false)} className={segBtnCls(!inboundMode)}>
               {t.navModeOut}
@@ -109,14 +101,22 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          <div className="inline-flex shrink-0 border border-divider ml-1" role="group" aria-label="Language">
+            {MARKET_LANGS.map((item) => (
+              <button key={item.id} type="button" onClick={() => setLang(item.id)} className={segBtnCls(lang === item.id)}>
+                {item.short}
+              </button>
+            ))}
+          </div>
         </nav>
-        <div className="inline-flex shrink-0 border border-divider">
-          {MARKET_LANGS.map((item) => (
-            <button key={item.id} type="button" onClick={() => setLang(item.id)} className={segBtnCls(lang === item.id)}>
-              {item.short}
-            </button>
-          ))}
-        </div>
+        <nav className="flex shrink-0 items-center gap-1.5 pt-1.5 pl-3 border-l-2 border-divider" aria-label="Operator">
+          <Link href="/os" className="btn btn-secondary no-underline text-[12px] px-2.5 py-1">
+            {t.navOs}
+          </Link>
+          <Link href="/admin" className="btn btn-ghost no-underline text-[12px] px-2.5 py-1">
+            {t.navAdmin}
+          </Link>
+        </nav>
       </div>
     </header>
   );
