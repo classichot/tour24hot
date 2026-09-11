@@ -39,15 +39,23 @@ export default function OsHomePage() {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <h2 className="mb-2 text-[20px]">{o.today}</h2>
-          <Link href={`/os/departures/${dep.id}`} className="block border-2 border-divider p-3.5 no-underline text-text hover:border-text">
-            <div className="flex justify-between gap-2">
-              <LocText v={prod.title} />
-              <Pill tone="ok">{dep.status}</Pill>
-            </div>
-            <div className="text-[13px] text-neutral-700 mt-1">
-              {dep.dateStart} → {dep.dateEnd} · {t.pax}/{dep.capacity} · ICT / JST
-            </div>
-          </Link>
+          <div className="flex flex-col gap-2">
+            {snap.departures.map((d) => {
+              const p = snap.products.find((x) => x.id === d.productId) || prod;
+              const tt = totals(snap, d.id);
+              return (
+                <Link key={d.id} href={`/os/departures/${d.id}`} className="block border-2 border-divider p-3.5 no-underline text-text hover:border-text">
+                  <div className="flex justify-between gap-2">
+                    <LocText v={p.title} />
+                    <Pill tone={d.status === "quoting" ? "warn" : "ok"}>{d.status}</Pill>
+                  </div>
+                  <div className="text-[13px] text-neutral-700 mt-1">
+                    {d.dateStart} → {d.dateEnd} · {tt.pax}/{d.capacity}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
         <div>
           <h2 className="mb-2 text-[20px]">{o.urgent}</h2>

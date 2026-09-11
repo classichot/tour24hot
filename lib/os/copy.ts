@@ -14,7 +14,9 @@ const en = {
   analytics: "Analytics",
   portals: "Portals",
   scope: "Scope map",
-  ask: "Ask the OS",
+  ask: "Ask AI",
+  askAi: "Ask AI",
+  askHint: "Type a task. AI drafts; you apply it to records.",
   askPh: "Add 5 passengers, delay TG660, check passports, show margin…",
   run: "Run acceptance demo",
   reset: "Reset demo",
@@ -73,6 +75,7 @@ const en = {
   playbookAi: "Ask the OS",
   playbookSteps: "How to work this screen",
   playbookThis: "This menu",
+  agi: "AGI Mode",
 };
 
 const th: typeof en = {
@@ -90,7 +93,9 @@ const th: typeof en = {
   analytics: "วิเคราะห์",
   portals: "พอร์ทัล",
   scope: "แผนขอบเขต",
-  ask: "ถามระบบ",
+  ask: "ถาม AI",
+  askAi: "ถาม AI",
+  askHint: "พิมพ์งานทีละอย่าง AI ร่างให้ คุณใส่ลงเรคคอร์ดเอง",
   askPh: "เพิ่ม 5 คน, ดีเลย์ TG660, เช็กพาสปอร์ต, ดูมาร์จิ้น…",
   run: "รันเดโมรับงาน",
   reset: "รีเซ็ตเดโม",
@@ -149,6 +154,7 @@ const th: typeof en = {
   playbookAi: "ถามระบบ",
   playbookSteps: "วิธีทำงานในหน้านี้",
   playbookThis: "เมนูนี้",
+  agi: "โหมด AGI",
 };
 
 const zh: typeof en = {
@@ -165,7 +171,9 @@ const zh: typeof en = {
   analytics: "分析",
   portals: "门户",
   scope: "范围对照",
-  ask: "问系统",
+  ask: "问 AI",
+  askAi: "问 AI",
+  askHint: "输入一项任务。AI 起草，由你写入记录。",
   run: "运行验收演示",
   reset: "重置演示",
   approve: "批准",
@@ -180,6 +188,7 @@ const zh: typeof en = {
   playbookAi: "问系统",
   playbookSteps: "本屏作业步骤",
   playbookThis: "本菜单",
+  agi: "AGI 模式",
 };
 
 const ru: typeof en = {
@@ -196,7 +205,9 @@ const ru: typeof en = {
   analytics: "Аналитика",
   portals: "Порталы",
   scope: "Карта объёма",
-  ask: "Спросить ОС",
+  ask: "Спросить ИИ",
+  askAi: "Спросить ИИ",
+  askHint: "Одна задача. ИИ готовит черновик, вы пишете в записи.",
   run: "Приёмочное демо",
   reset: "Сброс демо",
   approve: "Утвердить",
@@ -211,6 +222,7 @@ const ru: typeof en = {
   playbookAi: "Спросить ОС",
   playbookSteps: "Как работать на этом экране",
   playbookThis: "Это меню",
+  agi: "Режим AGI",
 };
 
 export const OS = { en, th, zh, ru };

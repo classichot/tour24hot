@@ -11,7 +11,8 @@ export type MenuKey =
   | "finance"
   | "analytics"
   | "portals"
-  | "scope";
+  | "scope"
+  | "agi";
 
 export interface PlaybookStep {
   n: string;
@@ -148,6 +149,17 @@ const en: Record<MenuKey, MenuPlaybook> = {
       { n: "4", t: "Open Playbook on every other menu", b: "Scope is the map. Each menu’s Playbook is the working procedure." },
     ],
   },
+  agi: {
+    goal: "Assign a business objective to the agentic team. They plan, coordinate modules, execute inside authority, and bring you approvals.",
+    watch: "AGI Mode is a separate layer from Normal AI. A finished itinerary is not a booking. Toggle off to go back to one-task help.",
+    ai: "Assign: the Swedish 40-pax Thailand brief, then Change Once to 32, then Trip Rescue on a delay.",
+    steps: [
+      { n: "1", t: "Turn AGI Mode on", b: "The gold Ask AI dock at the top of the work area becomes the objective box. Playbook stays closed unless you open it." },
+      { n: "2", t: "Give one command", b: "The team writes a project into Sales, Builder, Flights, Suppliers and Finance — all lines stay requested / estimate." },
+      { n: "3", t: "Change once", b: "32 pax rebuilds air, rooms, bus, meals and margin. Authorize only after you read who must reconfirm." },
+      { n: "4", t: "Rescue or take over", b: "A delay opens recovery options. Low-cost moves can run inside spend limit. Pause or take over at any time." },
+    ],
+  },
 };
 
 const th: Record<MenuKey, MenuPlaybook> = {
@@ -270,6 +282,17 @@ const th: Record<MenuKey, MenuPlaybook> = {
       { n: "2", t: "ใช้เดโม 40 คนเป็นบททดสอบ", b: "ถ้าเพิ่ม 5 คนแล้วดีเลย์แล้วยังไม่ขยับทุกบริการ แปลว่า OS ยังไม่ต่อกัน" },
       { n: "3", t: "ช่องทางขายเป็นแค่ช่องทาง", b: "เว็บ มาร์เก็ตเพลส Agent Direct ขายของ ไม่ได้มีไฟล์ปฏิบัติการของตัวเอง" },
       { n: "4", t: "เปิด Playbook ของทุกเมนูอื่น", b: "หน้านี้คือแผนที่ Playbook ของแต่ละเมนูคือวิธีทำงาน" },
+    ],
+  },
+  agi: {
+    goal: "มอบวัตถุประสงค์ทางธุรกิจให้ทีมเอเจนต์ วางแผน ประสานโมดูล ทำในกรอบอำนาจ แล้วส่งเฉพาะจุดที่ต้องอนุมัติ",
+    watch: "โหมด AGI เป็นชั้นแยกจาก AI ปกติ โปรแกรมที่สวยยังไม่ใช่การจอง ปิดสวิตช์เพื่อกลับไปถามทีละงาน",
+    ai: "มอบบรีฟสวีเดน 40 คน แล้ว Change Once เป็น 32 แล้วกู้ทริปเมื่อไฟลต์ดีเลย์",
+    steps: [
+      { n: "1", t: "เปิดโหมด AGI", b: "แท่นถาม AI สีทองด้านบนพื้นที่ทำงานกลายเป็นกล่องวัตถุประสงค์ เพลย์บุ๊กปิดอยู่จนกว่าจะเปิด" },
+      { n: "2", t: "สั่งคำสั่งเดียว", b: "ทีมเขียนโปรเจกต์ลงขาย สร้างทัวร์ ไฟลต์ ซัพพลายเออร์ การเงิน — ทุกบรรทัดยังเป็น requested / ประมาณการ" },
+      { n: "3", t: "เปลี่ยนครั้งเดียว", b: "32 คนรื้อไฟลต์ ห้อง รถ อาหาร มาร์จิ้น อนุมัติเมื่ออ่านแล้วว่าใครต้องคอนเฟิร์มใหม่" },
+      { n: "4", t: "กู้ทริปหรือรับงานเอง", b: "ดีเลย์เปิดแผนกู้ ของถูกทำได้ในวงเงิน พักหรือรับงานเองได้เสมอ" },
     ],
   },
 };
@@ -396,6 +419,17 @@ const zh: Record<MenuKey, MenuPlaybook> = {
       { n: "4", t: "去其他菜单打开 Playbook", b: "本页是地图。各菜单 Playbook 才是作业程序。" },
     ],
   },
+  agi: {
+    goal: "把业务目标交给智能体团队。他们规划、协调模块、在权限内执行，并把需要批准的决定送来。",
+    watch: "AGI 模式与普通 AI 分层。漂亮行程不是预订。关掉开关就回到单任务帮助。",
+    ai: "下达瑞典 40 人泰国简报，再把人数改成 32，再用行程救援处理延误。",
+    steps: [
+      { n: "1", t: "打开 AGI 模式", b: "金色层把“问系统”换成目标框。关掉后普通 AI 仍在。" },
+      { n: "2", t: "一条指令", b: "团队把项目写入销售、搭建、机票、供应商、财务——所有行仍是 requested / 估算。" },
+      { n: "3", t: "改一次", b: "32 人重算机票、客房、车、餐、毛利。先看谁必须重新确认再批准。" },
+      { n: "4", t: "救援或接管", b: "延误打开恢复方案。低成本动作可在额度内执行。随时暂停或接管。" },
+    ],
+  },
 };
 
 const ru: Record<MenuKey, MenuPlaybook> = {
@@ -520,6 +554,17 @@ const ru: Record<MenuKey, MenuPlaybook> = {
       { n: "4", t: "Playbook на каждом другом меню", b: "Эта страница — карта. Playbook меню — рабочая процедура." },
     ],
   },
+  agi: {
+    goal: "Поставьте бизнес-цель агентной команде. Они планируют, координируют модули, действуют в рамках полномочий и приносят согласования.",
+    watch: "Режим AGI — отдельный слой от обычного ИИ. Красивая программа — не бронь. Выключите тумблер, чтобы вернуться к одной задаче.",
+    ai: "Поставьте бриф на 40 шведов, затем Change Once на 32, затем Trip Rescue при задержке.",
+    steps: [
+      { n: "1", t: "Включите AGI", b: "Золотой слой меняет «Спросить ОС» на поле цели. Обычный ИИ остаётся при выключении." },
+      { n: "2", t: "Одна команда", b: "Команда пишет проект в продажи, конструктор, рейсы, поставщиков и финансы — все строки requested / оценка." },
+      { n: "3", t: "Одно изменение", b: "32 человека пересчитывают авиа, номера, автобус, питание и маржу. Утверждайте после списка reconfirm." },
+      { n: "4", t: "Спасение или перехват", b: "Задержка открывает recovery. Дешёвые шаги — в лимите. Пауза или take over в любой момент." },
+    ],
+  },
 };
 
 const BOOKS: Record<Lang, Record<MenuKey, MenuPlaybook>> = { en, th, zh, ru };
@@ -540,9 +585,11 @@ export const MENU_KEYS: MenuKey[] = [
   "analytics",
   "portals",
   "scope",
+  "agi",
 ];
 
 export function menuKeyFromPath(path: string): MenuKey {
+  if (path.startsWith("/os/agi")) return "agi";
   if (path.startsWith("/os/sales")) return "sales";
   if (path.startsWith("/os/builder")) return "builder";
   if (path.startsWith("/os/departures")) return "departure";

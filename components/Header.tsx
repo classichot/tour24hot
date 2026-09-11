@@ -27,54 +27,58 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-[60] bg-bg border-b-2 border-divider">
-      <div className="max-w-[1400px] mx-auto px-[22px] py-3 flex items-center gap-[18px] flex-wrap">
-        <Link
-          href="/"
-          className="bg-none border-0 p-0 cursor-pointer font-[family-name:var(--font-heading)] font-extrabold text-[44px] leading-none tracking-[-0.02em] text-text no-underline"
-        >
-          TOUR<span className="text-[#ffc61a]">24</span>
-        </Link>
-        <span className="text-[11px] leading-tight max-w-[200px] text-neutral-700">{t.tagline}</span>
-        <nav className="flex gap-3.5 ml-auto flex-wrap items-center">
-          <Link href="/search?dir=outbound" className={`${navBtnCls(outboundNav)} no-underline`}>
-            {t.navSearch}
-          </Link>
-          <Link href="/inbound" className={`${navBtnCls(inboundNav)} no-underline`}>
-            {t.navInbound}
-          </Link>
-          <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
-            {t.navAdvisor}
-          </Link>
-          <Link href="/agents" className={`${navBtnCls(path.startsWith("/agents") || path.startsWith("/agent-direct"))} no-underline`}>
-            {t.navAgents}
-          </Link>
-          <Link href="/group" className={`${navBtnCls(at("/group"))} no-underline`}>
-            {t.navGroup}
-          </Link>
-          <Link href="/trips" className={`${navBtnCls(at("/trips"))} no-underline`}>
-            {t.navTrips}
-          </Link>
-          <Link href="/burn" className={`${navBtnCls(at("/burn"))} no-underline`}>
-            {t.navBurn}
-          </Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex border border-divider">
-            {LANGS.map((item) => (
-              <button key={item.id} type="button" onClick={() => setLang(item.id)} className={segBtnCls(lang === item.id)}>
-                {item.short}
-              </button>
-            ))}
+      <div className="max-w-[1400px] mx-auto px-[22px] py-3 flex items-start gap-[18px]">
+        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex items-center gap-[18px] flex-wrap">
+            <Link
+              href="/"
+              className="bg-none border-0 p-0 cursor-pointer font-[family-name:var(--font-heading)] font-extrabold text-[44px] leading-none tracking-[-0.02em] text-text no-underline"
+            >
+              TOUR<span className="text-[#ffc61a]">24</span>
+            </Link>
+            <span className="text-[11px] leading-tight max-w-[200px] text-neutral-700">{t.tagline}</span>
+            <nav className="flex gap-3.5 ml-auto flex-wrap items-center">
+              <Link href="/search?dir=outbound" className={`${navBtnCls(outboundNav)} no-underline`}>
+                {t.navSearch}
+              </Link>
+              <Link href="/inbound" className={`${navBtnCls(inboundNav)} no-underline`}>
+                {t.navInbound}
+              </Link>
+              <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
+                {t.navAdvisor}
+              </Link>
+              <Link href="/agents" className={`${navBtnCls(path.startsWith("/agents") || path.startsWith("/agent-direct"))} no-underline`}>
+                {t.navAgents}
+              </Link>
+              <Link href="/group" className={`${navBtnCls(at("/group"))} no-underline`}>
+                {t.navGroup}
+              </Link>
+              <Link href="/trips" className={`${navBtnCls(at("/trips"))} no-underline`}>
+                {t.navTrips}
+              </Link>
+              <Link href="/burn" className={`${navBtnCls(at("/burn"))} no-underline`}>
+                {t.navBurn}
+              </Link>
+            </nav>
           </div>
-          <Link href="/os" className="btn btn-secondary no-underline">
-            {t.navOs}
-          </Link>
-          <Link href="/agency" className="btn btn-ghost no-underline text-[12px]">
-            {t.navAgency}
-          </Link>
-          <Link href="/admin" className="btn btn-ghost no-underline text-[12px]">
-            {t.navAdmin}
-          </Link>
+          <nav className="flex items-center gap-2 flex-wrap">
+            <Link href="/os" className="btn btn-secondary no-underline">
+              {t.navOs}
+            </Link>
+            <Link href="/agency" className="btn btn-ghost no-underline text-[12px]">
+              {t.navAgency}
+            </Link>
+            <Link href="/admin" className="btn btn-ghost no-underline text-[12px]">
+              {t.navAdmin}
+            </Link>
+          </nav>
+        </div>
+        <div className="inline-flex shrink-0 border border-divider">
+          {LANGS.map((item) => (
+            <button key={item.id} type="button" onClick={() => setLang(item.id)} className={segBtnCls(lang === item.id)}>
+              {item.short}
+            </button>
+          ))}
         </div>
       </div>
     </header>

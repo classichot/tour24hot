@@ -5,11 +5,36 @@ import { useApp } from "../store";
 import { applyAddPax, applyDelay, approveAll, buildDrafts, closeDeparture } from "./engines";
 import { createSeed } from "./seed";
 import { osCopy } from "./copy";
+import { agiCopy } from "./agi/copy";
+import {
+  applyChangeToSnap,
+  applyRescueToSnap,
+  buildChangePlan,
+  buildRescue,
+  FLAGSHIP_BRIEF,
+  runOneCommand,
+  togglePause,
+  withMission,
+} from "./agi/engine";
+import {
+  applyIngest,
+  authorizeNextRound,
+  briefFromTap,
+  buildIngest,
+  FLAGSHIP_TAP,
+  hydrateAgi,
+  markRoundReplied,
+  resumeJobInState,
+  runRehearsalCase,
+  tryTapBrief,
+} from "./agi/features";
+import { type AgiState, type IngestKind, type RehearsalId } from "./agi/types";
 import type { AiDraft, DemoStage, OsSnapshot } from "./types";
 
 interface OsApi {
   snap: OsSnapshot;
   o: ReturnType<typeof osCopy>;
+  a: ReturnType<typeof agiCopy>;
   ask: string;
   setAsk: (v: string) => void;
   drafts: AiDraft[];
@@ -23,12 +48,30 @@ interface OsApi {
   runDemo: () => void;
   toggleTask: (id: string) => void;
   confirmService: (id: string) => void;
+  agi: AgiState;
+  setAgiOn: (on: boolean) => void;
+  assignObjective: (text?: string) => void;
+  pauseMission: (id: string) => void;
+  runChangeOnce: () => void;
+  applyChangeOnce: () => void;
+  runRescue: () => void;
+  applyRescue: (optionId: string) => void;
+  resetAgi: () => void;
+  ingestPaste: (text: string) => void;
+  ingestFile: (file: File) => Promise<void>;
+  resumeJob: (jobId: string) => void;
+  authorizeRound: () => void;
+  markSupplierReply: (jobId?: string) => void;
+  runRehearsalCase: (id: RehearsalId) => void;
+  acceptTapBrief: (raw?: string) => void;
+  quoteService: (id: string) => void;
 }
 
 const Ctx = createContext<OsApi | null>(null);
 const KEY = "t24os";
+const AGI_KEY = "t24osAgi";
 
-function load(): OsSnapshot {
+function loadSnap(): OsSnapshot {
   if (typeof window === "undefined") return createSeed();
   try {
     const raw = window.localStorage.getItem(KEY);
@@ -39,16 +82,32 @@ function load(): OsSnapshot {
   return createSeed();
 }
 
+function loadAgi(): AgiState {
+  if (typeof window === "undefined") return hydrateAgi(null);
+  try {
+    const raw = window.localStorage.getItem(AGI_KEY);
+    if (raw) return hydrateAgi(JSON.parse(raw) as AgiState);
+  } catch {
+    /* ignore */
+  }
+  return hydrateAgi(null);
+}
+
 export function OsProvider({ children }: { children: React.ReactNode }) {
   const { lang } = useApp();
   const [snap, setSnap] = useState<OsSnapshot>(createSeed);
+  const [agi, setAgi] = useState<AgiState>(() => hydrateAgi(null));
   const [hydrated, setHydrated] = useState(false);
   const [ask, setAsk] = useState("");
   const [drafts, setDrafts] = useState<AiDraft[]>([]);
   const o = osCopy(lang);
+  const a = agiCopy(lang);
 
   useEffect(() => {
-    setSnap(load());
+    const storedAgi = loadAgi();
+    const storedSnap = loadSnap();
+    setSnap(storedSnap);
+    setAgi((current) => (current.on && !storedAgi.on ? { ...storedAgi, on: true } : storedAgi));
     setHydrated(true);
   }, []);
 
@@ -61,9 +120,35 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     }
   }, [snap, hydrated]);
 
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(AGI_KEY, JSON.stringify(agi));
+    } catch {
+      /* ignore */
+    }
+  }, [agi, hydrated]);
+
+  const assignObjective = useCallback((text?: string) => {
+    const incoming = (text ?? ask).trim() || FLAGSHIP_BRIEF;
+    const tap = tryTapBrief(incoming);
+    const raw = tap ? briefFromTap(tap) : incoming;
+    const out = runOneCommand(snap, tap ? JSON.stringify(tap) : raw);
+    setSnap(out.snap);
+    setAgi((s) => {
+      const next = withMission({ ...s, on: true }, out.mission, true);
+      return tap ? { ...next, tapInbox: [tap, ...next.tapInbox.filter((t) => t.agency !== tap.agency)] } : next;
+    });
+    setAsk(raw);
+  }, [ask, snap]);
+
   const runAsk = useCallback(() => {
+    if (agi.on) {
+      assignObjective(ask);
+      return;
+    }
     setDrafts(buildDrafts(snap, ask));
-  }, [snap, ask]);
+  }, [agi.on, ask, snap, assignObjective]);
 
   const applyDraft = useCallback((id: string, text: string) => {
     setDrafts((prev) => prev.map((d) => (d.id === id ? { ...d, editable: text, applied: true } : d)));
@@ -89,12 +174,23 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     setSnap((s) => closeDeparture(s));
   }, []);
 
+  const resetAgi = useCallback(() => {
+    setAgi((s) => hydrateAgi(null, s.on));
+    try {
+      window.localStorage.removeItem(AGI_KEY);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const reset = useCallback(() => {
     const fresh = createSeed();
     setSnap(fresh);
     setDrafts([]);
+    setAgi((s) => hydrateAgi(null, s.on));
     try {
       window.localStorage.removeItem(KEY);
+      window.localStorage.removeItem(AGI_KEY);
     } catch {
       /* ignore */
     }
@@ -121,10 +217,141 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const quoteService = useCallback((id: string) => {
+    setSnap((s) => ({
+      ...s,
+      services: s.services.map((x) =>
+        x.id === id ? { ...x, state: "quoted", rateClass: "quoted", notes: { th: "ใบเสนอจากพอร์ทัล — ยังไม่ถือของ", en: "Portal quote — nothing held" }, updatedAt: new Date().toISOString() } : x
+      ),
+    }));
+    setAgi((st) => markRoundReplied(st));
+  }, []);
+
+  const ingestPaste = useCallback((text: string) => {
+    const ingest = buildIngest("paste", "paste.txt", text);
+    setAgi((s) => applyIngest(s, ingest));
+    setAsk(text);
+  }, []);
+
+  const ingestFile = useCallback(async (file: File) => {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const readable = ["txt", "csv", "json", "tsv"].includes(ext);
+    const text = readable ? await file.text() : "";
+    const kind: IngestKind =
+      ext === "csv" || ext === "tsv" ? "csv" : ext === "json" ? "json" : ext === "txt" ? "txt" : ext === "pdf" ? "pdf" : ext === "xlsx" || ext === "xls" || ext === "ods" ? "spreadsheet" : readable ? "txt" : "voice";
+    const ingest = buildIngest(kind, file.name, text);
+    setAgi((s) => applyIngest(s, ingest));
+    if (text) setAsk(text.slice(0, 500));
+  }, []);
+
+  const resumeJob = useCallback((jobId: string) => {
+    setAgi((s) => resumeJobInState(s, jobId));
+  }, []);
+
+  const authorizeRound = useCallback(() => {
+    setAgi((s) => authorizeNextRound(s));
+  }, []);
+
+  const markSupplierReply = useCallback((jobId?: string) => {
+    setAgi((s) => {
+      const next = markRoundReplied(s);
+      return jobId ? resumeJobInState(next, jobId) : next;
+    });
+  }, []);
+
+  const runRehearsal = useCallback((id: RehearsalId) => {
+    setAgi((s) => runRehearsalCase(s, id));
+  }, []);
+
+  const acceptTapBrief = useCallback((raw?: string) => {
+    assignObjective(raw || JSON.stringify(FLAGSHIP_TAP, null, 2));
+  }, [assignObjective]);
+
+  const setAgiOn = useCallback((on: boolean) => {
+    setAgi((s) => ({ ...s, on }));
+  }, []);
+
+  const pauseMission = useCallback((id: string) => {
+    setAgi((s) => togglePause(s, id));
+  }, []);
+
+  const runChangeOnce = useCallback(() => {
+    setAgi((s) => {
+      const id = s.activeId;
+      return {
+        ...s,
+        missions: s.missions.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                status: "awaiting_approval",
+                changePlan: buildChangePlan(m.options[0]?.pax || 40, 32, 18),
+                log: [{ at: new Date().toISOString(), agent: "director", text: { th: "ลูกค้าเหลือ 32 คน — ทำแผนผลกระทบทั้งทริป", en: "Client is now 32 — built a full-trip change plan" } }, ...m.log],
+              }
+            : m
+        ),
+      };
+    });
+  }, []);
+
+  const applyChangeOnce = useCallback(() => {
+    const m = agi.missions.find((x) => x.id === agi.activeId);
+    if (!m?.changePlan) return;
+    setSnap((s) => applyChangeToSnap(s, m.changePlan!));
+    setAgi((s) => ({
+      ...s,
+      missions: s.missions.map((x) =>
+        x.id === m.id
+          ? {
+              ...x,
+              changePlan: { ...x.changePlan!, applied: true },
+              options: x.options.map((o, i) => (i === 0 ? { ...o, pax: 32, sell: x.changePlan!.newSell, cost: x.changePlan!.newCost, margin: x.changePlan!.newMargin } : o)),
+              status: "working",
+              log: [{ at: new Date().toISOString(), agent: "director", text: { th: "อนุมัติแผนเปลี่ยนแล้ว — รอซัพพลายเออร์คอนเฟิร์ม", en: "Change plan authorized — suppliers must reconfirm" } }, ...x.log],
+            }
+          : x
+      ),
+    }));
+  }, [agi.activeId, agi.missions]);
+
+  const runRescue = useCallback(() => {
+    setAgi((s) => ({
+      ...s,
+      missions: s.missions.map((m) =>
+        m.id === s.activeId
+          ? {
+              ...m,
+              status: "awaiting_approval",
+              rescue: buildRescue(),
+              log: [{ at: new Date().toISOString(), agent: "director", text: { th: "ไฟลต์ดีเลย์ — เปิดห้องกู้ทริป", en: "Arrival delay — opened Trip Rescue" } }, ...m.log],
+            }
+          : m
+      ),
+    }));
+  }, []);
+
+  const applyRescue = useCallback((optionId: string) => {
+    setSnap((s) => applyRescueToSnap(s, optionId));
+    setAgi((s) => ({
+      ...s,
+      missions: s.missions.map((m) =>
+        m.id === s.activeId && m.rescue
+          ? {
+              ...m,
+              rescue: { ...m.rescue, chosen: optionId },
+              status: "working",
+              log: [{ at: new Date().toISOString(), agent: "guide", text: { th: `ใช้แผนกู้ ${optionId}`, en: `Applied recovery ${optionId}` } }, ...m.log],
+            }
+          : m
+      ),
+    }));
+  }, []);
+
   const value = useMemo(
     () => ({
       snap,
       o,
+      a,
       ask,
       setAsk,
       drafts,
@@ -138,8 +365,58 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
       runDemo,
       toggleTask,
       confirmService,
+      agi,
+      setAgiOn,
+      assignObjective,
+      pauseMission,
+      runChangeOnce,
+      applyChangeOnce,
+      runRescue,
+      applyRescue,
+      resetAgi,
+      ingestPaste,
+      ingestFile,
+      resumeJob,
+      authorizeRound,
+      markSupplierReply,
+      runRehearsalCase: runRehearsal,
+      acceptTapBrief,
+      quoteService,
     }),
-    [snap, o, ask, drafts, runAsk, applyDraft, addFive, delayFlight, approve, closeTrip, reset, runDemo, toggleTask, confirmService]
+    [
+      snap,
+      o,
+      a,
+      ask,
+      drafts,
+      runAsk,
+      applyDraft,
+      addFive,
+      delayFlight,
+      approve,
+      closeTrip,
+      reset,
+      runDemo,
+      toggleTask,
+      confirmService,
+      quoteService,
+      agi,
+      setAgiOn,
+      assignObjective,
+      pauseMission,
+      runChangeOnce,
+      applyChangeOnce,
+      runRescue,
+      applyRescue,
+      resetAgi,
+      ingestPaste,
+      ingestFile,
+      resumeJob,
+      authorizeRound,
+      markSupplierReply,
+      runRehearsal,
+      acceptTapBrief,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

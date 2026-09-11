@@ -30,6 +30,9 @@ export default function OsProductPage() {
           <Link href="/os" className="btn btn-primary no-underline">
             {L({ th: "เปิด Operator OS", en: "Open Operator OS" })}
           </Link>
+          <Link href="/os/agi" className="btn btn-secondary no-underline">
+            {L({ th: "เปิดโหมด AGI", en: "Open AGI Mode" })}
+          </Link>
           <Link href="/os/scope" className="btn btn-secondary no-underline">
             {L({ th: "ดูแผนขอบเขต", en: "See the scope map" })}
           </Link>
@@ -62,6 +65,11 @@ export default function OsProductPage() {
             h: { th: "AI อัตโนมัติ", en: "AI automation" },
             p: { th: "Producer, Buyer, Change Impact, Simulator, Seat Advisor, Readiness, Disruption, Profit, Ops, Memory — ร่างที่แก้และอนุมัติได้", en: "Producer, Buyer, Change Impact, Simulator, Seat Advisor, Readiness, Disruption, Profit, Ops, Memory — editable drafts you approve." },
             href: "/os",
+          },
+          {
+            h: { th: "โหมด AGI", en: "AGI Mode" },
+            p: { th: "ให้วัตถุประสงค์ทางธุรกิจ ทีมเอเจนต์ประสานไฟลต์ โรงแรม รถ อาหาร ไกด์ การเงิน แล้วส่งเฉพาะจุดที่ต้องอนุมัติ", en: "Give a business objective. The agentic team coordinates flights, hotels, buses, meals, guides and finance — and brings you the decisions." },
+            href: "/os/agi",
           },
         ].map((c) => (
           <Link key={c.href + c.h.en} href={c.href} className="border-2 border-divider p-4 no-underline text-text hover:border-text">

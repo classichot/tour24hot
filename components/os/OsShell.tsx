@@ -6,13 +6,15 @@ import { useEffect, useState } from "react";
 import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
 import { useOs } from "@/lib/os/store";
-import { Sparkle } from "@/components/icons";
 import { DEMO_DEP_ID } from "@/lib/os/seed";
 import { menuKeyFromPath } from "@/lib/os/playbook";
 import type { AiDraft } from "@/lib/os/types";
 import PlaybookPanel from "./Playbook";
+import AgiToggle from "./AgiToggle";
+import AskDock from "./AskDock";
 
 const LINKS = [
+  ["agi", "/os/agi"],
   ["home", "/os"],
   ["sales", "/os/sales"],
   ["builder", "/os/builder"],
@@ -35,7 +37,7 @@ function withPlaybook(href: string) {
 export default function OsShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const { lang, setLang } = useApp();
-  const { o, ask, setAsk, runAsk, drafts, runDemo, reset, snap } = useOs();
+  const { o, a, drafts, runDemo, reset, snap, agi } = useOs();
   const pageKey = menuKeyFromPath(path);
   const [open, setOpen] = useState(false);
 
@@ -43,10 +45,9 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
     try {
       const saved = window.localStorage.getItem(PLAYBOOK_KEY);
       const fromUrl = new URLSearchParams(window.location.search).get("playbook") === "1";
-      if (fromUrl || saved !== "0") setOpen(true);
-      else setOpen(false);
+      setOpen(fromUrl || saved === "1");
     } catch {
-      setOpen(true);
+      setOpen(false);
     }
   }, [path]);
 
@@ -72,17 +73,20 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-bg text-text grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <aside className="border-b-2 lg:border-b-0 lg:border-r-2 border-divider bg-bg lg:min-h-screen lg:sticky lg:top-0">
+    <div className={`min-h-screen bg-bg text-text grid grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)] ${agi.on ? "agi-layer" : ""}`}>
+      <aside className={`border-b-2 lg:border-b-0 lg:border-r-2 border-divider lg:min-h-screen lg:sticky lg:top-0 ${agi.on ? "bg-accent-100" : "bg-bg"}`}>
         <div className="px-4 py-4 border-b-2 border-divider">
           <Link href="/os" className="no-underline text-text font-[family-name:var(--font-heading)] font-extrabold text-[28px] leading-none">
             TOUR<span className="text-[#ffc61a]">24</span>
           </Link>
-          <div className="kicker mt-2">{o.os}</div>
+          <div className="kicker mt-2">{agi.on ? a.agiLayer : o.os}</div>
+          <div className="mt-3">
+            <AgiToggle />
+          </div>
         </div>
         <nav className="flex lg:flex-col gap-0 overflow-auto">
           {LINKS.map(([key, href]) => {
-            const active = href === "/os" ? path === "/os" : path.startsWith(href.split("?")[0]);
+            const active = href === "/os" ? path === "/os" : href === "/os/agi" ? path.startsWith("/os/agi") : path.startsWith(href.split("?")[0]);
             return (
               <div
                 key={key}
@@ -133,38 +137,34 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="min-w-0 flex flex-col">
-        <header className="sticky top-0 z-40 bg-bg border-b-2 border-divider px-4 py-2.5 flex flex-wrap items-center gap-2">
-          <Sparkle width={16} height={16} />
-          <form
-            className="flex-1 min-w-[220px] flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              runAsk();
-            }}
-          >
-            <input className="input" value={ask} placeholder={o.askPh} onChange={(e) => setAsk(e.target.value)} />
-            <button type="submit" className="btn btn-primary">
-              {o.ask}
+        <div className="sticky top-0 z-40">
+          <header className={`border-b-2 border-divider px-4 py-1.5 flex flex-wrap items-center justify-end gap-2 ${agi.on ? "bg-accent-100" : "bg-bg"}`}>
+            <AgiToggle />
+            <button type="button" className="btn btn-secondary" onClick={togglePlaybook}>
+              {open ? o.hidePlaybook : o.playbook}
             </button>
-          </form>
-          <button type="button" className="btn btn-secondary" onClick={togglePlaybook}>
-            {open ? o.hidePlaybook : o.playbook}
-          </button>
-          <div className="inline-flex border border-divider">
-            {LANGS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setLang(item.id)}
-                className={`px-2 py-1.5 text-xs font-extrabold border-0 ${lang === item.id ? "bg-accent" : "bg-transparent"}`}
-              >
-                {item.short}
-              </button>
-            ))}
-          </div>
-        </header>
+            <div className="inline-flex border border-divider">
+              {LANGS.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setLang(item.id)}
+                  className={`px-2 py-1.5 text-xs font-extrabold border-0 ${lang === item.id ? "bg-accent" : "bg-transparent"}`}
+                >
+                  {item.short}
+                </button>
+              ))}
+            </div>
+          </header>
+          {agi.on && (
+            <div className="px-4 py-1.5 bg-text text-bg text-[11px] font-extrabold tracking-[0.04em] uppercase">
+              {a.agiOn} — {a.promise}
+            </div>
+          )}
+          <AskDock />
+        </div>
 
-        {drafts.length > 0 && (
+        {drafts.length > 0 && !agi.on && (
           <div className="px-4 pt-3 flex flex-col gap-2">
             {drafts.map((d) => (
               <AiCard key={d.id} draft={d} />

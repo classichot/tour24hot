@@ -16,6 +16,11 @@ const ROWS: { area: string; status: "available" | "expand" | "new"; note: string
   { area: "Finance / profit", status: "expand", note: "From advertised vs real to quote-vs-actual and cash gap." },
   { area: "AI Tour Producer + extraction", status: "expand", note: "Command bar drafts connected to real records." },
   { area: "AI Change / Simulator / Profit / Ready", status: "new", note: "First operational AI pack on the 40-pax demo." },
+  { area: "AGI Mode — agentic operations team", status: "new", note: "Toggleable layer: objective → Tour Director + 10 specialists. One Command, Change Once, Trip Rescue write into the same OS records." },
+  { area: "Normal AI vs AGI Mode", status: "new", note: "Normal AI = one task. AGI Mode = objective + authority + approvals. Same bookings." },
+  { area: "Supplier Negotiation Room / Profit Autopilot", status: "new", note: "Comparable offers, authorized rounds, sales vs committed cost, release deadlines. Quotes ≠ holds." },
+  { area: "Brief ingest / waiting jobs / company memory / scorecards / rehearsal", status: "new", note: "File+paste ingest, resume-on-reply jobs, North Thailand memory, local-engine scorecards, trip rehearsal simulator." },
+  { area: "Agent Direct TAP brief → AGI", status: "new", note: "Structured TAP JSON accepted into assignObjective. External see sell only. No live MCP." },
   { area: "Capacity Exchange", status: "new", note: "Later stage — not in this release." },
 ];
 

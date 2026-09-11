@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { useApp } from "@/lib/store";
 import { useOs } from "@/lib/os/store";
 import { readiness, totals } from "@/lib/os/engines";
@@ -13,11 +14,15 @@ const TABS = ["overview", "pax", "flights", "buses", "rooms", "meals", "acts", "
 export default function DeparturePage() {
   const { L } = useApp();
   const { o, snap } = useOs();
+  const params = useParams();
+  const id = String(params.id || DEMO_DEP_ID);
   const [tab, setTab] = useState<(typeof TABS)[number]>("overview");
-  const dep = snap.departures.find((d) => d.id === DEMO_DEP_ID)!;
-  const prod = snap.products[0];
-  const t = totals(snap, DEMO_DEP_ID);
-  const ready = readiness(snap, DEMO_DEP_ID);
+  const dep = snap.departures.find((d) => d.id === id) || snap.departures[0];
+  const prod = snap.products.find((p) => p.id === dep.productId) || snap.products[0];
+  const t = totals(snap, dep.id);
+  const ready = readiness(snap, dep.id);
+  const svcs = snap.services.filter((s) => s.departureId === dep.id);
+  const svcIds = new Set(svcs.map((s) => s.id));
 
   return (
     <main className="flex flex-col gap-5">
@@ -36,7 +41,7 @@ export default function DeparturePage() {
           </span>
         </div>
       </div>
-      <DemoBar />
+      {dep.id === DEMO_DEP_ID && <DemoBar />}
       <nav className="flex flex-wrap gap-0.5 border-b-2 border-divider">
         {TABS.map((k) => (
           <button key={k} type="button" className={`px-3 py-2 border-0 font-extrabold text-[13px] ${tab === k ? "bg-text text-bg" : "bg-surface"}`} onClick={() => setTab(k)}>
@@ -48,7 +53,7 @@ export default function DeparturePage() {
       {tab === "overview" && (
         <Table
           heads={["Service", "Supplier", "Qty", "Cost", "Class", "State"]}
-          rows={snap.services.map((s) => [
+          rows={svcs.map((s) => [
             L(s.name),
             L(snap.suppliers.find((x) => x.id === s.supplierId)?.name || s.supplierId),
             String(s.qty),
@@ -63,7 +68,7 @@ export default function DeparturePage() {
       {tab === "pax" && (
         <Table
           heads={["Name", "Passport", "Room", "Diet", "Ticket", "Ready"]}
-          rows={snap.passengers.map((p) => [
+          rows={snap.passengers.filter((p) => p.departureId === dep.id).map((p) => [
             `${p.name}${p.addedLate ? " +" : ""}`,
             p.passport || "—",
             p.roomPref,
@@ -76,7 +81,7 @@ export default function DeparturePage() {
       {tab === "flights" && (
         <Table
           heads={["Flight", "Route", "Seats", "PNR", "Names", "Ticket by"]}
-          rows={snap.flights.map((f) => [
+          rows={snap.flights.filter((f) => svcIds.has(f.serviceId)).map((f) => [
             `${f.airline} ${f.flightNo}${f.delayed ? " DELAYED" : ""}`,
             `${f.from}→${f.to} ${f.departAt.slice(11, 16)}`,
             `${f.sold}/${f.seats}`,
@@ -89,31 +94,31 @@ export default function DeparturePage() {
       {tab === "buses" && (
         <Table
           heads={["Plate", "Seats", "Driver", "Pickup"]}
-          rows={snap.vehicles.map((v) => [v.plate, String(v.seats), v.driver, L(v.pickup)])}
+          rows={snap.vehicles.filter((v) => svcIds.has(v.serviceId)).map((v) => [v.plate, String(v.seats), v.driver, L(v.pickup)])}
         />
       )}
       {tab === "rooms" && (
         <Table
           heads={["Hotel", "Nights", "Twin", "Single", "FOC", "Release"]}
-          rows={snap.hotels.map((h) => [L(h.hotel), String(h.nights), String(h.twins), String(h.singles), String(h.comps), h.releaseAt.slice(0, 10)])}
+          rows={snap.hotels.filter((h) => svcIds.has(h.serviceId)).map((h) => [L(h.hotel), String(h.nights), String(h.twins), String(h.singles), String(h.comps), h.releaseAt.slice(0, 10)])}
         />
       )}
       {tab === "meals" && (
         <Table
           heads={["Venue", "Day", "Time", "Cap", "Diet"]}
-          rows={snap.meals.map((m) => [L(m.venue), String(m.day), m.time, String(m.capacity), L(m.dietNotes)])}
+          rows={snap.meals.filter((m) => svcIds.has(m.serviceId)).map((m) => [L(m.venue), String(m.day), m.time, String(m.capacity), L(m.dietNotes)])}
         />
       )}
       {tab === "acts" && (
         <Table
           heads={["Activity", "Slot", "Cap", "Voucher"]}
-          rows={snap.activities.map((a) => [L(a.name), a.slot, String(a.capacity), a.voucher])}
+          rows={snap.activities.filter((x) => svcIds.has(x.serviceId)).map((act) => [L(act.name), act.slot, String(act.capacity), act.voucher])}
         />
       )}
       {tab === "guides" && (
         <Table
           heads={["Name", "Role", "Lang", "Fee"]}
-          rows={snap.guides.map((g) => [L(g.name), g.role, g.langs.join("/"), <Money key={g.id} n={g.fee} />])}
+          rows={snap.guides.filter((g) => svcIds.has(g.serviceId)).map((g) => [L(g.name), g.role, g.langs.join("/"), <Money key={g.id} n={g.fee} />])}
         />
       )}
       {tab === "docs" && (
@@ -124,7 +129,7 @@ export default function DeparturePage() {
       {tab === "finance" && (
         <Table
           heads={["Line", "Side", "Amount", "Due", "Status"]}
-          rows={snap.ledger.map((l) => [L(l.label), l.side, <Money key={l.id} n={l.amount} />, l.due, l.status])}
+          rows={snap.ledger.filter((l) => l.departureId === dep.id).map((l) => [L(l.label), l.side, <Money key={l.id} n={l.amount} />, l.due, l.status])}
         />
       )}
     </main>

@@ -73,8 +73,10 @@ export default function AdminPage() {
               { n: String(OPS.pendingPackages), l: t.adPendingPk },
               { n: String(OPS.disputes), l: t.adDisputes },
             ].map((s) => (
-              <div key={s.l} className="p-3.5 border-r border-divider last:border-r-0">
-                <div className="font-[family-name:var(--font-heading)] font-extrabold text-[26px] leading-none">{s.n}</div>
+              <div key={s.l} className="p-3.5 border-r border-divider last:border-r-0 min-w-0 overflow-hidden">
+                <div className="font-[family-name:var(--font-heading)] font-extrabold text-[15px] leading-none tracking-tight whitespace-nowrap">
+                  {s.n}
+                </div>
                 <div className="text-[11px] text-neutral-700 mt-1">{s.l}</div>
               </div>
             ))}

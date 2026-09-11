@@ -24,6 +24,7 @@ export default function PlaybookPanel({
     setReady(true);
   }, []);
 
+  if (!open) return null;
   if (!ready) {
     return <section className="border-2 border-divider mb-5 min-h-[56px] bg-surface" aria-hidden />;
   }
