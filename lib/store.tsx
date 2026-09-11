@@ -12,9 +12,11 @@ function inboundPath(path: string) {
 
 function inboundFromUrl(path: string, params: { get: (k: string) => string | null }) {
   if (inboundPath(path)) return true;
-  if (path !== "/search") return false;
-  if (params.get("dir") === "outbound") return false;
-  return params.get("dir") === "inbound" || params.get("country") === "Thailand";
+  const dir = params.get("dir");
+  if (dir === "outbound") return false;
+  if (dir === "inbound") return true;
+  if (path === "/search" && params.get("country") === "Thailand") return true;
+  return false;
 }
 
 interface AppState {

@@ -4,20 +4,21 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { agencyById, DATA } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { matchResults } from "@/lib/helpers";
+import { isInbound, matchResults } from "@/lib/helpers";
 import ScoreBar from "@/components/ScoreBar";
 import { ArrowRight, Check } from "@/components/icons";
 
 export default function MatchPage() {
-  const { t, L, money, toggleCompare, inCompare } = useApp();
+  const { t, L, money, inboundMode, toggleCompare, inCompare } = useApp();
   const router = useRouter();
   const quiz = DATA.quiz;
   const [step, setStep] = useState(-1);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const pool = DATA.packages.filter((p) => isInbound(p) === inboundMode);
 
   const q = quiz[step];
   const done = step >= quiz.length;
-  const results = done ? matchResults(answers, t, L, money, DATA.packages) : [];
+  const results = done ? matchResults(answers, t, L, money, pool) : [];
 
   const pick = (qid: string, v: string) => {
     setAnswers((prev) => ({ ...prev, [qid]: v }));
@@ -69,7 +70,7 @@ export default function MatchPage() {
               <span>{t.matchStart}</span>
               <ArrowRight />
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => router.push("/advisor")}>
+            <button type="button" className="btn btn-secondary" onClick={() => router.push(inboundMode ? "/advisor?dir=inbound" : "/advisor?dir=outbound")}>
               {t.navAdvisor}
             </button>
             </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { agencyById, DATA } from "@/lib/data";
 import { useApp } from "@/lib/store";
-import { advisorResults, type AdvisorExtras, type AdvisorFollowUp } from "@/lib/helpers";
+import { advisorResults, isInbound, type AdvisorExtras, type AdvisorFollowUp } from "@/lib/helpers";
 import { ArrowRight, Check, Sparkle } from "@/components/icons";
 
 const EXAMPLE = {
@@ -16,12 +16,20 @@ const EXAMPLE = {
 type Run = ReturnType<typeof advisorResults>;
 
 export default function AdvisorPage() {
-  const { t, L, money, lang, toggleCompare, inCompare } = useApp();
+  const { t, L, money, lang, inboundMode, toggleCompare, inCompare } = useApp();
   const router = useRouter();
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [run, setRun] = useState<Run | null>(null);
   const [picks, setPicks] = useState<AdvisorExtras>({});
+  const pool = DATA.packages.filter((p) => isInbound(p) === inboundMode);
+  const example = inboundMode
+    ? L({
+        th: "อยากได้ทัวร์เชียงใหม่ เชียงราย สามเหลี่ยมทองคำ กรุ๊ปจีน ไกด์จีน ไม่ลงร้านช้อป",
+        en: "Chiang Mai, Chiang Rai, Golden Triangle inbound group, Chinese guide, no shopping.",
+        zh: "想走清迈、清莱、金三角，中文导游，不要进店。",
+      })
+    : EXAMPLE[lang === "th" ? "th" : "en"];
 
   const apply = (text: string, extras?: AdvisorExtras) => {
     const trimmed = text.trim();
@@ -29,7 +37,7 @@ export default function AdvisorPage() {
     setQ(trimmed);
     setBusy(true);
     window.setTimeout(() => {
-      setRun(advisorResults(trimmed, t, L, money, DATA.packages, extras));
+      setRun(advisorResults(trimmed, t, L, money, pool, extras));
       setBusy(false);
     }, 550);
   };
@@ -71,10 +79,10 @@ export default function AdvisorPage() {
             <span>{busy ? t.advThinking : t.advAsk}</span>
             <ArrowRight />
           </button>
-          <button type="button" className="btn btn-secondary" onClick={() => ask(EXAMPLE[lang === "th" ? "th" : "en"])}>
+          <button type="button" className="btn btn-secondary" onClick={() => ask(example)}>
             {t.advExample}
           </button>
-          <Link href="/match" className="btn btn-ghost no-underline">
+          <Link href={inboundMode ? "/match?dir=inbound" : "/match?dir=outbound"} className="btn btn-ghost no-underline">
             {t.advQuiz}
           </Link>
         </div>
@@ -104,7 +112,10 @@ export default function AdvisorPage() {
                 <div key={fu.id}>
                   <div className="text-[15px] font-extrabold mb-2">{L(fu.q)}</div>
                   <div className="flex flex-wrap gap-1.5">
-                    {fu.opts.map((o) => (
+                    {(fu.id === "dest"
+                      ? fu.opts.filter((o) => (inboundMode ? o.v === "Thailand" || o.v === "any" : o.v !== "Thailand"))
+                      : fu.opts
+                    ).map((o) => (
                       <button
                         key={o.v}
                         type="button"
@@ -126,8 +137,8 @@ export default function AdvisorPage() {
           {run.results.length === 0 && run.followups.length === 0 && (
             <div className="border-2 border-divider px-6 py-10">
               <h3 className="mb-1.5">{t.advEmpty}</h3>
-              <Link href="/search" className="btn btn-primary no-underline">
-                {t.navSearch}
+              <Link href={inboundMode ? "/inbound" : "/search?dir=outbound"} className="btn btn-primary no-underline">
+                {inboundMode ? t.navInbound : t.navSearch}
               </Link>
             </div>
           )}

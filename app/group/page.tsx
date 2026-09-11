@@ -7,8 +7,12 @@ import { groupBids, type GroupBid } from "@/lib/helpers";
 import { ArrowRight, Check, Spinner } from "@/components/icons";
 
 export default function GroupPage() {
-  const { t, L, money } = useApp();
-  const [dest, setDest] = useState("Japan");
+  const { t, L, money, inboundMode } = useApp();
+  const destChoices = inboundMode
+    ? DATA.destinations.filter((d) => d.id === "th")
+    : DATA.destinations.filter((d) => d.id !== "th");
+  const [dest, setDest] = useState(inboundMode ? "Thailand" : "Japan");
+  const destValue = destChoices.some((d) => d.name.en === dest) ? dest : destChoices[0]?.name.en || dest;
   const [when, setWhen] = useState("dec");
   const [pax, setPax] = useState("15");
   const [budget, setBudget] = useState("45000");
@@ -24,7 +28,7 @@ export default function GroupPage() {
   const send = () => {
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    const bids = groupBids(dest, Number(pax) || 15, Number(budget) || 45000, notes);
+    const bids = groupBids(destValue, Number(pax) || 15, Number(budget) || 45000, notes);
     setAllBids(bids);
     setVisible([]);
     setChosen(null);
@@ -71,8 +75,8 @@ export default function GroupPage() {
         >
           <div className="field">
             <label>{t.grpDest}</label>
-            <select className="input" value={dest} onChange={(e) => setDest(e.target.value)}>
-              {DATA.destinations.map((d) => (
+            <select className="input" value={destValue} onChange={(e) => setDest(e.target.value)}>
+              {destChoices.map((d) => (
                 <option key={d.id} value={d.name.en}>
                   {L(d.name)}
                 </option>
@@ -112,7 +116,7 @@ export default function GroupPage() {
             <div className="kicker">{t.grpSent}</div>
             <p className="mt-2 text-sm max-w-[560px]">{t.grpSentSub}</p>
             <div className="text-xs text-neutral-700 mt-2">
-              {dest} · {whenLabel} · {pax} {t.people} · {money(Number(budget))}
+              {destValue} · {whenLabel} · {pax} {t.people} · {money(Number(budget))}
             </div>
             {phase === "wait" && (
               <div className="flex items-center gap-2 mt-3 text-[13px] font-extrabold">

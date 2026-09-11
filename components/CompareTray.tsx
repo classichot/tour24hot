@@ -9,7 +9,7 @@ import { X } from "./icons";
 export default function CompareTray() {
   const { t, L, compare, toggleCompare, clearCompare } = useApp();
   const path = usePathname();
-  if (compare.length === 0 || path === "/compare" || path.startsWith("/admin") || path.startsWith("/agency")) return null;
+  if (compare.length === 0 || path === "/compare" || path.startsWith("/admin") || path.startsWith("/agency") || path.startsWith("/inbound/agency")) return null;
 
   return (
     <div className="fixed left-0 right-0 bottom-0 z-[70] bg-text text-bg">

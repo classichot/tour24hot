@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
 
@@ -17,13 +17,61 @@ function segBtnCls(active: boolean) {
   }`;
 }
 
+const TRAVELER_TOOLS = ["/advisor", "/match", "/agents", "/agent-direct", "/group", "/trips", "/burn", "/compare"];
+
 export default function Header() {
-  const { t, lang, setLang, inboundMode } = useApp();
-  const path = usePathname();
+  const { t, lang, setLang, inboundMode, setInboundMode } = useApp();
+  const path = usePathname() || "";
+  const search = useSearchParams();
+  const router = useRouter();
 
   const at = (p: string) => path === p;
-  const outboundNav = path === "/search" && !inboundMode;
-  const inboundNav = path.startsWith("/inbound") || (path === "/search" && inboundMode);
+  const starts = (p: string) => path.startsWith(p);
+
+  const outboundItems = [
+    { href: "/search?dir=outbound", label: t.navSearch, active: path === "/search" && !inboundMode },
+    { href: "/advisor?dir=outbound", label: t.navAdvisor, active: starts("/advisor") || starts("/match") },
+    { href: "/agents?dir=outbound", label: t.navAgents, active: starts("/agents") || starts("/agent-direct") },
+    { href: "/group?dir=outbound", label: t.navGroup, active: at("/group") },
+    { href: "/trips?dir=outbound", label: t.navTrips, active: at("/trips") },
+    { href: "/burn?dir=outbound", label: t.navBurn, active: at("/burn") },
+    { href: "/agency", label: t.navOutAgency, active: at("/agency") || (starts("/agency") && !starts("/inbound")) },
+  ];
+
+  const inboundItems = [
+    { href: "/inbound", label: t.navInbound, active: at("/inbound") || (path === "/search" && inboundMode) },
+    { href: "/advisor?dir=inbound", label: t.navInAdvisor, active: starts("/advisor") || starts("/match") },
+    { href: "/agents?dir=inbound", label: t.navInAgents, active: starts("/agents") || starts("/agent-direct") },
+    { href: "/group?dir=inbound", label: t.navInGroup, active: at("/group") },
+    { href: "/trips?dir=inbound", label: t.navInTrips, active: at("/trips") },
+    { href: "/inbound/agency", label: t.navInAgency, active: starts("/inbound/agency") },
+  ];
+
+  const items = inboundMode ? inboundItems : outboundItems;
+
+  const switchMode = (nextInbound: boolean) => {
+    if (nextInbound === inboundMode) return;
+    setInboundMode(nextInbound);
+    if (path === "/agency" || starts("/inbound/agency")) {
+      router.push(nextInbound ? "/inbound/agency" : "/agency");
+      return;
+    }
+    if (path === "/search") {
+      const q = new URLSearchParams(search.toString());
+      q.set("dir", nextInbound ? "inbound" : "outbound");
+      router.push(`/search?${q.toString()}`);
+      return;
+    }
+    if (path === "/" || starts("/inbound") || /^\/(packages|book)\//.test(path)) {
+      router.push(nextInbound ? "/inbound" : "/");
+      return;
+    }
+    if (TRAVELER_TOOLS.some((p) => path === p || path.startsWith(`${p}/`))) {
+      const q = new URLSearchParams(search.toString());
+      q.set("dir", nextInbound ? "inbound" : "outbound");
+      router.replace(`${path}?${q.toString()}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-[60] bg-bg border-b-2 border-divider">
@@ -31,42 +79,31 @@ export default function Header() {
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <div className="flex items-center gap-[18px] flex-wrap">
             <Link
-              href="/"
+              href={inboundMode ? "/inbound" : "/"}
               className="bg-none border-0 p-0 cursor-pointer font-[family-name:var(--font-heading)] font-extrabold text-[44px] leading-none tracking-[-0.02em] text-text no-underline"
             >
               TOUR<span className="text-[#ffc61a]">24</span>
             </Link>
             <span className="text-[11px] leading-tight max-w-[200px] text-neutral-700">{t.tagline}</span>
             <nav className="flex gap-3.5 ml-auto flex-wrap items-center">
-              <Link href="/search?dir=outbound" className={`${navBtnCls(outboundNav)} no-underline`}>
-                {t.navSearch}
-              </Link>
-              <Link href="/inbound" className={`${navBtnCls(inboundNav)} no-underline`}>
-                {t.navInbound}
-              </Link>
-              <Link href="/advisor" className={`${navBtnCls(path.startsWith("/advisor") || path.startsWith("/match"))} no-underline`}>
-                {t.navAdvisor}
-              </Link>
-              <Link href="/agents" className={`${navBtnCls(path.startsWith("/agents") || path.startsWith("/agent-direct"))} no-underline`}>
-                {t.navAgents}
-              </Link>
-              <Link href="/group" className={`${navBtnCls(at("/group"))} no-underline`}>
-                {t.navGroup}
-              </Link>
-              <Link href="/trips" className={`${navBtnCls(at("/trips"))} no-underline`}>
-                {t.navTrips}
-              </Link>
-              <Link href="/burn" className={`${navBtnCls(at("/burn"))} no-underline`}>
-                {t.navBurn}
-              </Link>
+              <div className="inline-flex border border-divider" role="group" aria-label={t.fDirection}>
+                <button type="button" onClick={() => switchMode(false)} className={segBtnCls(!inboundMode)}>
+                  {t.navModeOut}
+                </button>
+                <button type="button" onClick={() => switchMode(true)} className={segBtnCls(inboundMode)}>
+                  {t.navModeIn}
+                </button>
+              </div>
+              {items.map((item) => (
+                <Link key={item.href} href={item.href} className={`${navBtnCls(item.active)} no-underline`}>
+                  {item.label}
+                </Link>
+              ))}
             </nav>
           </div>
           <nav className="flex items-center gap-2 flex-wrap">
             <Link href="/os" className="btn btn-secondary no-underline">
               {t.navOs}
-            </Link>
-            <Link href="/agency" className="btn btn-ghost no-underline text-[12px]">
-              {t.navAgency}
             </Link>
             <Link href="/admin" className="btn btn-ghost no-underline text-[12px]">
               {t.navAdmin}
