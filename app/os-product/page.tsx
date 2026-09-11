@@ -82,7 +82,7 @@ export default function OsProductPage() {
       <section className="mt-10 border-2 border-text p-5">
         <div className="kicker">Acceptance demo</div>
         <h2 className="mt-2 text-[24px]">
-          {L({ th: "ทัวร์องค์กร 40 คน โตเกียว — เพิ่ม 5 คน แล้วไฟลต์ดีเลย์", en: "40-person Tokyo corporate — add five, then delay the arrival" })}
+          {L({ th: "อินบาวด์สามเหลี่ยมทองคำ 40 คน — เพิ่ม 5 คน แล้วไฟลต์ขาเข้าดีเลย์", en: "40-person Golden Triangle inbound — add five, then delay the arrival" })}
         </h2>
         <p className="mt-2 text-[14px] max-w-[680px]">
           {L({

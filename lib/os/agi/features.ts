@@ -1,4 +1,5 @@
 import type { L10n } from "../../data";
+import type { AiDraft } from "../types";
 import { AGENT_ORDER } from "./copy";
 import { FLAGSHIP_BRIEF, parseBrief, type ParsedBrief } from "./engine";
 import {
@@ -29,15 +30,15 @@ export const FLAGSHIP_TAP: AgiTapBrief = {
   protocol: "TAP",
   version: "0.1.0",
   channel: "agent-direct",
-  agency: "nordic-circles",
+  agency: "nanfang-travel",
   objective: FLAGSHIP_BRIEF,
   pax: 40,
   days: 6,
-  dest: "Thailand",
-  nationality: "Swedish",
+  dest: "Golden Triangle",
+  nationality: "Chinese",
   hotelClass: 4,
   visibility: { sell: true, cost: false, margin: false },
-  sellHint: 59800,
+  sellHint: 24000,
 };
 
 export function tryTapBrief(raw: string): AgiTapBrief | null {
@@ -79,16 +80,16 @@ export const SEED_MEMORY: AgiMemory[] = [
     region: "North Thailand",
   },
   {
-    id: "mem-arn-bkk",
-    topic: z("ไฟลต์กลุ่ม ARN–BKK", "Group air ARN–BKK"),
+    id: "mem-can-cnx",
+    topic: z("ไฟลต์กลุ่ม CAN–CNX", "Group air CAN–CNX"),
     body: z(
-      "คอนโซยุโรปให้ประมาณ ฿18,500/คน ไปกลับ มัดจำ 30% ปล่อย T-21 — ยังไม่ใช่บล็อก",
-      "Europe consolidator ~฿18,500/pax RT, 30% deposit, release T-21 — not a block."
+      "คอนโซจีนให้ประมาณ ฿9,200/คน ไปกลับ มัดจำ 30% ปล่อย T-21 — ยังไม่ใช่บล็อก",
+      "China consolidator ~฿9,200/pax RT, 30% deposit, release T-21 — not a block."
     ),
     source: "Consolidator email 2025-11",
     validFrom: "2025-11-01",
     validTo: "2026-11-30",
-    region: "ARN / BKK",
+    region: "CAN / CNX",
   },
   {
     id: "mem-coach-north",
@@ -103,11 +104,11 @@ export const SEED_MEMORY: AgiMemory[] = [
     region: "North Thailand",
   },
   {
-    id: "mem-linda",
-    topic: z("ไกด์สวีดิช เชียงใหม่", "Swedish-speaking guide, Chiang Mai"),
+    id: "mem-ming",
+    topic: z("ไกด์จีน เชียงใหม่–เชียงราย", "Chinese-speaking guide, Chiang Mai–Chiang Rai"),
     body: z(
-      "ลินดา ฿9,000/วัน ตอบช้าช่วงไฮซีซัน ต้องขอคิวก่อน 14 วัน ไม่ยืนยันจนกว่าไกด์ตอบ",
-      "Linda ฿9,000/day. Slow in high season — request 14 days out. Not confirmed until she replies."
+      "หมิง ฿5,500/วัน ตอบช้าช่วงไฮซีซัน ต้องขอคิวก่อน 14 วัน ไม่ยืนยันจนกว่าไกด์ตอบ",
+      "Ming ฿5,500/day. Slow in high season — request 14 days out. Not confirmed until she replies."
     ),
     source: "Guide roster · ops log 2025",
     validFrom: "2025-01-01",
@@ -115,16 +116,16 @@ export const SEED_MEMORY: AgiMemory[] = [
     region: "North Thailand",
   },
   {
-    id: "mem-pai-rain",
-    topic: z("ปายหน้าฝน", "Pai in the rain"),
+    id: "mem-mekong-rain",
+    topic: z("แม่โขงหน้าฝน", "Mekong in the rain"),
     body: z(
-      "ถนนคดปิดได้หลังฝนหนัก ร้านวอล์กกิ้งสตรีทยังรับกลุ่ม 40 ได้ถึง 20:00",
-      "Mountain loop can close after heavy rain. Walking-street restaurants still take 40 until 20:00."
+      "เรือเชียงแสนยกเลิกได้หลังฝนหนัก บ้านดำยังรับกลุ่ม 40 ได้ถึง 17:00",
+      "Chiang Saen boats can cancel after heavy rain. Baan Dam still takes 40 until 17:00."
     ),
     source: "Trip failure log · Aug 2025",
     validFrom: "2025-08-01",
     validTo: "2026-10-31",
-    region: "Pai",
+    region: "Golden Triangle",
   },
   {
     id: "mem-late-rest",
@@ -218,7 +219,7 @@ export function seedRehearsal(): { cases: AgiRehearsalCase[] } {
       {
         id: "slow-board",
         label: z("ขึ้นรถช้า", "Slow boarding"),
-        trigger: z("กลุ่มสวีเดนขึ้นรถ +12 นาทีโดยสถิติ", "Swedish groups board +12 min on average"),
+        trigger: z("กรุ๊ปจีนขึ้นรถ +10 นาทีโดยสถิติ", "Chinese groups board +10 min on average"),
         fragile: z("สล็อตมื้อกลางวันติดวัด", "Lunch slot stacked on the temple"),
         assumption: z("หัวอาหารยังเป็นประมาณ 40 ไม่มีรายชื่อแพ้", "Meal headcount still assumed 40; allergens unknown"),
         outcome: z("ร้านตัดหัวหลัง 13:15 — อย่าวางมื้อติดสล็อต", "Restaurant cuts the group after 13:15 — do not stack meals"),
@@ -226,11 +227,11 @@ export function seedRehearsal(): { cases: AgiRehearsalCase[] } {
       },
       {
         id: "rain",
-        label: z("ฝนปาย", "Rain in Pai"),
-        trigger: z("ฝนหนักปิดถนนขึ้นเขา", "Heavy rain closes the mountain loop"),
-        fragile: z("วันปายทั้งวันไม่มีแผนสำรองในบรีฟ", "Full Pai day has no rain plan in the brief"),
-        assumption: z("ความจำบริษัท: วอล์กกิ้งสตรีทยังรับ 40 ถึง 20:00", "Company memory: walking street still takes 40 until 20:00"),
-        outcome: z("สลับตลาดวอล์กกิ้ง — ไม่เสียมื้อ แต่เสียวิวเขา", "Swap walking street — meals kept, mountain views lost"),
+        label: z("ฝนเชียงแสน", "Rain at Chiang Saen"),
+        trigger: z("ฝนหนักยกเลิกเรือแม่โขง", "Heavy rain cancels the Mekong boat"),
+        fragile: z("วันสามเหลี่ยมทองคำไม่มีแผนสำรองในบรีฟ", "Golden Triangle day has no rain plan in the brief"),
+        assumption: z("ความจำบริษัท: บ้านดำยังรับ 40 ถึง 17:00", "Company memory: Baan Dam still takes 40 until 17:00"),
+        outcome: z("สลับบ้านดำ — ไม่เสียมื้อ แต่เสียล่องแม่โขง", "Swap Baan Dam — meals kept, Mekong boat lost"),
         ran: false,
       },
       {
@@ -280,11 +281,52 @@ function kindFromName(name: string, fallback: IngestKind): IngestKind {
   const n = name.toLowerCase();
   if (n.endsWith(".csv") || n.endsWith(".tsv")) return "csv";
   if (n.endsWith(".json")) return "json";
-  if (n.endsWith(".txt")) return "txt";
+  if (n.endsWith(".txt") || n.endsWith(".eml") || n.endsWith(".msg") || n.endsWith(".md")) return "txt";
   if (n.endsWith(".xlsx") || n.endsWith(".xls") || n.endsWith(".ods")) return "spreadsheet";
   if (n.endsWith(".pdf")) return "pdf";
   if (/\.(mp3|m4a|wav|webm|ogg|aac)$/.test(n)) return "voice";
   return fallback;
+}
+
+export const INGEST_ACCEPT = ".txt,.csv,.json,.tsv,.eml,.msg,.md,.pdf,.mp3,.m4a,.wav,.webm,.xlsx,.xls,.ods";
+
+export function ingestFromVoice(text: string): AgiIngest {
+  return buildIngest("paste", "voice.txt", text);
+}
+
+export async function ingestFromFile(file: File): Promise<AgiIngest> {
+  const kind = kindFromName(file.name, "txt");
+  const readable = kind === "txt" || kind === "csv" || kind === "json" || kind === "paste";
+  const text = readable ? await file.text() : "";
+  return buildIngest(kind, file.name, text);
+}
+
+export function draftsFromIngest(ingest: AgiIngest): AiDraft[] {
+  const confirmed = ingest.facts.filter((f) => f.klass === "confirmed");
+  const estimate = ingest.facts.filter((f) => f.klass === "estimate");
+  const missing = ingest.facts.filter((f) => f.klass === "missing");
+  const lines = ingest.facts.map((f) => `${f.label.en}: ${f.value.en} [${f.klass}]`).join("\n");
+  return [
+    {
+      id: `ai-ingest-${ingest.id}`,
+      feature: "AI Tour Producer",
+      title: z(`จาก ${ingest.name}`, `From ${ingest.name}`),
+      body: ingest.note,
+      editable: lines || ingest.rawPreview,
+      applied: false,
+    },
+    {
+      id: `ai-ingest-gap-${ingest.id}`,
+      feature: "AI Operations Assistant",
+      title: z("แยกฟิลด์แล้ว — ยังไม่ถือของ", "Fields extracted — nothing held"),
+      body: z(
+        `ยืนยัน ${confirmed.length} · ประมาณ ${estimate.length} · ขาด ${missing.length}`,
+        `Confirmed ${confirmed.length} · estimate ${estimate.length} · missing ${missing.length}`
+      ),
+      editable: missing.map((f) => `${f.label.en}: ${f.value.en}`).join("\n") || "No missing fields marked.",
+      applied: false,
+    },
+  ];
 }
 
 function textFromStructured(kind: IngestKind, name: string, text: string): string {
@@ -292,7 +334,8 @@ function textFromStructured(kind: IngestKind, name: string, text: string): strin
     if (text.trim()) return text;
     const n = name.toLowerCase();
     const bits = ["Thailand tour"];
-    if (/swedish|สวีเดน|se40|nordic/.test(n)) bits.push("40 Swedish travelers");
+    if (/golden|triangle|gt40|nanfang|จีน|chinese/.test(n)) bits.push("40 Chinese travelers, Golden Triangle");
+    else if (/swedish|สวีเดน|se40|nordic/.test(n)) bits.push("40 Swedish travelers");
     else if (/(\d{2})/.test(n)) bits.push(`${n.match(/(\d{2})/)?.[1]} travelers`);
     if (/6|six/.test(n)) bits.push("six-day");
     if (/thai|thailand|cnx|chiang/.test(n)) bits.push("Thailand");
@@ -334,8 +377,9 @@ export function buildIngest(kind: IngestKind, name: string, text: string): AgiIn
     at: now(),
     rawPreview: (text || body).slice(0, 280),
     facts: factsFromBrief(brief, source),
-    note:
-      resolved === "pdf" || resolved === "voice"
+    note: name.toLowerCase().startsWith("voice")
+      ? z("ถอดเสียงแล้ว แยก confirmed / estimate / missing — ยังไม่ถือของ", "Speech transcribed. Split confirmed / estimate / missing — nothing held.")
+      : resolved === "pdf" || resolved === "voice"
         ? z("บันทึกการอัปโหลด — ดึงฟิลด์จากชื่อไฟล์/เดโม ไม่ถอดเสียงหรืออ่าน PDF จริง", "Recorded upload — fields from filename/demo, no live STT or PDF lib.")
         : z("ดึงข้อความแล้ว แยก confirmed / estimate / missing — ยังไม่ถือของ", "Text read. Split confirmed / estimate / missing — nothing held."),
   };

@@ -20,14 +20,14 @@ export default function LivePage() {
       <DemoBar />
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-4">
         <div className="border-2 border-divider p-4">
-          <div className="microlabel mb-2">Timeline · day 2 Tokyo</div>
+          <div className="microlabel mb-2">Timeline · day 1 Chiang Mai</div>
           <svg viewBox="0 0 640 220" className="w-full h-auto bg-surface">
             <path d="M40 160 H600" stroke="#201e1d" strokeWidth="2" />
             {[
-              ["HND", 80, fl?.delayed ? "11:40" : "06:55"],
+              ["CNX", 80, fl?.delayed ? "11:40" : "07:10"],
               ["Coach", 200, "wait"],
-              ["Asakusa", 340, sim.delayed ? "13:30" : "12:15"],
-              ["Skytree", 480, sim.delayed ? "15:30" : "10:30"],
+              ["Nimman", 340, sim.delayed ? "13:30" : "12:15"],
+              ["Doi Suthep", 480, sim.delayed ? "15:30" : "10:30"],
               ["Hotel", 580, "late"],
             ].map(([label, x, t]) => (
               <g key={String(label)}>

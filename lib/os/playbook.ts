@@ -29,14 +29,14 @@ export interface MenuPlaybook {
 
 const en: Record<MenuKey, MenuPlaybook> = {
   home: {
-    goal: "See today’s departures, overdue work, unconfirmed suppliers and margin in one place — then run or continue the 40-pax Tokyo demo.",
+    goal: "See today’s departures, overdue work, unconfirmed suppliers and margin in one place — then run or continue the 40-pax Golden Triangle inbound demo.",
     watch: "Amber items are not booked. Do not treat indicative overtime or walk-up rooms as confirmed cost.",
     ai: "Ask the OS: “show margin”, “what is overdue”, “run the demo”.",
     steps: [
       { n: "1", t: "Read the four-box impact strip", b: "What happened, why it matters, money, next action — approve from here when a pack is pending." },
-      { n: "2", t: "Clear urgent deadlines first", b: "Name list, hotel release, missing passports and customer balance are time-zoned. ICT ≠ JST." },
-      { n: "3", t: "Open the live departure", b: "Click today’s Tokyo group to work passengers, flights and suppliers on the same file." },
-      { n: "4", t: "Use the demo buttons in order", b: "Add 5 passengers → delay TG660 → approve → close. Reset only if you need a clean file." },
+      { n: "2", t: "Clear urgent deadlines first", b: "Name list, hotel release, missing passports and customer balance are time-zoned. ICT ≠ China CST on the inbound block." },
+      { n: "3", t: "Open the live departure", b: "Click today’s Golden Triangle inbound group to work passengers, flights and suppliers on the same file." },
+      { n: "4", t: "Use the demo buttons in order", b: "Add 5 passengers → delay CZ3051 → approve → close. Reset only if you need a clean file." },
     ],
   },
   sales: {
@@ -77,7 +77,7 @@ const en: Record<MenuKey, MenuPlaybook> = {
     watch: "Unsold seats are cash exposure at unit cost. Releasing after the name-list date can still carry a penalty.",
     ai: "Ask: “keep or release unused seats”, “name-list readiness”, “walk-up vs consolidator”.",
     steps: [
-      { n: "1", t: "Read the block row first", b: "Airline, route, seats, sold, PNR, names due, ticket-by, exposure. Time zones are on the block (ICT / JST)." },
+      { n: "1", t: "Read the block row first", b: "Airline, route, seats, sold, PNR, names due, ticket-by, exposure. Time zones are on the block (ICT / CST)." },
       { n: "2", t: "Match names to passports", b: "Ticket status listed ≠ ticketed. Mismatched passport names will fail at submit." },
       { n: "3", t: "Honour consolidator terms", b: "Typical: 30% deposit, release T-21, names T-14. Child fare and name-change fee must be written, not assumed." },
       { n: "4", t: "Decide keep vs release with total tour cost", b: "Do not release a corporate block while add-ons are still open. Walk-up on 5 extra seats is a Change Impact, not a silent edit." },
@@ -99,7 +99,7 @@ const en: Record<MenuKey, MenuPlaybook> = {
     watch: "A delayed arrival is not only a flight problem — meals, attractions, coaches and guides all move.",
     ai: "Ask: “Trip Simulator”, “Disruption Coordinator”, “what must be acknowledged today”.",
     steps: [
-      { n: "1", t: "Read the timeline against the clock", b: "If TG660 is late, Skytree 10:30 and lunch 12:15 fail. Use the proposed 15:30 / 13:30 times." },
+      { n: "1", t: "Read the timeline against the clock", b: "If CZ3051 is late, Doi Suthep 10:30 and lunch 12:15 fail. Use the proposed 15:30 / 13:30 times." },
       { n: "2", t: "Open the incident, do not hide it", b: "Status open → recovering → closed. Recovery cost (overtime, parking) must appear on finance." },
       { n: "3", t: "Collect acknowledgements", b: "Restaurant, attraction, coaches, client. Unticked ack means the old time is still in someone’s pocket." },
       { n: "4", t: "Push the same plan to portals", b: "Guides see the new slot on mobile. Travellers see the revised day. Do not send a second unofficial WhatsApp plan." },
@@ -117,12 +117,12 @@ const en: Record<MenuKey, MenuPlaybook> = {
     ],
   },
   analytics: {
-    goal: "Review sales, utilisation, incidents and Tour Memory so the next Japan template is better than this one.",
+    goal: "Review sales, utilisation, incidents and Tour Memory so the next Golden Triangle inbound template is better than this one.",
     watch: "Memory is advice for the next product, not a silent change to this departure.",
-    ai: "Ask: “Tour Memory”, “why morning Skytree fails after a red-eye”.",
+    ai: "Ask: “Tour Memory”, “why morning Doi Suthep fails after a late CNX arrival”.",
     steps: [
       { n: "1", t: "Read this departure’s scorecard", b: "Won enquiry, margin, capacity used, incident count, GMV." },
-      { n: "2", t: "Apply memory to the next template", b: "Default day-2: Asakusa first, Skytree afternoon. Price driver overtime into the quote." },
+      { n: "2", t: "Apply memory to the next template", b: "Default day-1: old city first if late, Doi Suthep afternoon. Price driver overtime into the quote." },
       { n: "3", t: "Flag weak suppliers", b: "Late restaurant acks become a T-48h written-ack rule on the next file." },
       { n: "4", t: "Do not forecast from one trip alone", b: "Capacity Exchange and seat-demand forecasting are later-stage — not on this screen yet." },
     ],
@@ -135,7 +135,7 @@ const en: Record<MenuKey, MenuPlaybook> = {
       { n: "1", t: "Traveller — itinerary and tasks", b: "Days, voucher, passport still needed, deposit vs balance." },
       { n: "2", t: "Organiser — the group list", b: "Names, rooms, missing passports. They add people; you still approve inventory." },
       { n: "3", t: "Supplier — one confirm button", b: "Headcount and new meal time only. No other departures." },
-      { n: "4", t: "Guide — manifest and incidents", b: "New Skytree slot, open tasks, file a delay note back into Live trip." },
+      { n: "4", t: "Guide — manifest and incidents", b: "New Doi Suthep slot, open tasks, file a delay note back into Live trip." },
     ],
   },
   scope: {
@@ -152,7 +152,7 @@ const en: Record<MenuKey, MenuPlaybook> = {
   agi: {
     goal: "Assign a business objective to the agentic team. They plan, coordinate modules, execute inside authority, and bring you approvals.",
     watch: "AGI Mode is a separate layer from Normal AI. A finished itinerary is not a booking. Toggle off to go back to one-task help.",
-    ai: "Assign: the Swedish 40-pax Thailand brief, then Change Once to 32, then Trip Rescue on a delay.",
+    ai: "Assign: the Golden Triangle inbound 40-pax brief, then Change Once to 32, then Trip Rescue on a delay.",
     steps: [
       { n: "1", t: "Turn AGI Mode on", b: "The gold Ask AI dock at the top of the work area becomes the objective box. Playbook stays closed unless you open it." },
       { n: "2", t: "Give one command", b: "The team writes a project into Sales, Builder, Flights, Suppliers and Finance — all lines stay requested / estimate." },
@@ -164,14 +164,14 @@ const en: Record<MenuKey, MenuPlaybook> = {
 
 const th: Record<MenuKey, MenuPlaybook> = {
   home: {
-    goal: "ดูรอบเดินทางวันนี้ งานค้าง ซัพพลายเออร์ที่ยังไม่ยืนยัน และมาร์จิ้นในหน้าเดียว แล้วรันเดโมโตเกียว 40 คน",
+    goal: "ดูรอบเดินทางวันนี้ งานค้าง ซัพพลายเออร์ที่ยังไม่ยืนยัน และมาร์จิ้นในหน้าเดียว แล้วรันเดโมอินบาวด์สามเหลี่ยมทองคำ 40 คน",
     watch: "รายการสีเหลืองยังไม่จอง อย่าคิดว่าล่วงเวลาหรือห้องราคาเดินเป็นต้นทุนที่ยืนยันแล้ว",
     ai: "ถามระบบ: “ดูมาร์จิ้น”, “อะไรเกินเดดไลน์”, “รันเดโม”",
     steps: [
       { n: "1", t: "อ่านกล่องผลกระทบสี่ช่อง", b: "เกิดอะไร ทำไมสำคัญ เงิน ขั้นถัดไป — อนุมัติจากที่นี่เมื่อมีแพ็กค้าง" },
-      { n: "2", t: "เคลียร์เดดไลน์ด่วนก่อน", b: "รายชื่อไฟลต์ ปล่อยห้อง พาสปอร์ตขาด ยอดลูกค้า — โซนเวลา ICT ≠ JST" },
-      { n: "3", t: "เปิดรอบเดินทางที่กำลังทำ", b: "คลิกกรุ๊ปโตเกียววันนี้ เพื่อทำผู้โดยสาร ไฟลต์ และซัพพลายเออร์ในไฟล์เดียว" },
-      { n: "4", t: "กดปุ่มเดโมตามลำดับ", b: "เพิ่ม 5 คน → ดีเลย์ TG660 → อนุมัติ → ปิดทริป รีเซ็ตเมื่อต้องการไฟล์สะอาด" },
+      { n: "2", t: "เคลียร์เดดไลน์ด่วนก่อน", b: "รายชื่อไฟลต์ ปล่อยห้อง พาสปอร์ตขาด ยอดลูกค้า — โซนเวลา ICT ≠ เวลาจีนบนบล็อกขาเข้า" },
+      { n: "3", t: "เปิดรอบเดินทางที่กำลังทำ", b: "คลิกกรุ๊ปอินบาวด์สามเหลี่ยมทองคำวันนี้ เพื่อทำผู้โดยสาร ไฟลต์ และซัพพลายเออร์ในไฟล์เดียว" },
+      { n: "4", t: "กดปุ่มเดโมตามลำดับ", b: "เพิ่ม 5 คน → ดีเลย์ CZ3051 → อนุมัติ → ปิดทริป รีเซ็ตเมื่อต้องการไฟล์สะอาด" },
     ],
   },
   sales: {
@@ -234,7 +234,7 @@ const th: Record<MenuKey, MenuPlaybook> = {
     watch: "ไฟลต์ดีเลย์ไม่ใช่เรื่องบินอย่างเดียว อาหาร กิจกรรม รถ ไกด์ขยับด้วย",
     ai: "ถาม: “Trip Simulator”, “Disruption Coordinator”, “วันนี้ต้องให้ใครตอบรับ”",
     steps: [
-      { n: "1", t: "อ่านไทม์ไลน์เทียบนาฬิกา", b: "ถ้า TG660 สาย สกายทรี 10:30 และอาหาร 12:15 พัง ใช้เวลา 15:30 / 13:30 ที่เสนอ" },
+      { n: "1", t: "อ่านไทม์ไลน์เทียบนาฬิกา", b: "ถ้า CZ3051 สาย ดอยสุเทพ 10:30 และอาหาร 12:15 พัง ใช้เวลา 15:30 / 13:30 ที่เสนอ" },
       { n: "2", t: "เปิด incident อย่าซ่อน", b: "open → recovering → closed ต้นทุนกู้ต้องโผล่ที่การเงิน" },
       { n: "3", t: "เก็บใบตอบรับ", b: "ร้าน กิจกรรม รถ ลูกค้า ถ้ายังไม่ติ๊ก แปลว่าเขายังถือเวลาเดิม" },
       { n: "4", t: "ส่งแผนเดียวกันไปพอร์ทัล", b: "ไกด์เห็นสล็อตใหม่ ผู้เดินทางเห็นวันที่แก้ ห้ามมีแผน WhatsApp ชุดที่สอง" },
@@ -252,12 +252,12 @@ const th: Record<MenuKey, MenuPlaybook> = {
     ],
   },
   analytics: {
-    goal: "ทบทวนยอดขาย การใช้ที่นั่ง อุบัติการณ์ และ Tour Memory เพื่อให้เทมเพลตญี่ปุ่นครั้งหน้าดีกว่านี้",
+    goal: "ทบทวนยอดขาย การใช้ที่นั่ง อุบัติการณ์ และ Tour Memory เพื่อให้เทมเพลตอินบาวด์สามเหลี่ยมทองคำครั้งหน้าดีกว่านี้",
     watch: "Memory เป็นคำแนะนำทริปหน้า ไม่ได้แก้ departure นี้เงียบ ๆ",
-    ai: "ถาม: “Tour Memory”, “ทำไมสกายทรีเช้าพังหลังไฟลต์ดึก”",
+    ai: "ถาม: “Tour Memory”, “ทำไมดอยสุเทพเช้าพังหลังไฟลต์สายเข้า CNX”",
     steps: [
       { n: "1", t: "อ่านสกอร์การ์ดทริปนี้", b: "งานที่ชนะ มาร์จิ้น ใช้ความจุ อุบัติการณ์ GMV" },
-      { n: "2", t: "เอา memory ใส่เทมเพลตหน้า", b: "วันที่ 2: อาซากุสะก่อน สกายทรีบ่าย ใส่ล่วงเวลาคนขับในใบเสนอ" },
+      { n: "2", t: "เอา memory ใส่เทมเพลตหน้า", b: "วันที่ 1: เมืองเก่าก่อนถ้าสาย ดอยสุเทพบ่าย ใส่ล่วงเวลาคนขับในใบเสนอ" },
       { n: "3", t: "ทำเครื่องหมายซัพพลายเออร์ที่ช้า", b: "ร้านตอบช้า → ทริปหน้าบังคับตอบเป็นลายลักษณ์อักษรก่อน 48 ชม." },
       { n: "4", t: "อย่าพยากรณ์จากทริปเดียว", b: "Capacity Exchange และการพยากรณ์ที่นั่งเป็นขั้นถัดไป ยังไม่อยู่หน้านี้" },
     ],
@@ -270,7 +270,7 @@ const th: Record<MenuKey, MenuPlaybook> = {
       { n: "1", t: "ผู้เดินทาง — โปรแกรมและงานเอกสาร", b: "รายวัน วาวเชอร์ พาสปอร์ตยังขาด มัดจำกับยอดคงเหลือ" },
       { n: "2", t: "ผู้จัดกรุ๊ป — รายชื่อ", b: "ชื่อ ห้อง พาสปอร์ตขาด เขาเพิ่มคนได้ แต่คุณยังต้องอนุมัติของ" },
       { n: "3", t: "ซัพพลายเออร์ — ปุ่มยืนยันเดียว", b: "หัวอาหารและเวลาใหม่เท่านั้น ไม่เห็นทริปอื่น" },
-      { n: "4", t: "ไกด์ — แมนิเฟสต์และเหตุ", b: "สล็อตสกายทรีใหม่ งานค้าง บันทึกดีเลย์กลับเข้าทริปสด" },
+      { n: "4", t: "ไกด์ — แมนิเฟสต์และเหตุ", b: "สล็อตดอยสุเทพใหม่ งานค้าง บันทึกดีเลย์กลับเข้าทริปสด" },
     ],
   },
   scope: {
@@ -287,7 +287,7 @@ const th: Record<MenuKey, MenuPlaybook> = {
   agi: {
     goal: "มอบวัตถุประสงค์ทางธุรกิจให้ทีมเอเจนต์ วางแผน ประสานโมดูล ทำในกรอบอำนาจ แล้วส่งเฉพาะจุดที่ต้องอนุมัติ",
     watch: "โหมด AGI เป็นชั้นแยกจาก AI ปกติ โปรแกรมที่สวยยังไม่ใช่การจอง ปิดสวิตช์เพื่อกลับไปถามทีละงาน",
-    ai: "มอบบรีฟสวีเดน 40 คน แล้ว Change Once เป็น 32 แล้วกู้ทริปเมื่อไฟลต์ดีเลย์",
+    ai: "มอบบรีฟอินบาวด์สามเหลี่ยมทองคำ 40 คน แล้ว Change Once เป็น 32 แล้วกู้ทริปเมื่อไฟลต์ดีเลย์",
     steps: [
       { n: "1", t: "เปิดโหมด AGI", b: "แท่นถาม AI สีทองด้านบนพื้นที่ทำงานกลายเป็นกล่องวัตถุประสงค์ เพลย์บุ๊กปิดอยู่จนกว่าจะเปิด" },
       { n: "2", t: "สั่งคำสั่งเดียว", b: "ทีมเขียนโปรเจกต์ลงขาย สร้างทัวร์ ไฟลต์ ซัพพลายเออร์ การเงิน — ทุกบรรทัดยังเป็น requested / ประมาณการ" },
@@ -299,14 +299,14 @@ const th: Record<MenuKey, MenuPlaybook> = {
 
 const zh: Record<MenuKey, MenuPlaybook> = {
   home: {
-    goal: "在一页看清今日发团、逾期任务、未确认供应商和毛利，并继续 40 人东京验收演示。",
+    goal: "在一页看清今日发团、逾期任务、未确认供应商和毛利，并继续 40 人金三角入境验收演示。",
     watch: "黄色条目尚未预订。不要把加班或散客房价当成已确认成本。",
     ai: "问系统：“看毛利”“哪些逾期”“跑演示”。",
     steps: [
       { n: "1", t: "先读四格影响条", b: "发生了什么、为何重要、钱、下一步。有待批包装时在这里批准。" },
-      { n: "2", t: "先清紧急截止", b: "名单、酒店释放、缺护照、应收余款。曼谷时间 ≠ 东京时间。" },
-      { n: "3", t: "打开当日发团", b: "点进东京团，在同一档案处理客人、机票和供应商。" },
-      { n: "4", t: "按顺序用演示按钮", b: "加 5 人 → 延误 TG660 → 批准 → 关团。只有要干净档案时才重置。" },
+      { n: "2", t: "先清紧急截止", b: "名单、酒店释放、缺护照、应收余款。曼谷时间 ≠ 中国时间。" },
+      { n: "3", t: "打开当日发团", b: "点进金三角入境团，在同一档案处理客人、机票和供应商。" },
+      { n: "4", t: "按顺序用演示按钮", b: "加 5 人 → 延误 CZ3051 → 批准 → 关团。只有要干净档案时才重置。" },
     ],
   },
   sales: {
@@ -369,7 +369,7 @@ const zh: Record<MenuKey, MenuPlaybook> = {
     watch: "抵达延误不只是航班问题——餐、景点、车、导游都要动。",
     ai: "问：“Trip Simulator”“Disruption Coordinator”“今天必须谁回执”。",
     steps: [
-      { n: "1", t: "对照时钟读时间轴", b: "TG660 晚到，10:30 天空树和 12:15 午餐会失败。用建议的 15:30 / 13:30。" },
+      { n: "1", t: "对照时钟读时间轴", b: "CZ3051 晚到，10:30 双龙寺和 12:15 午餐会失败。用建议的 15:30 / 13:30。" },
       { n: "2", t: "打开事件，不要藏", b: "open → recovering → closed。恢复成本必须出现在财务。" },
       { n: "3", t: "收集回执", b: "餐厅、景点、车、客户。未勾选等于对方还拿着旧时间。" },
       { n: "4", t: "同一套计划推到门户", b: "导游手机看新场次，客人看改后日程。不要另发一套 WhatsApp 计划。" },
@@ -387,12 +387,12 @@ const zh: Record<MenuKey, MenuPlaybook> = {
     ],
   },
   analytics: {
-    goal: "复盘销售、利用率、事件和 Tour Memory，让下一版日本模板更好。",
+    goal: "复盘销售、利用率、事件和 Tour Memory，让下一版金三角入境模板更好。",
     watch: "Memory 是给下一产品的建议，不会悄悄改掉本团。",
-    ai: "问：“Tour Memory”“红眼航班后为何上午天空树容易失败”。",
+    ai: "问：“Tour Memory”“晚到清迈后为何上午双龙寺容易失败”。",
     steps: [
       { n: "1", t: "读本团记分卡", b: "赢单、毛利、容量利用率、事件数、GMV。" },
-      { n: "2", t: "把记忆写进下一模板", b: "第 2 天：先浅草，下午天空树。报价计入司机加班。" },
+      { n: "2", t: "把记忆写进下一模板", b: "第 1 天：若晚到先古城，下午双龙寺。报价计入司机加班。" },
       { n: "3", t: "标记迟缓供应商", b: "餐厅回执慢 → 下团要求出发前 48 小时书面确认。" },
       { n: "4", t: "不要用一趟团做预测", b: "运力互换和座位预测是后期能力，本屏尚未提供。" },
     ],
@@ -405,7 +405,7 @@ const zh: Record<MenuKey, MenuPlaybook> = {
       { n: "1", t: "客人 — 行程与材料", b: "日程、凭证、缺护照、订金与余款。" },
       { n: "2", t: "组团人 — 名单", b: "姓名、房间、缺护照。他们可加人，库存仍须你批准。" },
       { n: "3", t: "供应商 — 一个确认键", b: "只看人数和新用餐时间，看不到其他团。" },
-      { n: "4", t: "导游 — 名单与事件", b: "新的天空树场次、待办、把延误记回现场指挥。" },
+      { n: "4", t: "导游 — 名单与事件", b: "新的双龙寺场次、待办、把延误记回现场指挥。" },
     ],
   },
   scope: {
@@ -422,7 +422,7 @@ const zh: Record<MenuKey, MenuPlaybook> = {
   agi: {
     goal: "把业务目标交给智能体团队。他们规划、协调模块、在权限内执行，并把需要批准的决定送来。",
     watch: "AGI 模式与普通 AI 分层。漂亮行程不是预订。关掉开关就回到单任务帮助。",
-    ai: "下达瑞典 40 人泰国简报，再把人数改成 32，再用行程救援处理延误。",
+    ai: "下达金三角入境 40 人简报，再把人数改成 32，再用行程救援处理延误。",
     steps: [
       { n: "1", t: "打开 AGI 模式", b: "金色层把“问系统”换成目标框。关掉后普通 AI 仍在。" },
       { n: "2", t: "一条指令", b: "团队把项目写入销售、搭建、机票、供应商、财务——所有行仍是 requested / 估算。" },
@@ -434,14 +434,14 @@ const zh: Record<MenuKey, MenuPlaybook> = {
 
 const ru: Record<MenuKey, MenuPlaybook> = {
   home: {
-    goal: "Видеть сегодняшние заезды, просрочки, неподтверждённых поставщиков и маржу — и вести демо на 40 человек в Токио.",
+    goal: "Видеть сегодняшние заезды, просрочки, неподтверждённых поставщиков и маржу — и вести inbound-демо Золотой треугольник на 40 человек.",
     watch: "Жёлтое ещё не забронировано. Не считайте сверхурочные и walk-up номера подтверждённой себестоимостью.",
     ai: "Спросите: «покажи маржу», «что просрочено», «запусти демо».",
     steps: [
       { n: "1", t: "Сначала четыре блока влияния", b: "Что случилось, почему важно, деньги, следующий шаг. Одобряйте пакет здесь." },
-      { n: "2", t: "Сначала срочные дедлайны", b: "Имена в авиакомпанию, релиз отеля, паспорта, баланс клиента. ICT ≠ JST." },
-      { n: "3", t: "Откройте живой заезд", b: "Клик по токийской группе — пассажиры, рейсы и поставщики в одном файле." },
-      { n: "4", t: "Кнопки демо по порядку", b: "Добавить 5 → задержать TG660 → утвердить → закрыть. Сброс только для чистого файла." },
+      { n: "2", t: "Сначала срочные дедлайны", b: "Имена в авиакомпанию, релиз отеля, паспорта, баланс клиента. ICT ≠ CST Китая." },
+      { n: "3", t: "Откройте живой заезд", b: "Клик по inbound-группе Золотой треугольник — пассажиры, рейсы и поставщики в одном файле." },
+      { n: "4", t: "Кнопки демо по порядку", b: "Добавить 5 → задержать CZ3051 → утвердить → закрыть. Сброс только для чистого файла." },
     ],
   },
   sales: {
@@ -504,7 +504,7 @@ const ru: Record<MenuKey, MenuPlaybook> = {
     watch: "Задержка прилёта двигает еду, объекты, автобусы и гидов, не только рейс.",
     ai: "Спросите: «Trip Simulator», «Disruption Coordinator», «чьи ack нужны сегодня».",
     steps: [
-      { n: "1", t: "Таймлайн против часов", b: "Поздний TG660 срывает Skytree 10:30 и обед 12:15. Берите 15:30 / 13:30." },
+      { n: "1", t: "Таймлайн против часов", b: "Поздний CZ3051 срывает Doi Suthep 10:30 и обед 12:15. Берите 15:30 / 13:30." },
       { n: "2", t: "Инцидент открытым", b: "open → recovering → closed. Стоимость recovery должна быть в финансах." },
       { n: "3", t: "Соберите ack", b: "Ресторан, объект, автобусы, клиент. Нет галочки — у них старое время." },
       { n: "4", t: "Один план в порталы", b: "Гид видит новый слот, турист — новый день. Без второго плана в WhatsApp." },
@@ -522,12 +522,12 @@ const ru: Record<MenuKey, MenuPlaybook> = {
     ],
   },
   analytics: {
-    goal: "Продажи, загрузка, инциденты и Tour Memory — чтобы следующий японский шаблон был лучше.",
+    goal: "Продажи, загрузка, инциденты и Tour Memory — чтобы следующий inbound-шаблон Золотой треугольник был лучше.",
     watch: "Memory советует следующий продукт, не меняет этот заезд молча.",
-    ai: "Спросите: «Tour Memory», «почему утренний Skytree падает после ночного рейса».",
+    ai: "Спросите: «Tour Memory», «почему утренний Doi Suthep падает после позднего прилёта в CNX».",
     steps: [
       { n: "1", t: "Карточка этого заезда", b: "Выигранная заявка, маржа, загрузка, инциденты, GMV." },
-      { n: "2", t: "Память — в следующий шаблон", b: "День 2: сначала Асакуса, Skytree днём. Сверхурочные водителя — в смету." },
+      { n: "2", t: "Память — в следующий шаблон", b: "День 1: если опоздание — сначала старый город, Doi Suthep днём. Сверхурочные водителя — в смету." },
       { n: "3", t: "Метьте медленных поставщиков", b: "Поздний ack ресторана → в следующий раз письменный ack за 48 ч." },
       { n: "4", t: "Не прогнозируйте по одному туру", b: "Capacity Exchange и прогноз мест — следующий этап, не этот экран." },
     ],
@@ -540,7 +540,7 @@ const ru: Record<MenuKey, MenuPlaybook> = {
       { n: "1", t: "Турист — программа и задачи", b: "Дни, ваучер, нужен паспорт, депозит и баланс." },
       { n: "2", t: "Организатор — список группы", b: "Имена, комнаты, паспорта. Они добавляют людей, инвентарь утверждаете вы." },
       { n: "3", t: "Поставщик — одна кнопка", b: "Только headcount и новое время еды. Других заездов нет." },
-      { n: "4", t: "Гид — манифест и инцидент", b: "Новый слот Skytree, задачи, заметка о задержке обратно в Live trip." },
+      { n: "4", t: "Гид — манифест и инцидент", b: "Новый слот Doi Suthep, задачи, заметка о задержке обратно в Live trip." },
     ],
   },
   scope: {
@@ -557,7 +557,7 @@ const ru: Record<MenuKey, MenuPlaybook> = {
   agi: {
     goal: "Поставьте бизнес-цель агентной команде. Они планируют, координируют модули, действуют в рамках полномочий и приносят согласования.",
     watch: "Режим AGI — отдельный слой от обычного ИИ. Красивая программа — не бронь. Выключите тумблер, чтобы вернуться к одной задаче.",
-    ai: "Поставьте бриф на 40 шведов, затем Change Once на 32, затем Trip Rescue при задержке.",
+    ai: "Поставьте бриф inbound Золотой треугольник на 40 человек, затем Change Once на 32, затем Trip Rescue при задержке.",
     steps: [
       { n: "1", t: "Включите AGI", b: "Золотой слой меняет «Спросить ОС» на поле цели. Обычный ИИ остаётся при выключении." },
       { n: "2", t: "Одна команда", b: "Команда пишет проект в продажи, конструктор, рейсы, поставщиков и финансы — все строки requested / оценка." },

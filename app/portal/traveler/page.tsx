@@ -26,7 +26,7 @@ export default function TravelerPortal() {
           </li>
         ))}
       </ol>
-      <div className="text-[13px]">Voucher SKY-OS-4012 · payment: deposit received, balance due 12 Sep.</div>
+      <div className="text-[13px]">Voucher DOI-OS-GT40 · payment: deposit received, balance due 12 Sep.</div>
     </main>
   );
 }

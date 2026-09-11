@@ -24,7 +24,7 @@ export default function AnalyticsPage() {
       </div>
       <section className="border-2 border-divider p-3.5 text-[14px] max-w-[720px]">
         <div className="font-extrabold mb-1">AI Tour Memory</div>
-        Prior Tokyo red-eye groups missed morning Skytree 4 in 10 times. Next Japan template defaults to afternoon attraction slots and prices driver overtime into the quote. Supplier Toko (guide) kept pace; Asakusa Table confirmed late twice — require T-48h written ack.
+        Prior Golden Triangle inbound groups missed morning Doi Suthep 4 in 10 times after a late CAN–CNX arrival. Next North inbound template defaults to an afternoon temple slot and prices driver overtime into the quote. Guide Ming kept pace; Nimman group table confirmed late twice — require T-48h written ack.
       </section>
     </main>
   );

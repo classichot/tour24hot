@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { LocText, Pill, Stat, Table } from "@/components/os/ui";
 import { agentMeta } from "@/lib/os/agi/copy";
 import { buildAutopilot, buildScorecards, FLAGSHIP_TAP, waitingJobs } from "@/lib/os/agi/features";
@@ -14,8 +13,6 @@ export default function AgiWorkbench() {
   const {
     a,
     agi,
-    ingestPaste,
-    ingestFile,
     resumeJob,
     authorizeRound,
     markSupplierReply,
@@ -29,8 +26,6 @@ export default function AgiWorkbench() {
   const neg = agi.negotiation;
   const mem = agi.memory;
   const rehearsal = agi.rehearsal;
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [paste, setPaste] = useState("");
   const tapJson = JSON.stringify(FLAGSHIP_TAP, null, 2);
   const latest = agi.ingests[0];
 
@@ -39,34 +34,7 @@ export default function AgiWorkbench() {
       <section className="border-2 border-text p-3.5 flex flex-col gap-3 bg-accent-100">
         <div>
           <div className="kicker">{a.ingest}</div>
-          <p className="text-[13px] mt-1 text-neutral-800">{a.ingestHint}</p>
-        </div>
-        <textarea className="input min-h-[72px]" value={paste} placeholder={a.pastePh} onChange={(e) => setPaste(e.target.value)} />
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => {
-              if (!paste.trim()) return;
-              ingestPaste(paste);
-            }}
-          >
-            {a.ingestGo}
-          </button>
-          <button type="button" className="btn btn-secondary" onClick={() => fileRef.current?.click()}>
-            {a.ingestFile}
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            className="hidden"
-            accept=".txt,.csv,.json,.tsv,.pdf,.mp3,.m4a,.wav,.webm,.xlsx,.xls"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) void ingestFile(f);
-              e.target.value = "";
-            }}
-          />
+          <p className="text-[13px] mt-1 text-neutral-800">{a.askAgiIngestHint}</p>
         </div>
         {latest && (
           <div className="border-2 border-divider p-3 bg-bg">

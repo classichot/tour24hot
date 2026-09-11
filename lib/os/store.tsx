@@ -21,14 +21,17 @@ import {
   authorizeNextRound,
   briefFromTap,
   buildIngest,
+  draftsFromIngest,
   FLAGSHIP_TAP,
   hydrateAgi,
+  ingestFromFile,
+  ingestFromVoice,
   markRoundReplied,
   resumeJobInState,
   runRehearsalCase,
   tryTapBrief,
 } from "./agi/features";
-import { type AgiState, type IngestKind, type RehearsalId } from "./agi/types";
+import { type AgiIngest, type AgiState, type RehearsalId } from "./agi/types";
 import type { AiDraft, DemoStage, OsSnapshot } from "./types";
 
 interface OsApi {
@@ -59,6 +62,7 @@ interface OsApi {
   resetAgi: () => void;
   ingestPaste: (text: string) => void;
   ingestFile: (file: File) => Promise<void>;
+  ingestVoice: (text: string) => void;
   resumeJob: (jobId: string) => void;
   authorizeRound: () => void;
   markSupplierReply: (jobId?: string) => void;
@@ -68,8 +72,8 @@ interface OsApi {
 }
 
 const Ctx = createContext<OsApi | null>(null);
-const KEY = "t24os";
-const AGI_KEY = "t24osAgi";
+const KEY = "t24os.gt40";
+const AGI_KEY = "t24osAgi.gt40";
 
 function loadSnap(): OsSnapshot {
   if (typeof window === "undefined") return createSeed();
@@ -227,22 +231,38 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     setAgi((st) => markRoundReplied(st));
   }, []);
 
-  const ingestPaste = useCallback((text: string) => {
-    const ingest = buildIngest("paste", "paste.txt", text);
+  const commitIngest = useCallback((ingest: AgiIngest, preview?: string, agiOn?: boolean) => {
+    const on = agiOn ?? agi.on;
+    const text = (preview || ingest.rawPreview || "").trim();
+    if (on && text) assignObjective(text);
     setAgi((s) => applyIngest(s, ingest));
-    setAsk(text);
-  }, []);
+    if (preview) setAsk(preview);
+    if (!on) setDrafts(draftsFromIngest(ingest));
+  }, [agi.on, assignObjective]);
 
-  const ingestFile = useCallback(async (file: File) => {
-    const ext = file.name.split(".").pop()?.toLowerCase() || "";
-    const readable = ["txt", "csv", "json", "tsv"].includes(ext);
-    const text = readable ? await file.text() : "";
-    const kind: IngestKind =
-      ext === "csv" || ext === "tsv" ? "csv" : ext === "json" ? "json" : ext === "txt" ? "txt" : ext === "pdf" ? "pdf" : ext === "xlsx" || ext === "xls" || ext === "ods" ? "spreadsheet" : readable ? "txt" : "voice";
-    const ingest = buildIngest(kind, file.name, text);
-    setAgi((s) => applyIngest(s, ingest));
-    if (text) setAsk(text.slice(0, 500));
-  }, []);
+  const ingestPaste = useCallback(
+    (text: string) => {
+      const ingest = buildIngest("paste", "paste.txt", text);
+      commitIngest(ingest, text);
+    },
+    [commitIngest]
+  );
+
+  const ingestFile = useCallback(
+    async (file: File) => {
+      const ingest = await ingestFromFile(file);
+      commitIngest(ingest, ingest.rawPreview);
+    },
+    [commitIngest]
+  );
+
+  const ingestVoice = useCallback(
+    (text: string) => {
+      const ingest = ingestFromVoice(text);
+      commitIngest(ingest, text);
+    },
+    [commitIngest]
+  );
 
   const resumeJob = useCallback((jobId: string) => {
     setAgi((s) => resumeJobInState(s, jobId));
@@ -376,6 +396,7 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
       resetAgi,
       ingestPaste,
       ingestFile,
+      ingestVoice,
       resumeJob,
       authorizeRound,
       markSupplierReply,
@@ -411,6 +432,7 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
       resetAgi,
       ingestPaste,
       ingestFile,
+      ingestVoice,
       resumeJob,
       authorizeRound,
       markSupplierReply,

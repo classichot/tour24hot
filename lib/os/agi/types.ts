@@ -1,11 +1,11 @@
 import type { L10n } from "../../data";
 import type { ServiceModule } from "../types";
 
-export const AGI_DEP_ID = "dep-th40-se";
-export const AGI_PRD_ID = "prd-th6-se";
-export const AGI_ENQ_ID = "enq-se40";
-export const AGI_CUS_ID = "cus-nordic";
-export const AGI_BOOK_ID = "bk-se40";
+export const AGI_DEP_ID = "dep-gt40-agi";
+export const AGI_PRD_ID = "prd-gt6-in";
+export const AGI_ENQ_ID = "enq-gt40-agi";
+export const AGI_CUS_ID = "cus-nanfang-agi";
+export const AGI_BOOK_ID = "bk-gt40-agi";
 
 export type AgiAgentId =
   | "director"

@@ -1,5 +1,5 @@
 import type { L10n } from "../data";
-import { EXTRA_PAX_NAMES } from "./seed";
+import { DEMO_BOOK_ID, DEMO_DEP_ID, DEMO_SELL_PER, EXTRA_PAX_NAMES } from "./seed";
 import type {
   AiDraft,
   ChangeImpact,
@@ -34,7 +34,7 @@ export function totals(snap: OsSnapshot, depId: string) {
 
 export function breakEvenPax(snap: OsSnapshot, depId: string) {
   const t = totals(snap, depId);
-  const per = t.pax ? t.sell / t.pax : 38000;
+  const per = t.pax ? t.sell / t.pax : DEMO_SELL_PER;
   return per ? Math.ceil(t.cost / per) : 0;
 }
 
@@ -62,10 +62,10 @@ export function simulateDay2(snap: OsSnapshot) {
   const conflicts: L10n[] = [];
   const alts: L10n[] = [];
   if (delayed) {
-    conflicts.push(z("ถึงฮาเนดะ 11:40 พลาดสล็อตสกายทรี 10:30", "Haneda 11:40 arrival misses Skytree 10:30 slot"));
+    conflicts.push(z("ถึงเชียงใหม่ 11:40 พลาดสล็อตดอยสุเทพ 10:30", "CNX 11:40 arrival misses Doi Suthep 10:30 slot"));
     conflicts.push(z("รถรอเกิน 3 ชั่วโมง เกิดล่วงเวลาคนขับ", "Coaches wait 3+ hours — driver overtime"));
-    conflicts.push(z("อาซากุสะ 12:15 ชนกับเวลาถึงเมือง", "Asakusa 12:15 lunch collides with city arrival"));
-    alts.push(z("ย้ายสกายทรีเป็น 15:30 หรือแทนด้วยอาซากุสะยาวขึ้น", "Move Skytree to 15:30 or replace with a longer Asakusa walk"));
+    conflicts.push(z("อาหารกลางวันนิมมาน 12:15 ชนกับเวลาถึงเมือง", "Nimman 12:15 lunch collides with city arrival"));
+    alts.push(z("ย้ายดอยสุเทพเป็น 15:30 หรือแทนด้วยเมืองเก่ายาวขึ้น", "Move Doi Suthep to 15:30 or replace with a longer old-city walk"));
     alts.push(z("เลื่อนอาหารกลางวันเป็น 13:30 และแจ้งร้าน", "Shift lunch to 13:30 and reconfirm the restaurant"));
     alts.push(z("เช็กอินโรงแรมสาย เก็บกระเป๋าที่รถ", "Late hotel check-in, bags stay on the coach"));
   }
@@ -81,8 +81,8 @@ export function applyAddPax(snap: OsSnapshot, n = 5): { next: OsSnapshot; impact
   const start = next.passengers.length;
   const extras: Passenger[] = EXTRA_PAX_NAMES.slice(0, n).map((name, i) => ({
     id: `pax-${String(start + i + 1).padStart(2, "0")}`,
-    departureId: "dep-jp40",
-    bookingId: "bk-40",
+    departureId: DEMO_DEP_ID,
+    bookingId: DEMO_BOOK_ID,
     name,
     namePassport: name.toUpperCase(),
     type: "adult",
@@ -96,11 +96,11 @@ export function applyAddPax(snap: OsSnapshot, n = 5): { next: OsSnapshot; impact
     addedLate: true,
   }));
   next.passengers.push(...extras);
-  const bk = next.bookings.find((b) => b.id === "bk-40");
+  const bk = next.bookings.find((b) => b.id === DEMO_BOOK_ID);
   if (bk) {
     bk.paxIds.push(...extras.map((p) => p.id));
-    bk.total += n * 38000;
-    bk.balance += n * 38000;
+    bk.total += n * DEMO_SELL_PER;
+    bk.balance += n * DEMO_SELL_PER;
   }
   const addQty = (id: string, q: number) => {
     const s = next.services.find((x) => x.id === id);
@@ -113,18 +113,18 @@ export function applyAddPax(snap: OsSnapshot, n = 5): { next: OsSnapshot; impact
   addQty("svc-fl-out", n);
   addQty("svc-fl-in", n);
   addQty("svc-meal-d2", n);
-  addQty("svc-sky", n);
-  const ht = next.services.find((s) => s.id === "svc-ht-tyo");
+  addQty("svc-doi", n);
+  const ht = next.services.find((s) => s.id === "svc-ht-cnx");
   if (ht) {
     ht.qty += 3;
-    ht.unitCost = 4800;
+    ht.unitCost = 4200;
     ht.rateClass = "indicative";
     ht.notes = z("3 ห้องเพิ่มราคาเดิน ไม่ใช่เรทสัญญา", "3 extra rooms at walk-up, not contract rate");
   }
-  const hf = next.services.find((s) => s.id === "svc-ht-fuji");
+  const hf = next.services.find((s) => s.id === "svc-ht-cei");
   if (hf) {
     hf.qty += 3;
-    hf.unitCost = 5600;
+    hf.unitCost = 5400;
     hf.rateClass = "indicative";
   }
   next.flights.forEach((f) => {
@@ -135,26 +135,26 @@ export function applyAddPax(snap: OsSnapshot, n = 5): { next: OsSnapshot; impact
     h.twins += 2;
     h.singles += 1;
   });
-  const before = totals(snap, "dep-jp40");
-  const after = totals(next, "dep-jp40");
+  const before = totals(snap, DEMO_DEP_ID);
+  const after = totals(next, DEMO_DEP_ID);
   const extraCost = after.cost - before.cost;
   const impact: ChangeImpact = {
     id: "imp-pax",
     title: z("เพิ่มผู้โดยสาร 5 คน", "Add 5 passengers"),
-    why: z("ลูกค้าขอเพิ่มพนักงาน 5 คนหลังล็อกกลุ่ม", "Client asked to add 5 staff after the group was locked."),
+    why: z("เอเย่นต์ขอเพิ่มแขก 5 คนหลังล็อกกลุ่ม", "The inbound agency asked to add 5 travellers after the group was locked."),
     finance: z(
-      `ต้นทุนเพิ่ม ${money(extraCost)} รายได้เพิ่ม ${money(n * 38000)} มาร์จิ้นใหม่ ${after.margin.toFixed(1)}% (เป้า 18%)`,
-      `Cost +${money(extraCost)}, revenue +${money(n * 38000)}, new margin ${after.margin.toFixed(1)}% (target 18%)`
+      `ต้นทุนเพิ่ม ${money(extraCost)} รายได้เพิ่ม ${money(n * DEMO_SELL_PER)} มาร์จิ้นใหม่ ${after.margin.toFixed(1)}% (เป้า 18%)`,
+      `Cost +${money(extraCost)}, revenue +${money(n * DEMO_SELL_PER)}, new margin ${after.margin.toFixed(1)}% (target 18%)`
     ),
     next: z("ขออนุมัติซื้อที่นั่งเดินและห้องเพิ่ม แล้วตามพาสปอร์ต 5 ฉบับ", "Approve walk-up seats and extra rooms, then collect 5 passports."),
     extraCost,
     newMargin: after.margin,
     affected: [
-      { id: "svc-fl-out", module: "flight", name: z("TG660/661", "TG660/661"), change: z("ที่นั่ง 40→45 ราคาเดิน 5 ที่", "Seats 40→45, 5 at walk-up") },
-      { id: "svc-ht-tyo", module: "hotel", name: z("Shinagawa + Fuji", "Shinagawa + Fuji"), change: z("ห้อง +3 สองโรง เรทสัญญาไม่ครอบคลุม", "+3 rooms at both hotels, outside contract") },
+      { id: "svc-fl-in", module: "flight", name: z("CZ3051/3052", "CZ3051/3052"), change: z("ที่นั่ง 40→45 ราคาเดิน 5 ที่", "Seats 40→45, 5 at walk-up") },
+      { id: "svc-ht-cnx", module: "hotel", name: z("เชียงใหม่ + เชียงราย", "Chiang Mai + Chiang Rai"), change: z("ห้อง +3 สองโรง เรทสัญญาไม่ครอบคลุม", "+3 rooms at both hotels, outside contract") },
       { id: "svc-bus", module: "bus", name: z("รถโค้ช 2 คัน", "Two coaches"), change: z("ยังจุได้ ไม่ต้องเพิ่มคัน", "Capacity holds — no extra coach") },
       { id: "svc-meal-d2", module: "meal", name: z("อาหารกลางวัน", "Lunch"), change: z("หัวอาหาร 40→45", "Headcount 40→45") },
-      { id: "svc-sky", module: "activity", name: z("สกายทรี", "Skytree"), change: z("บัตร 40→45 ในสล็อตเดิม", "Tickets 40→45 in the same slot") },
+      { id: "svc-doi", module: "activity", name: z("ดอยสุเทพ", "Doi Suthep"), change: z("บัตร 40→45 ในสล็อตเดิม", "Tickets 40→45 in the same slot") },
     ],
     deadlines: [
       { label: z("ยื่นชื่อเพิ่มสายการบิน", "Name-list addendum to airline"), due: "2026-09-28T12:00:00+07:00" },
@@ -173,15 +173,15 @@ export function applyAddPax(snap: OsSnapshot, n = 5): { next: OsSnapshot; impact
 
 export function applyDelay(snap: OsSnapshot): { next: OsSnapshot; impact: ChangeImpact } {
   const next = clone(snap);
-  const fl = next.flights.find((f) => f.id === "fl-out");
+  const fl = next.flights.find((f) => f.id === "fl-in");
   if (fl) {
-    fl.arriveAt = "2026-10-13T11:40:00+09:00";
+    fl.arriveAt = "2026-10-12T11:40:00+07:00";
     fl.delayed = true;
   }
-  const sky = next.services.find((s) => s.id === "svc-sky");
-  if (sky) {
-    sky.state = "cancelled";
-    sky.notes = z("สล็อต 10:30 ใช้ไม่ได้ เสนอ 15:30", "10:30 slot unusable; propose 15:30");
+  const doi = next.services.find((s) => s.id === "svc-doi");
+  if (doi) {
+    doi.state = "cancelled";
+    doi.notes = z("สล็อต 10:30 ใช้ไม่ได้ เสนอ 15:30", "10:30 slot unusable; propose 15:30");
   }
   const meal = next.services.find((s) => s.id === "svc-meal-d2");
   if (meal) {
@@ -190,7 +190,7 @@ export function applyDelay(snap: OsSnapshot): { next: OsSnapshot; impact: Change
   }
   const ot: ServiceLine = {
     id: "svc-ot",
-    departureId: "dep-jp40",
+    departureId: DEMO_DEP_ID,
     module: "bus",
     supplierId: "sup-bus",
     name: z("ล่วงเวลาคนขับ + ที่จอด", "Driver overtime + parking"),
@@ -207,37 +207,37 @@ export function applyDelay(snap: OsSnapshot): { next: OsSnapshot; impact: Change
   next.incidents = [
     {
       id: "inc-delay",
-      departureId: "dep-jp40",
-      title: z("TG660 ล่าช้า ถึง 11:40", "TG660 delayed, arrive 11:40"),
-      body: z("กระทบสกายทรี อาหารกลางวัน เช็กอิน และล่วงเวลารถ", "Hits Skytree, lunch, check-in and coach overtime."),
+      departureId: DEMO_DEP_ID,
+      title: z("CZ3051 ล่าช้า ถึง 11:40", "CZ3051 delayed, arrive 11:40"),
+      body: z("กระทบดอยสุเทพ อาหารกลางวัน เช็กอิน และล่วงเวลารถ", "Hits Doi Suthep, lunch, check-in and coach overtime."),
       status: "open",
       created: new Date().toISOString(),
     },
     ...next.incidents.filter((i) => i.id !== "inc-delay"),
   ];
-  const after = totals(next, "dep-jp40");
+  const after = totals(next, DEMO_DEP_ID);
   const impact: ChangeImpact = {
     id: "imp-delay",
     title: z("ไฟลต์ขาเข้าดีเลย์", "Arrival flight delayed"),
-    why: z("TG660 ถึงฮาเนดะ 11:40 แทน 06:55", "TG660 arrives Haneda 11:40 instead of 06:55."),
+    why: z("CZ3051 ถึงเชียงใหม่ 11:40 แทน 07:10", "CZ3051 arrives Chiang Mai 11:40 instead of 07:10."),
     finance: z(
-      `ต้นทุนเพิ่มประมาณ ฿4,200 (ล่วงเวลา) + ความเสี่ยงบัตรสกายทรี มาร์จิ้น ${after.margin.toFixed(1)}%`,
-      `About ฿4,200 overtime plus Skytree exposure. Margin ${after.margin.toFixed(1)}%`
+      `ต้นทุนเพิ่มประมาณ ฿4,200 (ล่วงเวลา) + ความเสี่ยงบัตรดอยสุเทพ มาร์จิ้น ${after.margin.toFixed(1)}%`,
+      `About ฿4,200 overtime plus Doi Suthep exposure. Margin ${after.margin.toFixed(1)}%`
     ),
     next: z("อนุมัติย้ายสล็อต แจ้งร้าน แจ้งลูกค้า และให้ซัพพลายเออร์ตอบรับ", "Approve slot move, notify restaurant and client, collect supplier acks."),
     extraCost: 4200,
     newMargin: after.margin,
     affected: [
-      { id: "fl-out", module: "flight", name: z("TG660", "TG660"), change: z("ถึง 06:55 → 11:40", "Arrive 06:55 → 11:40") },
-      { id: "svc-sky", module: "activity", name: z("สกายทรี", "Skytree"), change: z("ยกเลิก 10:30 เสนอ 15:30", "Cancel 10:30, propose 15:30") },
-      { id: "svc-meal-d2", module: "meal", name: z("อาซากุสะ เทเบิล", "Asakusa Table"), change: z("12:15 → 13:30", "12:15 → 13:30") },
+      { id: "fl-in", module: "flight", name: z("CZ3051", "CZ3051"), change: z("ถึง 07:10 → 11:40", "Arrive 07:10 → 11:40") },
+      { id: "svc-doi", module: "activity", name: z("ดอยสุเทพ", "Doi Suthep"), change: z("ยกเลิก 10:30 เสนอ 15:30", "Cancel 10:30, propose 15:30") },
+      { id: "svc-meal-d2", module: "meal", name: z("ร้านกลุ่มนิมมาน", "Nimman group table"), change: z("12:15 → 13:30", "12:15 → 13:30") },
       { id: "svc-bus", module: "bus", name: z("รถโค้ช", "Coaches"), change: z("รอสนามบิน ล่วงเวลา + ที่จอด", "Airport wait, OT + parking") },
-      { id: "svc-ht-tyo", module: "hotel", name: z("Shinagawa", "Shinagawa"), change: z("เช็กอินสาย เก็บกระเป๋าที่รถ", "Late check-in, bags on coach") },
+      { id: "svc-ht-cnx", module: "hotel", name: z("Le Meridien Chiang Mai", "Le Meridien Chiang Mai"), change: z("เช็กอินสาย เก็บกระเป๋าที่รถ", "Late check-in, bags on coach") },
       { id: "svc-gd", module: "guide", name: z("ไกด์", "Guides"), change: z("เลื่อนบรีฟและล่วงเวลาเย็น", "Briefing shift and evening OT risk") },
     ],
     deadlines: [
-      { label: z("ร้านอาหารตอบรับ", "Restaurant acknowledgement"), due: "2026-10-12T18:00:00+09:00" },
-      { label: z("สกายทรียืนยันสล็อตใหม่", "Skytree new-slot confirm"), due: "2026-10-12T16:00:00+09:00" },
+      { label: z("ร้านอาหารตอบรับ", "Restaurant acknowledgement"), due: "2026-10-12T18:00:00+07:00" },
+      { label: z("ดอยสุเทพยืนยันสล็อตใหม่", "Doi Suthep new-slot confirm"), due: "2026-10-12T16:00:00+07:00" },
     ],
   };
   next.impacts = [impact, ...next.impacts.filter((x) => x.id !== "imp-delay")];
@@ -245,9 +245,9 @@ export function applyDelay(snap: OsSnapshot): { next: OsSnapshot; impact: Change
     { id: "ap-delay", title: z("อนุมัติแผนกู้ไฟลต์ดีเลย์", "Approve delay recovery plan"), body: impact.finance, amount: 4200, status: "pending", impactId: "imp-delay" },
     ...next.approvals.filter((a) => a.id !== "ap-delay"),
   ];
-  next.tasks = next.tasks.map((t) => (t.id === "tk-meal" ? { ...t, title: z("ร้านอาซากุสะตอบรับ 13:30", "Asakusa restaurant ack 13:30") } : t));
+  next.tasks = next.tasks.map((t) => (t.id === "tk-meal" ? { ...t, title: z("ร้านนิมมานตอบรับ 13:30", "Nimman restaurant ack 13:30") } : t));
   next.demoStage = "disrupted";
-  next.log.unshift({ at: new Date().toISOString(), text: z("TG660 ดีเลย์ — สร้างแผนกู้และรออนุมัติ", "TG660 delayed — recovery plan awaiting approval") });
+  next.log.unshift({ at: new Date().toISOString(), text: z("CZ3051 ดีเลย์ — สร้างแผนกู้และรออนุมัติ", "CZ3051 delayed — recovery plan awaiting approval") });
   return { next, impact };
 }
 
@@ -256,7 +256,7 @@ export function approveAll(snap: OsSnapshot): OsSnapshot {
   next.approvals = next.approvals.map((a) => ({ ...a, status: "approved" as const }));
   next.services = next.services.map((s) => {
     if (s.id === "svc-ot") return { ...s, state: "confirmed" as const, rateClass: "quoted" as const };
-    if (s.id === "svc-sky" && s.state === "cancelled") {
+    if (s.id === "svc-doi" && s.state === "cancelled") {
       return { ...s, state: "held" as const, notes: z("ย้ายเป็นสล็อต 15:30 แล้ว", "Moved to 15:30 slot"), qty: s.qty };
     }
     if (s.state === "quoted" || s.state === "requested") return { ...s, state: "confirmed" as const, rateClass: "confirmed" as const };
@@ -265,7 +265,7 @@ export function approveAll(snap: OsSnapshot): OsSnapshot {
   });
   next.tasks = next.tasks.map((t) => ({ ...t, ack: true }));
   next.incidents = next.incidents.map((i) => ({ ...i, status: "recovering" as const }));
-  next.activities = next.activities.map((a) => (a.id === "act-sky" ? { ...a, slot: "15:30" } : a));
+  next.activities = next.activities.map((a) => (a.id === "act-doi" ? { ...a, slot: "15:30" } : a));
   next.meals = next.meals.map((m) => (m.id === "ml-d2" ? { ...m, time: "13:30" } : m));
   next.demoStage = "approved";
   next.log.unshift({ at: new Date().toISOString(), text: z("อนุมัติผลกระทบทั้งหมด ซัพพลายเออร์กำลังยืนยัน", "All impacts approved — suppliers confirming") });
@@ -274,9 +274,9 @@ export function approveAll(snap: OsSnapshot): OsSnapshot {
 
 export function closeDeparture(snap: OsSnapshot): OsSnapshot {
   const next = clone(snap);
-  const t = totals(next, "dep-jp40");
-  next.departures = next.departures.map((d) => (d.id === "dep-jp40" ? { ...d, status: "closed" as const } : d));
-  next.bookings = next.bookings.map((b) => (b.departureId === "dep-jp40" ? { ...b, state: "completed" as const, balance: 0, deposit: b.total } : b));
+  const t = totals(next, DEMO_DEP_ID);
+  next.departures = next.departures.map((d) => (d.id === DEMO_DEP_ID ? { ...d, status: "closed" as const } : d));
+  next.bookings = next.bookings.map((b) => (b.departureId === DEMO_DEP_ID ? { ...b, state: "completed" as const, balance: 0, deposit: b.total } : b));
   next.incidents = next.incidents.map((i) => ({ ...i, status: "closed" as const }));
   next.ledger = next.ledger.map((l) => ({ ...l, status: l.side === "in" ? "received" : "paid" }));
   next.demoStage = "closed";
@@ -288,8 +288,8 @@ export function closeDeparture(snap: OsSnapshot): OsSnapshot {
 }
 
 export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
-  const t = totals(snap, "dep-jp40");
-  const ready = readiness(snap, "dep-jp40");
+  const t = totals(snap, DEMO_DEP_ID);
+  const ready = readiness(snap, DEMO_DEP_ID);
   const sim = simulateDay2(snap);
   const q = intent.toLowerCase();
   const all: AiDraft[] = [
@@ -297,15 +297,15 @@ export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
       id: "ai-producer",
       feature: "AI Tour Producer",
       title: z("บรีฟและใบเสนอจากงานลูกค้า", "Brief and proposal from the enquiry"),
-      body: z("งานองค์กร 40 คน โตเกียว 5 วัน บินตรง ไม่ลงร้าน งบ 38,000 — สร้างเทมเพลตและรายการขอซัพพลายเออร์แล้ว", "Corporate 40 pax, Tokyo 5 days, direct, no shops, ฿38,000 — template and supplier request list drafted."),
-      editable: "Tokyo 5D / BKK-HND direct / named 4★ / 0 shopping / sell ฿38,000 / margin target 18%",
+      body: z("อินบาวด์ 40 คน สามเหลี่ยมทองคำ 6 วัน ไกด์จีน ไม่ลงร้าน งบ 24,000 — สร้างเทมเพลตและรายการขอซัพพลายเออร์แล้ว", "Inbound 40 pax, Golden Triangle 6 days, Chinese guide, no shops, ฿24,000 — template and supplier request list drafted."),
+      editable: "Golden Triangle 6D / CAN-CNX group / named 4★ / 0 shopping / sell ฿24,000 / margin target 18%",
       applied: false,
     },
     {
       id: "ai-buyer",
       feature: "AI Supplier Buyer",
       title: z("เทียบเรทที่นั่งกลุ่ม", "Compare group-seat offers"),
-      body: z("ข้อเสนอคอนโซ TG ถูกกว่าเดิน ฿2,400/ที่ แต่ต้องมัดจำ 30% และปล่อย T-21 — ไม่รวมที่นั่งเด็กพิเศษ", "TG consolidator is ฿2,400/seat below walk-up, but 30% deposit and T-21 release. Child seats not specified."),
+      body: z("ข้อเสนอคอนโซ CZ ถูกกว่าเดิน ฿1,300/ที่ แต่ต้องมัดจำ 30% และปล่อย T-21 — ไม่รวมที่นั่งเด็กพิเศษ", "CZ consolidator is ฿1,300/seat below walk-up, but 30% deposit and T-21 release. Child seats not specified."),
       editable: "Prefer consolidator block. Clarify child fare and name-change fee before hold.",
       applied: false,
     },
@@ -323,7 +323,7 @@ export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
       title: z("จำลองจังหวะวันที่ 2", "Simulate day-2 timing"),
       body: sim.delayed
         ? sim.conflicts[0]
-        : z("ตารางเดิมผ่าน: ถึง 06:55 ถึงสกายทรี 10:30 อาหาร 12:15", "Base timetable clears: arrive 06:55, Skytree 10:30, lunch 12:15."),
+        : z("ตารางเดิมผ่าน: ถึง 07:10 ถึงดอยสุเทพ 10:30 อาหาร 12:15", "Base timetable clears: arrive 07:10, Doi Suthep 10:30, lunch 12:15."),
       editable: sim.alts[0] ? sim.alts.map((a) => a.en).join(" | ") : "Keep published timing.",
       applied: false,
     },
@@ -354,8 +354,8 @@ export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
       feature: "AI Disruption Coordinator",
       title: z("แผนกู้เมื่อไฟลต์/ซัพพลายเออร์ล่ม", "Recovery when a flight or supplier fails"),
       body: sim.delayed
-        ? z("ย้ายสกายทรี เลื่อนอาหาร เก็บกระเป๋าที่รถ แจ้งลูกค้าองค์กร", "Move Skytree, shift lunch, bags on coach, notify the corporate client.")
-        : z("ยังไม่มีเหตุกวน แผนสำรองคือสล็อตสกายทรีสำรอง 15:30", "No live disruption. Fallback is the 15:30 Skytree slot."),
+        ? z("ย้ายดอยสุเทพ เลื่อนอาหาร เก็บกระเป๋าที่รถ แจ้งเอเย่นต์อินบาวด์", "Move Doi Suthep, shift lunch, bags on coach, notify the inbound agency.")
+        : z("ยังไม่มีเหตุกวน แผนสำรองคือสล็อตดอยสุเทพสำรอง 15:30", "No live disruption. Fallback is the 15:30 Doi Suthep slot."),
       editable: "Send one acknowledgement pack: restaurant, attraction, coaches, client.",
       applied: false,
     },
@@ -364,8 +364,8 @@ export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
       feature: "AI Profit Guardian",
       title: z("เฝ้ามาร์จิ้นและเงินสด", "Watch margin and cash"),
       body: z(
-        `ขาย ${money(t.sell)} ต้นทุน ${money(t.cost)} มาร์จิ้น ${t.margin.toFixed(1)}% จุดคุ้มทุน ${breakEvenPax(snap, "dep-jp40")} คน เก็บแล้ว ${money(t.collected)} จ่ายซัพพลายเออร์รอ ${money(t.payableSoon)}`,
-        `Sell ${money(t.sell)} / cost ${money(t.cost)} / margin ${t.margin.toFixed(1)}% / break-even ${breakEvenPax(snap, "dep-jp40")} pax. Collected ${money(t.collected)}, supplier due ${money(t.payableSoon)}`
+        `ขาย ${money(t.sell)} ต้นทุน ${money(t.cost)} มาร์จิ้น ${t.margin.toFixed(1)}% จุดคุ้มทุน ${breakEvenPax(snap, DEMO_DEP_ID)} คน เก็บแล้ว ${money(t.collected)} จ่ายซัพพลายเออร์รอ ${money(t.payableSoon)}`,
+        `Sell ${money(t.sell)} / cost ${money(t.cost)} / margin ${t.margin.toFixed(1)}% / break-even ${breakEvenPax(snap, DEMO_DEP_ID)} pax. Collected ${money(t.collected)}, supplier due ${money(t.payableSoon)}`
       ),
       editable: "Leakage: walk-up rooms and overtime. Hold extra rooms to contract if the hotel allows.",
       applied: false,
@@ -378,15 +378,15 @@ export function buildDrafts(snap: OsSnapshot, intent: string): AiDraft[] {
         `${snap.tasks.filter((x) => !x.done).length} งานเปิด — เร่งรายชื่อไฟลต์และพาสปอร์ตที่ขาด`,
         `${snap.tasks.filter((x) => !x.done).length} open tasks — flight names and missing passports first`
       ),
-      editable: "Create task: call Siam Electronics HR for 3 passports before Friday 17:00 ICT.",
+      editable: "Create task: call Nanfang Travel for 3 passports before Friday 17:00 ICT.",
       applied: false,
     },
     {
       id: "ai-mem",
       feature: "AI Tour Memory",
       title: z("บทเรียนจากทริปที่ปิด", "Lessons from closed trips"),
-      body: z("ทริปโตเกียวก่อนหน้า: สกายทรีเช้าหลังไฟลต์ดึกพลาด 40% — อย่าขายสล็อตก่อน 10:30 ถ้าถึงฮาเนดะหลัง 07:30", "Prior Tokyo departures: morning Skytree missed 40% after red-eyes. Do not sell a slot before 10:30 if HND arrival is after 07:30."),
-      editable: "Default day-2: Asakusa first, Skytree afternoon. Used automatically on the next Japan template.",
+      body: z("ทริปสามเหลี่ยมทองคำก่อนหน้า: ดอยสุเทพเช้าหลังไฟลต์สายพลาด 40% — อย่าขายสล็อตก่อน 10:30 ถ้าถึงเชียงใหม่หลัง 08:00", "Prior Golden Triangle departures: morning Doi Suthep missed 40% after late arrivals. Do not sell a slot before 10:30 if CNX arrival is after 08:00."),
+      editable: "Default day-1: old city first if late, Doi Suthep afternoon. Used automatically on the next inbound North template.",
       applied: false,
     },
   ];

@@ -14,7 +14,7 @@ export default function GuidePortal() {
       <h1 className="text-[28px]">
         <LocText v={snap.guides[0].name} />
       </h1>
-      <div className="text-[14px]">Manifest {snap.passengers.length} · coaches 2 · Skytree {snap.activities[0].slot}</div>
+      <div className="text-[14px]">Manifest {snap.passengers.length} · coaches 2 · Doi Suthep {snap.activities[0]?.slot || "—"}</div>
       <ul className="text-[13px]">
         {snap.tasks.filter((t) => t.module === "docs" || t.module === "meal").map((t) => (
           <li key={t.id}>☐ <LocText v={t.title} /></li>

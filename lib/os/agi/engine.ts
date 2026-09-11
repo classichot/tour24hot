@@ -36,7 +36,7 @@ import {
 const z = (th: string, en: string, zh?: string, ru?: string): L10n => ({ th, en, zh, ru });
 
 export const FLAGSHIP_BRIEF =
-  "Prepare a six-day Thailand tour for 40 Swedish travelers. Include group flights, four-star hotels, buses, meals, attractions, and a Swedish-speaking guide. Target an 18% gross margin. Prepare three options and obtain supplier quotes.";
+  "Prepare a six-day Golden Triangle inbound tour for 40 Chinese travelers. Chiang Mai, Chiang Rai, Chiang Saen and the Mekong. Include group flights into Chiang Mai, four-star hotels, buses, meals, attractions, and a Chinese-speaking guide. No shopping stops. Target an 18% gross margin. Prepare three options and obtain supplier quotes.";
 
 export interface ParsedBrief {
   dest: string;
@@ -85,36 +85,42 @@ export function parseBrief(raw: string): ParsedBrief {
       days,
       nights: Math.max(1, days - 1),
       pax,
-      nationality: tap.nationality || "Swedish",
+      nationality: tap.nationality || "Chinese",
       hotelClass: Number(tap.hotelClass) || 4,
       marginTarget: Number(tap.marginTarget) || 18,
       needFlights: true,
       needBuses: true,
       needMeals: true,
       needActs: true,
-      guideLang: /swedish|สวีเดน/i.test(tap.nationality || "") ? "sv" : "en",
+      guideLang: /chinese|จีน|中/i.test(tap.nationality || "") ? "zh" : /swedish|สวีเดน/i.test(tap.nationality || "") ? "sv" : "en",
       optionCount: 3,
       raw: tap.objective || raw,
     };
   }
   const t = raw.toLowerCase();
-  const paxM = t.match(/(\d+)\s*(swedish|pax|travelers?|travellers?|คน|客人|пассажир)/);
+  const paxM = t.match(/(\d+)\s*(chinese|swedish|pax|travelers?|travellers?|คน|客人|пассажир)/);
   const paxAlone = t.match(/\b(\d{2,3})\b/);
   const marginM = t.match(/(\d+)\s*%/);
   const starM = t.match(/(\d)\s*[- ]?star|สี่ดาว|4\s*ดาว/);
   return {
-    dest: /chiang|เชียงใหม่|north/.test(t) ? "Chiang Mai" : /hua hin|หัวหิน/.test(t) ? "Hua Hin" : "Thailand",
+    dest: /golden|triangle|chiang rai|เชียงราย|เชียงแสน|สามเหลี่ยม|金三角/.test(t)
+      ? "Golden Triangle"
+      : /chiang|เชียงใหม่|north/.test(t)
+        ? "Chiang Mai"
+        : /hua hin|หัวหิน/.test(t)
+          ? "Hua Hin"
+          : "Thailand",
     days: wordDays(t),
     nights: Math.max(1, wordDays(t) - 1),
     pax: paxM ? Number(paxM[1]) : paxAlone ? Number(paxAlone[1]) : 40,
-    nationality: /swedish|สวีเดน|瑞典|швед/.test(t) ? "Swedish" : "International",
+    nationality: /chinese|จีน|中国|华语|китай/.test(t) ? "Chinese" : /swedish|สวีเดน|瑞典|швед/.test(t) ? "Swedish" : "International",
     hotelClass: starM ? Number(starM[1] || 4) : 4,
     marginTarget: marginM ? Number(marginM[1]) : 18,
     needFlights: /flight|ไฟลต์|机票|рейс/.test(t) || true,
     needBuses: /bus|รถ|巴士|автобус/.test(t) || true,
     needMeals: /meal|อาหาร|餐|питан/.test(t) || true,
     needActs: /attraction|กิจกรรม|景点|экскурс/.test(t) || true,
-    guideLang: /swedish|สวีเดน|瑞典|швед/.test(t) ? "sv" : "en",
+    guideLang: /chinese|จีน|中|китай/.test(t) ? "zh" : /swedish|สวีเดน|瑞典|швед/.test(t) ? "sv" : "en",
     optionCount: /three|3 options|สาม|三/.test(t) ? 3 : 3,
     raw,
   };
@@ -128,15 +134,15 @@ function sellFromCost(cost: number, marginPct: number) {
 
 function optionCost(pax: number, kind: "north" | "central" | "combo") {
   const rooms = Math.ceil(pax / 2);
-  const airIntl = 18500 * pax;
-  const airDom = kind === "central" ? 0 : 2800 * pax;
+  const airIntl = 9200 * pax;
+  const airDom = kind === "combo" ? 2800 * pax : 0;
   const hotelNight = kind === "combo" ? 2800 : kind === "north" ? 2500 : 2400;
   const nights = 5;
   const hotel = rooms * hotelNight * nights;
   const bus = kind === "central" ? 16000 * 6 : 18000 * 6;
   const meals = 12 * 380 * pax;
   const acts = (kind === "combo" ? 2600 : 2200) * pax;
-  const guide = 9000 * 6;
+  const guide = 5500 * 6;
   const leader = 4500 * 6;
   const misc = 400 * pax;
   return { airIntl, airDom, hotel, bus, meals, acts, guide, leader, misc, total: airIntl + airDom + hotel + bus + meals + acts + guide + leader + misc };
@@ -144,9 +150,9 @@ function optionCost(pax: number, kind: "north" | "central" | "combo") {
 
 export function buildOptions(pax: number, marginTarget: number): AgiOption[] {
   const specs: ["north" | "central" | "combo", L10n][] = [
-    ["north", z("เหนือ เชียงใหม่–ปาย–เชียงราย", "North: Chiang Mai – Pai – Chiang Rai")],
+    ["north", z("สามเหลี่ยมทองคำ เชียงใหม่–เชียงราย–เชียงแสน", "Golden Triangle: Chiang Mai – Chiang Rai – Chiang Saen")],
     ["central", z("กลาง กรุงเทพ–อยุธยา–หัวหิน", "Central: Bangkok – Ayutthaya – Hua Hin")],
-    ["combo", z("ผสม กรุงเทพ 2 คืน + เหนือ 4 วัน", "Combo: 2 nights Bangkok + 4 days North")],
+    ["combo", z("ผสม กรุงเทพ 2 คืน + สามเหลี่ยมทองคำ 4 วัน", "Combo: 2 nights Bangkok + 4 days Golden Triangle")],
   ];
   return specs.map(([kind, label], i) => {
     const c = optionCost(pax, kind);
@@ -177,7 +183,7 @@ function facts(b: ParsedBrief, opt: AgiOption): AgiFact[] {
     { id: "f-hotel", label: z("ระดับโรงแรม", "Hotel class"), value: z(`${b.hotelClass} ดาว`, `${b.hotelClass}-star`), klass: "confirmed", source: "Client brief", module: "hotel" },
     { id: "f-margin", label: z("เป้ามาร์จิ้น", "Margin target"), value: z(`${b.marginTarget}% ขั้นต้น`, `${b.marginTarget}% gross`), klass: "confirmed", source: "Operator policy", module: "finance" },
     { id: "f-sell", label: z("ราคาขายตัวเลือกหลัก", "Lead option sell"), value: z(`${opt.sell.toLocaleString("en-US")} บาท`, `฿${opt.sell.toLocaleString("en-US")}`), klass: "estimate", source: "Cost engine", module: "finance" },
-    { id: "f-air", label: z("ไฟลต์กลุ่ม", "Group flights"), value: z("ARN–BKK + บินในประเทศ — ยังไม่มีบล็อก", "ARN–BKK + domestic — no block yet"), klass: "estimate", source: "Consolidator memory 2025", module: "flight" },
+    { id: "f-air", label: z("ไฟลต์กลุ่ม", "Group flights"), value: z("CAN–CNX ไปกลับ — ยังไม่มีบล็อก", "CAN–CNX return — no block yet"), klass: "estimate", source: "Consolidator memory 2025", module: "flight" },
     { id: "f-room", label: z("ห้อง", "Rooms"), value: z(`${Math.ceil(b.pax / 2)} ทวิน โดยประมาณ`, `~${Math.ceil(b.pax / 2)} twins`), klass: "estimate", source: "Rooming rule 2 pax / twin", module: "hotel" },
     { id: "f-dates", label: z("วันเดินทาง", "Travel dates"), value: z("ลูกค้ายังไม่ล็อกสัปดาห์", "Week not locked by client"), klass: "missing", source: "Brief gap", module: "sales" },
     { id: "f-names", label: z("รายชื่อพาสปอร์ต", "Passport name list"), value: z("ยังไม่มีไฟล์", "No file received"), klass: "missing", source: "Brief gap", module: "docs" },
@@ -191,11 +197,11 @@ function jobs(b: ParsedBrief): AgiJob[] {
     { id: "j-dir", agent: "director", title: z("ตั้งโปรเจกต์และมอบงาน", "Open the project and assign jobs"), status: "done", note: z("ผูก enquiry กับ departure แล้ว", "Enquiry linked to a departure") },
     { id: "j-sales", agent: "sales", title: z("บรีฟ + ใบเสนอ 3 ฉบับ", "Brief + 3 quote versions"), status: "done", note: z("เขียนลง Sales แล้ว สถานะ quoted", "Written to Sales as quoted") },
     { id: "j-itin", agent: "itinerary", title: z("โปรแกรม 6 วันใช้ได้จริง", "Workable 6-day plan"), status: "done", note: z("เวลารับส่งและมื้ออาหารวางแล้ว — ยังเป็นร่าง", "Transfers and meals placed — still a draft") },
-    { id: "j-fl", agent: "flight", title: z("ขอเรทกลุ่ม ARN–BKK", "Request ARN–BKK group fare"), status: "waiting", note: z("ส่งคำขอคอนโซแล้ว รอใบเสนอ", "Consolidator request out, quote pending"), deadline: "2026-09-18T17:00:00+07:00", waitingOn: "Europe group-air consolidator" },
-    { id: "j-ht", agent: "hotel", title: z("ขอเรทโรงแรม 4 ดาว", "Request 4-star hotel rates"), status: "waiting", note: z("ส่ง 3 โรงในเชียงใหม่ ยังไม่ถือห้อง", "3 Chiang Mai hotels asked — no hold"), deadline: "2026-09-20T17:00:00+07:00", waitingOn: "Chiang Mai 4-star (unnamed)" },
+    { id: "j-fl", agent: "flight", title: z("ขอเรทกลุ่ม CAN–CNX", "Request CAN–CNX group fare"), status: "waiting", note: z("ส่งคำขอคอนโซแล้ว รอใบเสนอ", "Consolidator request out, quote pending"), deadline: "2026-09-18T17:00:00+07:00", waitingOn: "China group-air consolidator" },
+    { id: "j-ht", agent: "hotel", title: z("ขอเรทโรงแรม 4 ดาว", "Request 4-star hotel rates"), status: "waiting", note: z("ส่งโรงเชียงใหม่และเชียงราย ยังไม่ถือห้อง", "Chiang Mai and Chiang Rai hotels asked — no hold"), deadline: "2026-09-20T17:00:00+07:00", waitingOn: "North 4-star (unnamed)" },
     { id: "j-bus", agent: "bus", title: z("จับรถกับกระเป๋า 40 ใบ", "Match coach to 40 bags"), status: "working", note: z("โค้ช 45 ที่ 1 คัน + รถกระเป๋า", "One 45-seat coach + luggage van") },
     { id: "j-venue", agent: "venue", title: z("จองมื้อและตั๋วสถานที่", "Reserve meals and tickets"), status: "waiting", note: z("หัวอาหารยังเป็นประมาณ 40", "Headcount still assumed 40"), waitingOn: "/portal/supplier" },
-    { id: "j-gd", agent: "guide", title: z("หาไกด์พูดสวีดิช", "Find a Swedish-speaking guide"), status: "working", note: z("รอคอนเฟิร์มลินดา ประจำเชียงใหม่", "Pending Linda, based Chiang Mai") },
+    { id: "j-gd", agent: "guide", title: z("หาไกด์พูดจีน", "Find a Chinese-speaking guide"), status: "working", note: z("รอคอนเฟิร์มหมิง ประจำเชียงใหม่", "Pending Ming, based Chiang Mai") },
     { id: "j-svc", agent: "service", title: z("ยังไม่ส่งโปรแกรมให้ลูกค้าว่าจองแล้ว", "Do not send a booked itinerary"), status: "done", note: z("ร่างอีเมลแยก confirmed / estimate / missing", "Draft email splits confirmed / estimate / missing") },
     { id: "j-fin", agent: "finance", title: z("คำนวณมาร์จิ้น 3 ตัวเลือก", "Cost all three options"), status: "done", note: z(`เป้า ${b.marginTarget}% คำนวณจากเอนจิน ไม่ใช่โมเดล`, `${b.marginTarget}% from the cost engine, not the model`) },
     { id: "j-q", agent: "quality", title: z("ดึงความจำซัพพลายเออร์เหนือ", "Pull North Thailand supplier memory"), status: "done", note: z("ร้านที่ตอบช้าปีที่แล้วถูกทำเครื่องหมาย", "Last year’s late restaurant is flagged") },
@@ -211,7 +217,7 @@ export function createMission(raw: string): AgiMission {
   const options = buildOptions(brief.pax, brief.marginTarget);
   const lead = options[0];
   return {
-    id: "msn-se40",
+    id: "msn-gt40",
     objective: brief.raw.trim() || FLAGSHIP_BRIEF,
     status: "awaiting_approval",
     created: now(),
@@ -242,7 +248,7 @@ export function createMission(raw: string): AgiMission {
 export function buildChangePlan(fromPax: number, toPax: number, marginTarget: number): AgiChangePlan {
   const before = optionCost(fromPax, "north");
   const after = optionCost(toPax, "north");
-  const airRelease = (fromPax - toPax) * 18500;
+  const airRelease = (fromPax - toPax) * 9200;
   const penalty = Math.round(airRelease * 0.15);
   const roomSave = (Math.ceil(fromPax / 2) - Math.ceil(toPax / 2)) * 2500 * 5;
   const mealSave = (fromPax - toPax) * 12 * 380;
@@ -264,7 +270,7 @@ export function buildChangePlan(fromPax: number, toPax: number, marginTarget: nu
       { module: "bus", what: z("ยังต้องใช้โค้ช 45 ที่ — ลดรถกระเป๋าเสริม", "Keep 45-seat coach — drop extra luggage van"), cost: -12000, reconfirm: true },
       { module: "meal", what: z(`ลดหัวอาหาร ${fromPax - toPax}`, `Meal headcount −${fromPax - toPax}`), cost: -mealSave, reconfirm: true },
       { module: "activity", what: z(`ลดตั๋วสถานที่ ${fromPax - toPax}`, `Attraction tickets −${fromPax - toPax}`), cost: -actSave, reconfirm: true },
-      { module: "guide", what: z("ค่าไกด์สวีดิชเท่าเดิม", "Swedish guide fee unchanged"), cost: 0, reconfirm: false },
+      { module: "guide", what: z("ค่าไกด์จีนเท่าเดิม", "Chinese guide fee unchanged"), cost: 0, reconfirm: false },
     ],
   };
 }
@@ -310,8 +316,8 @@ export function buildRescue(): AgiRescue {
 export function rehearsalNotes(): L10n[] {
   return [
     z("ถึงดึก + รถขึ้นดอยสุเทพเช้าวันถัดไป — บัฟเฟอร์ 90 นาทีพอ", "Late arrival + next-morning Doi Suthep: 90-minute buffer is enough"),
-    z("ถ้าฝนหนักปาย ถนยคด — เตรียมสลับตลาดวอร์กกิ้งแทน", "Heavy rain in Pai: swap the mountain loop for the walking street"),
-    z("กลุ่มสวีเดนขึ้นรถช้าโดยสถิติ +12 นาที — อย่าวางมื้อติดสล็อต", "Swedish groups board +12 min on average — do not stack meal on a slot"),
+    z("ถ้าฝนหนักเชียงแสน — สลับบ้านดำแทนล่องแม่โขง", "Heavy rain at Chiang Saen: swap the Mekong boat for Baan Dam"),
+    z("กรุ๊ปจีนขึ้นรถช้าโดยสถิติ +10 นาที — อย่าวางมื้อติดสล็อต", "Chinese groups board +10 min on average — do not stack meal on a slot"),
   ];
 }
 
@@ -348,32 +354,33 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
 
   const product: TourProduct = {
     id: AGI_PRD_ID,
-    code: "TR24-AGI-TH-SE6",
-    title: z("ไทย 6 วัน กลุ่มสวีเดน", "Thailand 6 days — Swedish group"),
+    code: "TR24-AGI-TH-GT6",
+    title: z("สามเหลี่ยมทองคำ 6 วัน กรุ๊ปจีน", "Golden Triangle 6 days — Chinese inbound"),
     kind: "inbound",
     days: brief.days,
     nights: brief.nights,
-    destination: z("ไทย · เชียงใหม่ · ปาย · เชียงราย", "Thailand · Chiang Mai · Pai · Chiang Rai"),
+    destination: z("ไทย · เชียงใหม่ · เชียงราย · สามเหลี่ยมทองคำ", "Thailand · Chiang Mai · Chiang Rai · Golden Triangle"),
     minPax: 24,
     capacity: 48,
     marginTarget: brief.marginTarget,
+    marketplacePkgId: "th01",
     itinerary: [
-      { d: 1, title: z("ถึงสุวรรณภูมิ – ขึ้นเหนือ", "Arrive BKK – fly North"), body: z("ถึงเช้า บินต่อเชียงใหม่ เข้าโรงแรมสี่ดาว — เวลายังประมาณ", "Morning arrival, onward to Chiang Mai, 4-star hotel — times are estimates."), start: "07:40", end: "16:00" },
-      { d: 2, title: z("ดอยสุเทพ – เมืองเก่า", "Doi Suthep – old city"), body: z("วัดเช้า ตลาดเย็น บัฟเฟอร์รับส่ง 90 นาที", "Temple morning, night market, 90-minute transfer buffer."), start: "08:30", end: "20:00" },
-      { d: 3, title: z("ปาย", "Pai"), body: z("ขึ้นเขา ถ้าฝนหนักสลับวอล์กกิ้งสตรีท", "Mountain day; rain plan is the walking street."), start: "07:30", end: "18:30" },
-      { d: 4, title: z("เชียงราย วัดร่องขุ่น", "Chiang Rai White Temple"), body: z("ความจุกลุ่มต้องคอนเฟิร์ม", "Group capacity still to confirm."), start: "08:00", end: "18:00" },
-      { d: 5, title: z("เชียงใหม่อิสระ / ช้อปท้องถิ่น", "Chiang Mai free / local shops"), body: z("ไม่มีร้านบังคับ", "No forced shopping."), start: "09:00", end: "18:00" },
-      { d: 6, title: z("กลับกรุงเทพ – ARN", "Return BKK – ARN"), body: z("บินในประเทศแล้วต่อไฟลต์กลุ่ม — ยังไม่ถือที่นั่ง", "Domestic then group long-haul — seats not held."), start: "08:00", end: "23:50" },
+      { d: 1, title: z("ถึงเชียงใหม่ – ดอยสุเทพ", "Arrive Chiang Mai – Doi Suthep"), body: z("ถึงเช้าที่ CNX ขึ้นดอยสุเทพ — เวลายังประมาณ ไม่ถือของ", "Morning CNX arrival, Doi Suthep — times are estimates, nothing held."), start: "07:10", end: "18:00" },
+      { d: 2, title: z("เชียงใหม่เมืองเก่า", "Chiang Mai old city"), body: z("วัดเจดีย์หลวง ถนนคนเดิน บ่ายนิมมาน ไม่ลงร้าน", "Wat Chedi Luang, walking street, Nimman afternoon — no shops."), start: "08:30", end: "18:00" },
+      { d: 3, title: z("เชียงราย วัดร่องขุ่น", "Chiang Rai White Temple"), body: z("รถ 3 ชม. ความจุกลุ่มต้องคอนเฟิร์ม", "3-hour coach. Group capacity still to confirm."), start: "08:00", end: "18:00" },
+      { d: 4, title: z("สามเหลี่ยมทองคำ – แม่โขง", "Golden Triangle – Mekong"), body: z("เชียงแสน จุดสามประเทศ ล่องแม่โขง — เรือยังไม่ล็อก", "Chiang Saen, three-country viewpoint, Mekong — boat not held."), start: "08:00", end: "17:30" },
+      { d: 5, title: z("วัดร่องเสือเต้น – บ้านดำ", "Blue Temple – Black House"), body: z("ไม่มีร้านบังคับ", "No forced shopping."), start: "08:30", end: "18:00" },
+      { d: 6, title: z("ส่งสนามบินเชียงใหม่", "CNX drop-off"), body: z("ไฟลต์กลุ่มกลับกวางโจว — ยังไม่ถือที่นั่ง", "Group air back to Guangzhou — seats not held."), start: "07:00", end: "16:20" },
     ],
   };
 
   const departure: Departure = {
     id: AGI_DEP_ID,
     productId: AGI_PRD_ID,
-    dateStart: "2026-11-08",
-    dateEnd: "2026-11-13",
+    dateStart: "2026-10-12",
+    dateEnd: "2026-10-17",
     status: "quoting",
-    cutoff: "2026-10-18T17:00:00+07:00",
+    cutoff: "2026-09-28T17:00:00+07:00",
     timezone: "Asia/Bangkok",
     paxTarget: brief.pax,
     capacity: 48,
@@ -385,18 +392,18 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
 
   const customer: Customer = {
     id: AGI_CUS_ID,
-    name: z("Nordic Study Circles", "Nordic Study Circles"),
+    name: z("กวางโจว หนานฟาง ทราเวล", "Guangzhou Nanfang Travel"),
     type: "corporate",
-    company: z("Nordic Study Circles", "Nordic Study Circles"),
-    contact: "Eva Lindgren",
-    email: "eva@nordiccircles.example",
+    company: z("หนานฟาง ทราเวล", "Nanfang Travel"),
+    contact: "Lin Wen",
+    email: "lin.wen@nanfang.example",
   };
 
   const enquiry: Enquiry = {
     id: AGI_ENQ_ID,
     channel: "group",
     customerId: AGI_CUS_ID,
-    title: z(`ทัวร์ไทย ${brief.days} วัน ${brief.pax} คน สวีเดน`, `Thailand ${brief.days} days, ${brief.pax} Swedish travellers`),
+    title: z(`อินบาวด์สามเหลี่ยมทองคำ ${brief.days} วัน ${brief.pax} คน`, `Golden Triangle inbound ${brief.days} days, ${brief.pax} travellers`),
     brief: z(brief.raw, brief.raw),
     pax: brief.pax,
     budget: Math.round(lead.sell / brief.pax),
@@ -410,7 +417,7 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
 
   const booking: Booking = {
     id: AGI_BOOK_ID,
-    ref: "T24-AGI-SE40",
+    ref: "T24-AGI-GT40",
     departureId: AGI_DEP_ID,
     customerId: AGI_CUS_ID,
     channel: "group",
@@ -422,32 +429,32 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
   };
 
   const suppliers: Supplier[] = [
-    { id: "sup-agi-air", name: z("คอนโซไฟลต์ยุโรป", "Europe group-air consolidator"), kind: "consolidator", terms: z("มัดจำ 30% ปล่อย T-21", "30% deposit, release T-21"), rating: 90, currency: "THB" },
-    { id: "sup-agi-ht", name: z("โรงแรมเชียงใหม่ 4 ดาว (รอชื่อ)", "Chiang Mai 4-star (unnamed)"), kind: "hotel", terms: z("ปล่อย T-14", "Release T-14"), rating: 88, currency: "THB" },
+    { id: "sup-agi-air", name: z("คอนโซไฟลต์จีน", "China group-air consolidator"), kind: "consolidator", terms: z("มัดจำ 30% ปล่อย T-21", "30% deposit, release T-21"), rating: 90, currency: "THB" },
+    { id: "sup-agi-ht", name: z("โรงแรมเหนือ 4 ดาว (รอชื่อ)", "North 4-star (unnamed)"), kind: "hotel", terms: z("ปล่อย T-14", "Release T-14"), rating: 88, currency: "THB" },
     { id: "sup-agi-bus", name: z("รถเช่าเหนือ", "North Thailand coach hire"), kind: "bus", terms: z("ล่วงเวลา ฿800/ชม.", "OT ฿800/hr"), rating: 86, currency: "THB" },
-    { id: "sup-agi-gd", name: z("ไกด์ลินดา (สวีดิช)", "Guide Linda (Swedish)"), kind: "guide", terms: z("ค่าวัน ฿9,000", "Day fee ฿9,000"), rating: 93, currency: "THB" },
+    { id: "sup-agi-gd", name: z("ไกด์หมิง (จีน)", "Guide Ming (Chinese)"), kind: "guide", terms: z("ค่าวัน ฿5,500", "Day fee ฿5,500"), rating: 93, currency: "THB" },
   ];
 
   const services: ServiceLine[] = [
-    { id: "svc-agi-air", departureId: AGI_DEP_ID, module: "flight", supplierId: "sup-agi-air", name: z("กลุ่ม ARN–BKK ไปกลับ (ประมาณ)", "Group ARN–BKK return (estimate)"), qty: brief.pax, unitCost: 18500, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Flight Agent — memory 2025", updatedAt: at, notes: z("ยังไม่ใช่บล็อกที่ยืนยัน", "Not a confirmed block") },
-    { id: "svc-agi-dom", departureId: AGI_DEP_ID, module: "flight", supplierId: "sup-agi-air", name: z("บินในประเทศ BKK–CNX (ประมาณ)", "Domestic BKK–CNX (estimate)"), qty: brief.pax, unitCost: 2800, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Flight Agent", updatedAt: at },
+    { id: "svc-agi-air", departureId: AGI_DEP_ID, module: "flight", supplierId: "sup-agi-air", name: z("กลุ่ม CAN–CNX ไปกลับ (ประมาณ)", "Group CAN–CNX return (estimate)"), qty: brief.pax, unitCost: 9200, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Flight Agent — memory 2025", updatedAt: at, notes: z("ยังไม่ใช่บล็อกที่ยืนยัน", "Not a confirmed block") },
+    { id: "svc-agi-dom", departureId: AGI_DEP_ID, module: "flight", supplierId: "sup-agi-air", name: z("บินต่อในประเทศถ้าไม่ตรง CNX (ประมาณ)", "Domestic add-on if not direct to CNX (estimate)"), qty: brief.pax, unitCost: 2800, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Flight Agent", updatedAt: at },
     { id: "svc-agi-ht", departureId: AGI_DEP_ID, module: "hotel", supplierId: "sup-agi-ht", name: z(`โรงแรม 4 ดาว ${brief.nights} คืน`, `4-star hotel ${brief.nights} nights`), qty: rooms, unitCost: 2500, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Hotel Agent", updatedAt: at, day: 1, deadline: "2026-09-20T17:00:00+07:00" },
     { id: "svc-agi-bus", departureId: AGI_DEP_ID, module: "bus", supplierId: "sup-agi-bus", name: z("โค้ช 45 ที่ + รถกระเป๋า", "45-seat coach + luggage van"), qty: 1, unitCost: 18000, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Bus Agent", updatedAt: at },
     { id: "svc-agi-meal", departureId: AGI_DEP_ID, module: "meal", supplierId: "sup-agi-ht", name: z("มื้อกลุ่ม 12 มื้อ", "12 group meals"), qty: brief.pax, unitCost: 380 * 12, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Venue Agent", updatedAt: at },
-    { id: "svc-agi-act", departureId: AGI_DEP_ID, module: "activity", supplierId: "sup-agi-ht", name: z("ดอยสุเทพ · วัดร่องขุ่น · ตลาด", "Doi Suthep · White Temple · markets"), qty: brief.pax, unitCost: 2200, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Venue Agent", updatedAt: at },
-    { id: "svc-agi-gd", departureId: AGI_DEP_ID, module: "guide", supplierId: "sup-agi-gd", name: z("ไกด์สวีดิช 6 วัน", "Swedish-speaking guide 6 days"), qty: 6, unitCost: 9000, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Guide Agent", updatedAt: at },
+    { id: "svc-agi-act", departureId: AGI_DEP_ID, module: "activity", supplierId: "sup-agi-ht", name: z("ดอยสุเทพ · วัดร่องขุ่น · แม่โขง", "Doi Suthep · White Temple · Mekong"), qty: brief.pax, unitCost: 2200, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Venue Agent", updatedAt: at },
+    { id: "svc-agi-gd", departureId: AGI_DEP_ID, module: "guide", supplierId: "sup-agi-gd", name: z("ไกด์จีน 6 วัน", "Chinese-speaking guide 6 days"), qty: 6, unitCost: 5500, unitSell: 0, currency: "THB", rateClass: "indicative", state: "requested", source: "AGI Guide Agent", updatedAt: at },
   ];
 
   const flights: FlightBlock[] = [
-    { id: "fl-agi-out", serviceId: "svc-agi-air", airline: "TG", flightNo: "TG961", from: "ARN", to: "BKK", departAt: "2026-11-07T15:20:00+01:00", arriveAt: "2026-11-08T07:40:00+07:00", seats: brief.pax, sold: 0, deposit: 0, releaseAt: "2026-10-18T17:00:00+07:00", namesDue: "2026-10-25T17:00:00+07:00", ticketBy: "2026-11-01T17:00:00+07:00", timezone: "Europe/Stockholm" },
+    { id: "fl-agi-out", serviceId: "svc-agi-air", airline: "CZ", flightNo: "CZ3051", from: "CAN", to: "CNX", departAt: "2026-10-12T04:40:00+08:00", arriveAt: "2026-10-12T07:10:00+07:00", seats: brief.pax, sold: 0, deposit: 0, releaseAt: "2026-09-21T17:00:00+07:00", namesDue: "2026-09-28T12:00:00+07:00", ticketBy: "2026-10-05T17:00:00+07:00", timezone: "Asia/Bangkok" },
   ];
 
   const vehicles: VehicleAssign[] = [
-    { id: "veh-agi-1", serviceId: "svc-agi-bus", plate: "รอจัดสรร", owned: false, seats: 45, luggage: 45, driver: "TBA", pickup: z("สุวรรณภูมิ T1 — ยังไม่ล็อกเวลา", "Suvarnabhumi T1 — time not locked") },
+    { id: "veh-agi-1", serviceId: "svc-agi-bus", plate: "รอจัดสรร", owned: false, seats: 45, luggage: 45, driver: "TBA", pickup: z("เชียงใหม่ T1 — ยังไม่ล็อกเวลา", "Chiang Mai T1 — time not locked") },
   ];
 
   const hotels: HotelAllotment[] = [
-    { id: "ht-agi-1", serviceId: "svc-agi-ht", hotel: z("โรงแรม 4 ดาวเชียงใหม่ (รอชื่อ)", "Chiang Mai 4-star (unnamed)"), city: z("เชียงใหม่", "Chiang Mai"), nights: brief.nights, twins: rooms, singles: 0, comps: 0, releaseAt: "2026-10-25T17:00:00+07:00" },
+    { id: "ht-agi-1", serviceId: "svc-agi-ht", hotel: z("โรงแรม 4 ดาวเหนือ (รอชื่อ)", "North 4-star (unnamed)"), city: z("เชียงใหม่ / เชียงราย", "Chiang Mai / Chiang Rai"), nights: brief.nights, twins: rooms, singles: 0, comps: 0, releaseAt: "2026-09-28T17:00:00+07:00" },
   ];
 
   const meals: MealService[] = [
@@ -455,7 +462,7 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
   ];
 
   const guides: GuideAssign[] = [
-    { id: "gd-agi-1", serviceId: "svc-agi-gd", name: z("ลินดา (รอคอนเฟิร์ม)", "Linda (pending)"), role: "leader", langs: ["sv", "en", "th"], fee: 9000, phone: "+66 81 240 1100" },
+    { id: "gd-agi-1", serviceId: "svc-agi-gd", name: z("หมิง (รอคอนเฟิร์ม)", "Ming (pending)"), role: "leader", langs: ["zh", "en", "th"], fee: 5500, phone: "+66 81 240 1100" },
   ];
 
   const quotes: QuoteVersion[] = options.map((o) => ({
@@ -471,14 +478,14 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
   }));
 
   const tasks: OsTask[] = [
-    { id: "tk-agi-air", departureId: AGI_DEP_ID, title: z("รอใบเสนอไฟลต์กลุ่ม ARN–BKK", "Await ARN–BKK group-fare quote"), owner: "AGI Flight", due: "2026-09-18T17:00:00+07:00", tz: "Asia/Bangkok", module: "flight", done: false },
+    { id: "tk-agi-air", departureId: AGI_DEP_ID, title: z("รอใบเสนอไฟลต์กลุ่ม CAN–CNX", "Await CAN–CNX group-fare quote"), owner: "AGI Flight", due: "2026-09-18T17:00:00+07:00", tz: "Asia/Bangkok", module: "flight", done: false },
     { id: "tk-agi-ht", departureId: AGI_DEP_ID, title: z("รอเรทโรงแรม 4 ดาว 3 แห่ง", "Await 3× 4-star hotel rates"), owner: "AGI Hotel", due: "2026-09-20T17:00:00+07:00", tz: "Asia/Bangkok", module: "hotel", done: false },
-    { id: "tk-agi-dates", departureId: AGI_DEP_ID, title: z("ให้ลูกค้าล็อกสัปดาห์เดินทาง", "Client to lock travel week"), owner: "AGI Sales", due: "2026-09-22T17:00:00+07:00", tz: "Europe/Stockholm", module: "sales", done: false },
+    { id: "tk-agi-dates", departureId: AGI_DEP_ID, title: z("ให้ลูกค้าล็อกสัปดาห์เดินทาง", "Client to lock travel week"), owner: "AGI Sales", due: "2026-09-22T17:00:00+07:00", tz: "Asia/Bangkok", module: "sales", done: false },
   ];
 
   const ledger: LedgerLine[] = [
     { id: "ld-agi-sell", departureId: AGI_DEP_ID, side: "in", label: z("ยอดขายตัวเลือกหลัก (ยังไม่เก็บ)", "Lead-option sell (not collected)"), amount: lead.sell, due: "2026-10-10", status: "expected" },
-    { id: "ld-agi-air", departureId: AGI_DEP_ID, side: "out", label: z("ไฟลต์กลุ่มประมาณการ", "Estimated group air"), amount: 18500 * brief.pax, due: "2026-10-20", status: "expected" },
+    { id: "ld-agi-air", departureId: AGI_DEP_ID, side: "out", label: z("ไฟลต์กลุ่มประมาณการ", "Estimated group air"), amount: 9200 * brief.pax, due: "2026-10-05", status: "expected" },
   ];
 
   return {
@@ -498,7 +505,7 @@ function writeProject(snap: OsSnapshot, brief: ParsedBrief, options: AgiOption[]
     tasks: [...base.tasks, ...tasks],
     quotes: [...base.quotes, ...quotes],
     ledger: [...base.ledger, ...ledger],
-    log: [{ at, text: z("AGI Mode สร้างโปรเจกต์ทัวร์ไทยกลุ่มสวีเดน — ของยังไม่ล็อก", "AGI Mode opened the Swedish Thailand project — inventory not secured") }, ...base.log],
+    log: [{ at, text: z("AGI Mode สร้างโปรเจกต์อินบาวด์สามเหลี่ยมทองคำ — ของยังไม่ล็อก", "AGI Mode opened the Golden Triangle inbound project — inventory not secured") }, ...base.log],
   };
 }
 

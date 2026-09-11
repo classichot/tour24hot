@@ -24,7 +24,7 @@ export default function SupplierPortal() {
 
       {meal && (
         <section className="border-2 border-divider p-3.5 flex flex-col gap-2">
-          <div className="font-extrabold">Asakusa Table</div>
+          <div className="font-extrabold">Nimman group table</div>
           <p className="text-[14px]">
             <LocText v={meal.name} /> · {meal.qty} heads · {meal.state}
           </p>
@@ -37,7 +37,7 @@ export default function SupplierPortal() {
 
       {agiLines.length > 0 && (
         <section className="flex flex-col gap-2">
-          <div className="microlabel">{L({ th: "คำขอกลุ่มสวีเดน — ยังไม่ถือของ", en: "Swedish group requests — nothing held" })}</div>
+          <div className="microlabel">{L({ th: "คำขอกรุ๊ปจีนสามเหลี่ยมทองคำ — ยังไม่ถือของ", en: "Golden Triangle inbound requests — nothing held" })}</div>
           {agiLines.map((s) => (
             <div key={s.id} className="border-2 border-divider p-3.5 flex flex-col gap-2">
               <div className="font-extrabold text-[14px]"><LocText v={s.name} /></div>
