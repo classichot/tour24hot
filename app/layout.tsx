@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Archivo, Noto_Sans, Noto_Sans_SC, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import AppChrome from "@/components/AppChrome";
+import PwaRegister from "@/components/pwa/PwaRegister";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -33,6 +34,12 @@ export const metadata: Metadata = {
   title: "TOUR24 — Compare by humans. Discoverable by AI.",
   description:
     "TOUR24 is AI-native distribution and comparison infrastructure for certified package tours. Humans compare. AI agents discover. Travelers book direct with verified operators.",
+  applicationName: "TOUR24 Trips",
+  appleWebApp: { capable: true, title: "TOUR24", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f3f2f2",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -46,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </AppProvider>
         </Suspense>
+        <PwaRegister />
       </body>
     </html>
   );

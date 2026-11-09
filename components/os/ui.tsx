@@ -80,7 +80,7 @@ export function Table({ heads, rows }: { heads: string[]; rows: React.ReactNode[
         <thead>
           <tr>
             {heads.map((h) => (
-              <th key={h} className="text-left font-extrabold px-0 py-2 pr-4 border-b border-divider whitespace-nowrap">
+              <th key={h} className="text-left font-extrabold px-4 py-2.5 border-b border-divider whitespace-nowrap">
                 {h}
               </th>
             ))}
@@ -90,7 +90,7 @@ export function Table({ heads, rows }: { heads: string[]; rows: React.ReactNode[
           {rows.map((r, i) => (
             <tr key={i} className="border-b border-divider">
               {r.map((c, j) => (
-                <td key={j} className="px-2.5 py-2 align-top">
+                <td key={j} className="px-4 py-2.5 align-top">
                   {c}
                 </td>
               ))}

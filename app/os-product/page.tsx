@@ -30,10 +30,10 @@ export default function OsProductPage() {
           <Link href="/os" className="btn btn-primary no-underline">
             {L({ th: "เปิด Operator OS", en: "Open Operator OS" })}
           </Link>
-          <Link href="/os/agi" className="btn btn-secondary no-underline">
+          <Link href="/os-legacy/agi" className="btn btn-secondary no-underline">
             {L({ th: "เปิดโหมด AGI", en: "Open AGI Mode" })}
           </Link>
-          <Link href="/os/scope" className="btn btn-secondary no-underline">
+          <Link href="/os-legacy/scope" className="btn btn-secondary no-underline">
             {L({ th: "ดูแผนขอบเขต", en: "See the scope map" })}
           </Link>
         </div>
@@ -54,12 +54,12 @@ export default function OsProductPage() {
           {
             h: { th: "ไฟลต์กลุ่ม", en: "Group flights" },
             p: { th: "บล็อกที่นั่ง PNR เดดไลน์ปล่อย/ยื่นชื่อ/ออกตั๋ว และความเสี่ยงที่นั่งว่าง", en: "Seat blocks, PNRs, release/name/ticket deadlines and unsold-seat exposure." },
-            href: "/os/flights",
+            href: "/os-legacy/flights",
           },
           {
             h: { th: "ซัพพลายเออร์", en: "Supplier management" },
             p: { th: "เรทสัญญา เทียบข้อเสนอ จอง ยืนยัน และลิงก์สั้นให้ร้านตอบ", en: "Contract rates, offer comparison, reservations, confirmations and short supplier links." },
-            href: "/os/suppliers",
+            href: "/os-legacy/suppliers",
           },
           {
             h: { th: "AI อัตโนมัติ", en: "AI automation" },
@@ -69,7 +69,7 @@ export default function OsProductPage() {
           {
             h: { th: "โหมด AGI", en: "AGI Mode" },
             p: { th: "ให้วัตถุประสงค์ทางธุรกิจ ทีมเอเจนต์ประสานไฟลต์ โรงแรม รถ อาหาร ไกด์ การเงิน แล้วส่งเฉพาะจุดที่ต้องอนุมัติ", en: "Give a business objective. The agentic team coordinates flights, hotels, buses, meals, guides and finance — and brings you the decisions." },
-            href: "/os/agi",
+            href: "/os-legacy/agi",
           },
         ].map((c) => (
           <Link key={c.href + c.h.en} href={c.href} className="border-2 border-divider p-4 no-underline text-text hover:border-text">

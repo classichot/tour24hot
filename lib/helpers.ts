@@ -22,13 +22,14 @@ export function tagLabel(tag: string, t: Dict, L: LFn) {
   const m: Record<string, string> = {
     noshop: t.noShopFlag,
     family: t.family,
-    elderly: L({ th: "ผู้สูงอายุเดินสบาย", en: "Elderly friendly" }),
+    elderly: L({ th: "ผู้สูงอายุเดินสบาย", en: "Elderly friendly", zh: "适合长者" }),
     luxury: L({ th: "ลักชัวรี", en: "Luxury" }),
-    budget: L({ th: "ประหยัด", en: "Budget" }),
+    budget: L({ th: "ประหยัด", en: "Budget", zh: "经济实惠" }),
     smallgroup: t.smallGroup,
     freeday: t.freeDayFlag,
     direct: t.directFlight,
-    adventure: L({ th: "แอดเวนเจอร์", en: "Adventure" }),
+    adventure: L({ th: "แอดเวนเจอร์", en: "Adventure", zh: "户外探险" }),
+    night: L({ th: "กิจกรรมกลางคืน", en: "Evening", zh: "夜间活动", ru: "Вечером" }),
     honeymoon: L({ th: "ฮันนีมูน", en: "Honeymoon" }),
     festival: L({ th: "เทศกาล", en: "Festival", zh: "节庆" }),
     food: L({ th: "อาหารและวัฒนธรรม", en: "Food & culture", zh: "美食文化" }),
@@ -203,6 +204,13 @@ export interface BurnDeal {
   save: number;
 }
 
+/** Booking horizon days — days-to-departure shown on trips and burn. */
+export const BHD_MAX_DAYS = 45;
+
+export function bhdDays(n: number) {
+  return Math.min(BHD_MAX_DAYS, Math.max(0, Math.round(n)));
+}
+
 export const BURN_DEFS = [
   { id: "jp02", dep: 0, days: 9, disc: 0.34, atCost: true, need: 5 },
   { id: "tw01", dep: 0, days: 12, disc: 0.27, atCost: false, need: 4 },
@@ -218,7 +226,8 @@ export function burnDeals(packages: Pkg[]): BurnDeal[] {
     const dep = p.departures[d.dep] || p.departures[0];
     const need = Math.min(d.need, dep.seats);
     const now = Math.round((p.real * (1 - d.disc)) / 100) * 100;
-    return { p, depIndex: d.dep, days: d.days, disc: d.disc, atCost: d.atCost, need, now, save: p.real - now };
+    if (d.days > BHD_MAX_DAYS) return null;
+    return { p, depIndex: d.dep, days: bhdDays(d.days), disc: d.disc, atCost: d.atCost, need, now, save: p.real - now };
   }).filter((x): x is BurnDeal => x !== null);
 }
 

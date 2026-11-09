@@ -283,9 +283,9 @@ export default function AgiPage() {
               ))}
             </ul>
             <div className="mt-3 flex flex-wrap gap-2 text-[13px]">
-              <Link href="/os/sales">{L({ th: "ดูในขาย", en: "Open Sales" })}</Link>
-              <Link href={`/os/departures/${AGI_DEP_ID}`}>{L({ th: "เปิดรอบเดินทาง", en: "Open departure" })}</Link>
-              <Link href="/os/finance">{L({ th: "ดูการเงิน", en: "Open Finance" })}</Link>
+              <Link href="/os-legacy/sales">{L({ th: "ดูในขาย", en: "Open Sales" })}</Link>
+              <Link href={`/os-legacy/departures/${AGI_DEP_ID}`}>{L({ th: "เปิดรอบเดินทาง", en: "Open departure" })}</Link>
+              <Link href="/os-legacy/finance">{L({ th: "ดูการเงิน", en: "Open Finance" })}</Link>
             </div>
           </section>
         </>

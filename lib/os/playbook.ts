@@ -2,6 +2,8 @@ import type { Lang } from "../i18n";
 
 export type MenuKey =
   | "home"
+  | "workspace"
+  | "projects"
   | "sales"
   | "builder"
   | "departure"
@@ -37,6 +39,28 @@ const en: Record<MenuKey, MenuPlaybook> = {
       { n: "2", t: "Clear urgent deadlines first", b: "Name list, hotel release, missing passports and customer balance are time-zoned. ICT ≠ China CST on the inbound block." },
       { n: "3", t: "Open the live departure", b: "Click today’s Golden Triangle inbound group to work passengers, flights and suppliers on the same file." },
       { n: "4", t: "Use the demo buttons in order", b: "Add 5 passengers → delay CZ3051 → approve → close. Reset only if you need a clean file." },
+    ],
+  },
+  workspace: {
+    goal: "The inbound desk's shared workspace: every open task across all groups, the team and who is on duty, messages waiting for an answer, documents and recent activity.",
+    watch: "A ticked task is not a confirmed service. Overdue items sit at the top; clear them before starting new work.",
+    ai: "Ask: “what is overdue for Fon”, “who owns the Nanfang rooming list”.",
+    steps: [
+      { n: "1", t: "Pick who you are", b: "Use “Viewing as” or click a teammate to see only their queue. Whole team shows everything." },
+      { n: "2", t: "Clear overdue, then the next 3 days", b: "Tasks are grouped by due date. Tick a task here and it is ticked in Projects too." },
+      { n: "3", t: "Answer the inbox", b: "Supplier, client, guide and system messages link to their project so you act in context." },
+      { n: "4", t: "Chase missing documents", b: "Missing and draft documents block final docs. Open the project to see the milestone they hold up." },
+    ],
+  },
+  projects: {
+    goal: "Project control for every inbound group: phase gates, a milestone schedule, work broken down by stream, budget versus target margin and a risk register.",
+    watch: "Health turns late when any milestone or task is past due. Forecast margin uses unconfirmed cost too — it is not banked.",
+    ai: "Ask: “which projects are at risk”, “why is KL18 late”, “forecast margin for SZ32”.",
+    steps: [
+      { n: "1", t: "Scan the pipeline", b: "Each column is a phase gate. Late and at-risk groups show their health tag on the card." },
+      { n: "2", t: "Open a project", b: "The schedule shows milestones against today and the trip window. Late diamonds are filled amber-brown." },
+      { n: "3", t: "Work the breakdown", b: "Tasks are grouped by stream with owners. The Golden Triangle 40 is linked to the live departure file." },
+      { n: "4", t: "Watch budget and risks", b: "Committed vs not-yet-confirmed cost against sell, variance to target, and each risk with an owner and mitigation." },
     ],
   },
   sales: {
@@ -174,6 +198,28 @@ const th: Record<MenuKey, MenuPlaybook> = {
       { n: "4", t: "กดปุ่มเดโมตามลำดับ", b: "เพิ่ม 5 คน → ดีเลย์ CZ3051 → อนุมัติ → ปิดทริป รีเซ็ตเมื่อต้องการไฟล์สะอาด" },
     ],
   },
+  workspace: {
+    goal: "พื้นที่ทำงานร่วมของเดสก์อินบาวด์: งานค้างทุกกรุ๊ป ทีมและใครเข้าเวร ข้อความรอตอบ เอกสาร และความเคลื่อนไหวล่าสุด",
+    watch: "ติ๊กงานแล้วไม่ได้แปลว่าบริการยืนยันแล้ว งานเลยกำหนดอยู่บนสุด เคลียร์ก่อนเริ่มงานใหม่",
+    ai: "ถาม: “งานไหนของฝนเลยกำหนด” “ใครดูรูมมิ่งลิสต์หนานฟาง”",
+    steps: [
+      { n: "1", t: "เลือกว่าคุณคือใคร", b: "ใช้ “ดูในฐานะ” หรือคลิกเพื่อนร่วมทีมเพื่อดูคิวของคนนั้น ทั้งทีมคือเห็นทุกอย่าง" },
+      { n: "2", t: "เคลียร์งานเลยกำหนด แล้ว 3 วันข้างหน้า", b: "งานจัดกลุ่มตามวันครบกำหนด ติ๊กที่นี่แล้วจะติ๊กในหน้าโปรเจกต์ด้วย" },
+      { n: "3", t: "ตอบกล่องข้อความ", b: "ข้อความจากซัพพลายเออร์ ลูกค้า ไกด์ และระบบ ลิงก์ไปโปรเจกต์ของมัน" },
+      { n: "4", t: "ตามเอกสารที่ขาด", b: "เอกสารที่ขาดหรือยังเป็นร่างจะบล็อกเฟสเอกสารสุดท้าย" },
+    ],
+  },
+  projects: {
+    goal: "ควบคุมโปรเจกต์ทุกกรุ๊ปอินบาวด์: ด่านแต่ละเฟส ตารางไมล์สโตน งานแยกสาย งบเทียบมาร์จิ้นเป้า และทะเบียนความเสี่ยง",
+    watch: "สถานะเป็นล่าช้าเมื่อมีไมล์สโตนหรืองานเลยกำหนด มาร์จิ้นคาดการณ์รวมต้นทุนที่ยังไม่ยืนยัน ยังไม่ใช่กำไรจริง",
+    ai: "ถาม: “โปรเจกต์ไหนเสี่ยง” “ทำไม KL18 ล่าช้า” “มาร์จิ้นคาดการณ์ SZ32”",
+    steps: [
+      { n: "1", t: "ดูไปป์ไลน์", b: "แต่ละคอลัมน์คือด่านเฟส การ์ดแสดงสถานะของกรุ๊ป" },
+      { n: "2", t: "เปิดโปรเจกต์", b: "ตารางเวลาแสดงไมล์สโตนเทียบวันนี้และช่วงเดินทาง" },
+      { n: "3", t: "ทำงานตามสาย", b: "งานจัดตามสายพร้อมผู้รับผิดชอบ สามเหลี่ยมทองคำ 40 เชื่อมกับไฟล์รอบเดินทางสด" },
+      { n: "4", t: "เฝ้างบและความเสี่ยง", b: "ต้นทุนยืนยันแล้วเทียบยังไม่ยืนยัน ส่วนต่างจากเป้า และความเสี่ยงพร้อมผู้รับผิดชอบ" },
+    ],
+  },
   sales: {
     goal: "รับงานจากเว็บ กลุ่ม มาร์เก็ตเพลส หรือ Agent Direct แล้วทำบรีฟ ใบเสนอหลายฉบับ และรอบเดินทางที่ชนะ",
     watch: "บรีฟยังไม่ใช่การจอง ค่าช่องทางคิดเมื่อจัดที่นั่งแล้วเท่านั้น",
@@ -307,6 +353,28 @@ const zh: Record<MenuKey, MenuPlaybook> = {
       { n: "2", t: "先清紧急截止", b: "名单、酒店释放、缺护照、应收余款。曼谷时间 ≠ 中国时间。" },
       { n: "3", t: "打开当日发团", b: "点进金三角入境团，在同一档案处理客人、机票和供应商。" },
       { n: "4", t: "按顺序用演示按钮", b: "加 5 人 → 延误 CZ3051 → 批准 → 关团。只有要干净档案时才重置。" },
+    ],
+  },
+  workspace: {
+    goal: "入境操作台的共享工作区：所有团组的待办、团队与在岗情况、待回复消息、文件和最新动态。",
+    watch: "勾选任务不等于服务已确认。逾期任务置顶，先清再开新工作。",
+    ai: "问：“Fon 有哪些逾期任务”“南方的分房表谁负责”。",
+    steps: [
+      { n: "1", t: "选择身份", b: "用“查看身份”或点击同事，只看其任务；全体团队显示全部。" },
+      { n: "2", t: "先清逾期，再看 3 天内", b: "任务按到期分组。在此勾选，项目页同步勾选。" },
+      { n: "3", t: "回复收件箱", b: "供应商、客户、导游与系统消息都链接到对应项目。" },
+      { n: "4", t: "追缺失文件", b: "缺失或草稿文件会卡住最终资料阶段。" },
+    ],
+  },
+  projects: {
+    goal: "管控每个入境团：阶段关口、里程碑进度、按条线分解的任务、预算对比目标毛利与风险登记。",
+    watch: "任一里程碑或任务逾期即显示逾期。预测毛利含未确认成本，并非已实现利润。",
+    ai: "问：“哪些项目有风险”“KL18 为何逾期”“SZ32 预测毛利”。",
+    steps: [
+      { n: "1", t: "看阶段看板", b: "每一列是一个阶段关口，卡片显示健康度。" },
+      { n: "2", t: "打开项目", b: "进度图把里程碑与今天和出团窗口对照。" },
+      { n: "3", t: "按条线推进", b: "任务按条线和负责人分组。金三角 40 人与实时发团档案关联。" },
+      { n: "4", t: "盯预算与风险", b: "已确认与未确认成本对比销售额、与目标的差异、每项风险的负责人与措施。" },
     ],
   },
   sales: {
@@ -444,6 +512,28 @@ const ru: Record<MenuKey, MenuPlaybook> = {
       { n: "4", t: "Кнопки демо по порядку", b: "Добавить 5 → задержать CZ3051 → утвердить → закрыть. Сброс только для чистого файла." },
     ],
   },
+  workspace: {
+    goal: "Общее рабочее место инбаунд-деска: все открытые задачи по группам, команда и смены, сообщения без ответа, документы и лента.",
+    watch: "Отмеченная задача — не подтверждённая услуга. Просроченное сверху — закройте его до новой работы.",
+    ai: "Спросите: «что просрочено у Fon», «кто ведёт rooming list Nanfang».",
+    steps: [
+      { n: "1", t: "Выберите себя", b: "«Смотреть как» или клик по коллеге — только его очередь." },
+      { n: "2", t: "Просрочка, затем 3 дня", b: "Задачи по срокам. Отметка здесь видна и в Проектах." },
+      { n: "3", t: "Ответьте во входящих", b: "Сообщения поставщиков, клиентов, гидов и системы ведут в проект." },
+      { n: "4", t: "Догоните документы", b: "Отсутствующие и черновые документы блокируют финальный этап." },
+    ],
+  },
+  projects: {
+    goal: "Контроль проектов инбаунд-групп: этапы, график вех, задачи по направлениям, бюджет к целевой марже и реестр рисков.",
+    watch: "Статус «опоздание», если веха или задача просрочена. Прогноз маржи включает неподтверждённые затраты.",
+    ai: "Спросите: «какие проекты под риском», «почему KL18 опаздывает».",
+    steps: [
+      { n: "1", t: "Воронка", b: "Каждая колонка — этап; на карточке статус группы." },
+      { n: "2", t: "Откройте проект", b: "График показывает вехи относительно сегодня и окна поездки." },
+      { n: "3", t: "Задачи по направлениям", b: "Золотой треугольник 40 связан с живым файлом заезда." },
+      { n: "4", t: "Бюджет и риски", b: "Подтверждённые и неподтверждённые затраты, отклонение, риски с владельцами." },
+    ],
+  },
   sales: {
     goal: "Превратить заявку с сайта, группы, маркетплейса или Agent Direct в бриф, версии сметы и выигранный заезд.",
     watch: "Бриф — не бронь. Комиссия канала считается только после аллокации мест.",
@@ -575,6 +665,8 @@ export function menuPlaybook(lang: Lang, key: MenuKey): MenuPlaybook {
 
 export const MENU_KEYS: MenuKey[] = [
   "home",
+  "workspace",
+  "projects",
   "sales",
   "builder",
   "departure",
@@ -601,19 +693,23 @@ export const PLAYBOOK_CODE: Record<MenuKey, string> = {
   portals: "PB-10",
   scope: "PB-11",
   agi: "PB-12",
+  workspace: "PB-13",
+  projects: "PB-14",
 };
 
 export function menuKeyFromPath(path: string): MenuKey {
-  if (path.startsWith("/os/agi")) return "agi";
-  if (path.startsWith("/os/sales")) return "sales";
-  if (path.startsWith("/os/builder")) return "builder";
-  if (path.startsWith("/os/departures")) return "departure";
-  if (path.startsWith("/os/flights")) return "flights";
-  if (path.startsWith("/os/suppliers")) return "suppliers";
-  if (path.startsWith("/os/live")) return "live";
-  if (path.startsWith("/os/finance")) return "finance";
-  if (path.startsWith("/os/analytics")) return "analytics";
-  if (path.startsWith("/os/portals")) return "portals";
-  if (path.startsWith("/os/scope")) return "scope";
+  if (path.startsWith("/os-legacy/agi")) return "agi";
+  if (path.startsWith("/os-legacy/workspace")) return "workspace";
+  if (path.startsWith("/os-legacy/projects")) return "projects";
+  if (path.startsWith("/os-legacy/sales")) return "sales";
+  if (path.startsWith("/os-legacy/builder")) return "builder";
+  if (path.startsWith("/os-legacy/departures")) return "departure";
+  if (path.startsWith("/os-legacy/flights")) return "flights";
+  if (path.startsWith("/os-legacy/suppliers")) return "suppliers";
+  if (path.startsWith("/os-legacy/live")) return "live";
+  if (path.startsWith("/os-legacy/finance")) return "finance";
+  if (path.startsWith("/os-legacy/analytics")) return "analytics";
+  if (path.startsWith("/os-legacy/portals")) return "portals";
+  if (path.startsWith("/os-legacy/scope")) return "scope";
   return "home";
 }

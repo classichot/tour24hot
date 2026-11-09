@@ -22,6 +22,7 @@ const ROWS: { area: string; status: "available" | "expand" | "new"; note: string
   { area: "Brief ingest / waiting jobs / company memory / scorecards / rehearsal", status: "new", note: "File+paste ingest, resume-on-reply jobs, North Thailand memory, local-engine scorecards, trip rehearsal simulator." },
   { area: "Agent Direct TAP brief → AGI", status: "new", note: "Structured TAP JSON accepted into assignObjective. External see sell only. No live MCP." },
   { area: "Capacity Exchange", status: "new", note: "Later stage — not in this release." },
+  { area: "Host Desk", status: "new", note: "Inbound host workspace. Stay length hard-capped at 45 days. Same Golden Triangle group as Operator OS." },
 ];
 
 function tone(s: (typeof ROWS)[number]["status"]) {

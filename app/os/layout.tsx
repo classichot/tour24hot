@@ -1,12 +1,12 @@
 "use client";
 
-import OsShell from "@/components/os/OsShell";
-import { OsProvider } from "@/lib/os/store";
+import IosShell from "@/components/ios/IosShell";
+import { IosProvider } from "@/lib/ios/store";
 
-export default function OsLayout({ children }: { children: React.ReactNode }) {
+export default function InboundOsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <OsProvider>
-      <OsShell>{children}</OsShell>
-    </OsProvider>
+    <IosProvider>
+      <IosShell>{children}</IosShell>
+    </IosProvider>
   );
 }

@@ -69,11 +69,15 @@ interface OsApi {
   runRehearsalCase: (id: RehearsalId) => void;
   acceptTapBrief: (raw?: string) => void;
   quoteService: (id: string) => void;
+  /** Done-state overrides for project-control tasks that are not in the OS snapshot. */
+  ticks: Record<string, boolean>;
+  toggleProjectTask: (id: string, done: boolean, snapTask?: boolean) => void;
 }
 
 const Ctx = createContext<OsApi | null>(null);
 const KEY = "t24os.gt40";
 const AGI_KEY = "t24osAgi.gt40";
+const TICKS_KEY = "t24os.projectTicks";
 
 function loadSnap(): OsSnapshot {
   if (typeof window === "undefined") return createSeed();
@@ -104,6 +108,7 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [ask, setAsk] = useState("");
   const [drafts, setDrafts] = useState<AiDraft[]>([]);
+  const [ticks, setTicks] = useState<Record<string, boolean>>({});
   const o = osCopy(lang);
   const a = agiCopy(lang);
 
@@ -112,8 +117,23 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     const storedSnap = loadSnap();
     setSnap(storedSnap);
     setAgi((current) => (current.on && !storedAgi.on ? { ...storedAgi, on: true } : storedAgi));
+    try {
+      const rawTicks = window.localStorage.getItem(TICKS_KEY);
+      if (rawTicks) setTicks(JSON.parse(rawTicks) as Record<string, boolean>);
+    } catch {
+      /* ignore */
+    }
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      window.localStorage.setItem(TICKS_KEY, JSON.stringify(ticks));
+    } catch {
+      /* ignore */
+    }
+  }, [ticks, hydrated]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -191,6 +211,7 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
     const fresh = createSeed();
     setSnap(fresh);
     setDrafts([]);
+    setTicks({});
     setAgi((s) => hydrateAgi(null, s.on));
     try {
       window.localStorage.removeItem(KEY);
@@ -212,6 +233,14 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
 
   const toggleTask = useCallback((id: string) => {
     setSnap((s) => ({ ...s, tasks: s.tasks.map((t) => (t.id === id ? { ...t, done: !t.done, ack: true } : t)) }));
+  }, []);
+
+  const toggleProjectTask = useCallback((id: string, done: boolean, snapTask?: boolean) => {
+    if (snapTask) {
+      setSnap((s) => ({ ...s, tasks: s.tasks.map((t) => (t.id === id ? { ...t, done: !done, ack: true } : t)) }));
+      return;
+    }
+    setTicks((prev) => ({ ...prev, [id]: !done }));
   }, []);
 
   const confirmService = useCallback((id: string) => {
@@ -403,8 +432,12 @@ export function OsProvider({ children }: { children: React.ReactNode }) {
       runRehearsalCase: runRehearsal,
       acceptTapBrief,
       quoteService,
+      ticks,
+      toggleProjectTask,
     }),
     [
+      ticks,
+      toggleProjectTask,
       snap,
       o,
       a,

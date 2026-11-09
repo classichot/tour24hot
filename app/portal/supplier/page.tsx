@@ -61,7 +61,7 @@ export default function SupplierPortal() {
         <p className="text-[14px]">{L({ th: "ยังไม่มีคำขอในลิงก์นี้", en: "No requests on this link yet." })}</p>
       )}
 
-      <Link href="/os/agi" className="text-[13px]">
+      <Link href="/os-legacy/agi" className="text-[13px]">
         {L({ th: "กลับโหมด AGI", en: "Back to AGI Mode" })}
       </Link>
     </main>

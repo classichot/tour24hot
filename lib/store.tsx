@@ -51,7 +51,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const inboundDeskRef = useRef(inboundDesk);
   inboundDeskRef.current = inboundDesk;
   const [compare, setCompare] = useState<string[]>([]);
-  const [saved, setSaved] = useState<string[]>(["jp03"]);
+  const [saved, setSaved] = useState<string[]>(["jp03", "th03"]);
 
   const setHydrated = useCallback((h: { lang: Lang | null; inboundLang: Lang | null; compare: string[] | null; saved: string[] | null }) => {
     if (h.lang) setLangState(h.lang);

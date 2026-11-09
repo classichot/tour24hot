@@ -818,7 +818,7 @@ export const quiz: QuizQ[] = [
 
 export const trips = [
   {
-    ref: "T24-908311", pkg: "jp01", date: { th: "12–16 ต.ค. 2026", en: "12–16 Oct 2026" }, daysAway: 54, pax: 3,
+    ref: "T24-908311", pkg: "jp01", date: { th: "12–16 ต.ค. 2026", en: "12–16 Oct 2026" }, daysAway: 45, pax: 3,
     paid: 15000, total: 115200, status: "confirmed",
     docs: [
       { label: { th: "สำเนาหนังสือเดินทาง 3 ท่าน", en: "Passport copies ×3" }, done: true },
@@ -830,6 +830,20 @@ export const trips = [
   {
     ref: "T24-871004", pkg: "tw01", date: { th: "09–13 มี.ค. 2026", en: "09–13 Mar 2026" }, daysAway: -160, pax: 2,
     paid: 44800, total: 44800, status: "past", docs: [],
+  },
+  {
+    ref: "T24-915620", pkg: "th01", date: z("12–17 ต.ค. 2026", "12–17 Oct 2026", "2026年10月12–17日", "12–17 окт. 2026"), daysAway: 45, pax: 4,
+    paid: 20000, total: 87600, status: "confirmed",
+    docs: [
+      { label: z("สำเนาหนังสือเดินทาง 4 ท่าน", "Passport copies ×4", "护照复印件 ×4", "Копии паспортов ×4"), done: true },
+      { label: z("เที่ยวบินขาเข้าสำหรับรับที่สนามบินเชียงใหม่", "Arrival flight for CNX pickup", "清迈接机航班信息", "Рейс прибытия для встречи в CNX"), done: true },
+      { label: z("บัตรขาเข้าดิจิทัล TDAC (ส่งภายใน 3 วันก่อนถึง)", "Thailand Digital Arrival Card (TDAC), within 3 days of arrival", "泰国数字入境卡 TDAC（抵达前3天内提交）", "Цифровая карта прибытия TDAC — за 3 дня до прилёта"), done: false },
+      { label: z("หลักฐานการชำระเงินส่วนที่เหลือ", "Balance payment", "尾款支付", "Оплата остатка"), done: false },
+    ],
+  },
+  {
+    ref: "T24-879352", pkg: "th02", date: z("05–09 พ.ค. 2026", "05–09 May 2026", "2026年5月5–9日", "05–09 мая 2026"), daysAway: -112, pax: 2,
+    paid: 25800, total: 25800, status: "past", docs: [],
   },
 ];
 
