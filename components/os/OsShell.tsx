@@ -17,6 +17,8 @@ import { LocText } from "./ui";
 const LINKS = [
   ["agi", "/os/agi"],
   ["home", "/os"],
+  ["workspace", "/os/workspace"],
+  ["projects", "/os/projects"],
   ["sales", "/os/sales"],
   ["builder", "/os/builder"],
   ["departure", `/os/departures/${DEMO_DEP_ID}`],
@@ -45,7 +47,7 @@ function withPlaybook(href: string) {
 
 export default function OsShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  const { lang, setLang } = useApp();
+  const { lang, setLang, t } = useApp();
   const { o, a, drafts, runDemo, reset, snap, agi } = useOs();
   const pageKey = menuKeyFromPath(path);
   const [open, setOpen] = useState(false);
@@ -158,6 +160,7 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
             <Link href="/search?dir=outbound">{o.marketplace}</Link>
             <Link href="/agents">{o.agents}</Link>
             <Link href="/os-product">{o.product}</Link>
+            <Link href="/host">{t.navHost}</Link>
           </div>
         </div>
         <button

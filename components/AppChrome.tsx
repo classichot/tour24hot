@@ -7,7 +7,7 @@ import CompareTray from "./CompareTray";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const path = usePathname() || "";
-  const bare = path.startsWith("/os") || path.startsWith("/portal");
+  const bare = path.startsWith("/os") || path.startsWith("/portal") || path.startsWith("/host");
   if (bare) return <>{children}</>;
   return (
     <>
