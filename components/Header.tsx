@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
 import { NAV } from "@/lib/nav";
+import AccountMenu from "@/components/auth/AccountMenu";
 
 const MARKET_LANGS = LANGS.filter((item) => item.id !== "ru");
 
@@ -134,20 +135,24 @@ export default function Header() {
           <span className="hidden sm:block text-[11px] leading-tight max-w-[220px] text-neutral-700">{t.tagline}</span>
         </div>
 
-        <nav
-          className="col-[2/4] row-[1/2] lg:col-[4/5] flex min-w-0 items-center justify-end gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          aria-label="Operator"
-        >
-          <Link href="/os" className={`${opLinkCls(starts("/os"))} border border-divider mr-1`}>
-            {t.navOs}
-          </Link>
-          <Link href="/host" className={opLinkCls(starts("/host"))}>
-            {t.navHost}
-          </Link>
-          <Link href="/admin" className={opLinkCls(starts("/admin"))}>
-            {t.navAdmin}
-          </Link>
-        </nav>
+        <div className="col-[2/4] row-[1/2] lg:col-[4/5] flex min-w-0 items-center justify-end gap-2">
+          <nav
+            className="flex min-w-0 items-center justify-end gap-0.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            aria-label="Operator"
+          >
+            <Link href="/os" className={`${opLinkCls(starts("/os"))} border border-divider mr-1`}>
+              {t.navOs}
+            </Link>
+            <Link href="/host" className={opLinkCls(starts("/host"))}>
+              {t.navHost}
+            </Link>
+            <Link href="/admin" className={opLinkCls(starts("/admin"))}>
+              {t.navAdmin}
+            </Link>
+          </nav>
+          {/* Outside the scrolling nav so its dropdown is not clipped. */}
+          <AccountMenu />
+        </div>
 
         <div className="col-[1/2] row-[2/3] lg:col-[2/3] lg:row-[1/2] inline-flex justify-self-start border border-divider" role="group" aria-label={t.fDirection}>
           <button type="button" onClick={() => switchMode(false)} className={segBtnCls(!inboundMode)} aria-pressed={!inboundMode}>

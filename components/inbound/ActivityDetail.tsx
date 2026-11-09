@@ -9,6 +9,7 @@ import { activities, KIND_COPY, KIND_PATH, realPrice, type Activity } from "@/li
 import PhotoSlot from "@/components/PhotoSlot";
 import { AlertTriangle, Check, StarSolid } from "@/components/icons";
 import ActivityCard from "./ActivityCard";
+import { saveBookingRequest } from "@/lib/auth/requests";
 import { AC, hoursLabel } from "./activityCopy";
 
 function Stepper({ label, value, min, onChange }: { label: string; value: number; min: number; onChange: (n: number) => void }) {
@@ -232,7 +233,9 @@ export default function ActivityDetail({ a }: { a: Activity }) {
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!date) return;
-                  setSentRef(`T24-${a.id.toUpperCase()}-${date.replaceAll("-", "").slice(2)}${adults}${kids}`);
+                  const ref = `T24-${a.id.toUpperCase()}-${date.replaceAll("-", "").slice(2)}${adults}${kids}`;
+                  setSentRef(ref);
+                  saveBookingRequest({ ref, activityId: a.id, href: `${KIND_PATH[a.kind]}/${a.id}`, title: a.title, date, adults, kids, total, at: new Date().toISOString() });
                 }}
               >
                 <div className="field">

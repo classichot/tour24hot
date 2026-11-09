@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useApp } from "@/lib/store";
 import { useOs } from "@/lib/os/store";
+import { useMember } from "@/lib/auth/client";
 import { DOCS, INBOX, TEAM, buildProjects, daysFromToday, type DocItem, type InboxItem, type PTask } from "@/lib/os/projects";
 import { Stat } from "@/components/os/ui";
 import { Avatar, PC, SectionTitle, TaskRow } from "@/components/os/projects/bits";
@@ -19,7 +20,10 @@ const DOC_STATUS: Record<DocItem["status"], { l: typeof PC.docDraft; cls: string
 export default function WorkspacePage() {
   const { L } = useApp();
   const { o, snap, ticks } = useOs();
-  const [who, setWho] = useState("all");
+  const member = useMember();
+  // Default to the signed-in staff member's own queue; any explicit pick wins.
+  const [picked, setWho] = useState<string | null>(null);
+  const who = picked ?? (member?.role === "os" && TEAM.some((m) => m.id === member.id) ? member.id : "all");
   const projects = useMemo(() => buildProjects(snap, ticks), [snap, ticks]);
   const codeOf = (id: string) => projects.find((p) => p.id === id)?.code ?? id;
   const live = projects.filter((p) => p.health !== "closed");

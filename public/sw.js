@@ -2,11 +2,13 @@
  * Pages and data: network first, cached copy when offline.
  * Build assets (/_next/static, icons): cache first — their URLs change on every deploy.
  * Bump VERSION to drop every old cache on the next activation. */
-const VERSION = "t24-trips-v1";
+const VERSION = "t24-trips-v2";
 const STATIC = `${VERSION}-static`;
 const PAGES = `${VERSION}-pages`;
-const START = ["/trips?dir=inbound", "/trips?dir=outbound", "/manifest.webmanifest"];
-const FALLBACK = "/trips?dir=inbound";
+// Trips is a member page now (it redirects to sign-in when signed out), so only public pages are
+// precached; trips are cached the first time a signed-in member opens them.
+const START = ["/", "/login", "/manifest.webmanifest"];
+const FALLBACKS = ["/trips?dir=inbound", "/trips?dir=outbound", "/"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -43,6 +45,11 @@ function skip(url) {
 // The page posts the files it already loaded before this worker took control.
 self.addEventListener("message", (event) => {
   const data = event.data || {};
+  // On sign-out, forget cached pages so member pages cannot be reopened offline on a shared device.
+  if (data.type === "clear-pages") {
+    event.waitUntil(caches.delete(PAGES));
+    return;
+  }
   if (data.type !== "warm" || !Array.isArray(data.urls)) return;
   event.waitUntil(warm(data.urls));
 });
@@ -57,7 +64,7 @@ async function warm(urls) {
         const cache = isStatic(url) ? stat : pages;
         if (await cache.match(url.href)) return;
         const res = await fetch(url.href, { credentials: "same-origin" });
-        if (res.ok) await cache.put(url.href, res);
+        if (res.ok && !res.redirected) await cache.put(url.href, res);
       } catch {
         /* one missing file must not stop the rest */
       }
@@ -88,14 +95,17 @@ async function networkFirst(req) {
   const cache = await caches.open(PAGES);
   try {
     const res = await fetch(req);
-    if (res.ok) cache.put(req, res.clone());
+    // Never cache a redirect (e.g. member page → sign-in): replaying it to a navigation fails.
+    if (res.ok && !res.redirected) cache.put(req, res.clone());
     return res;
   } catch (err) {
     const hit = await cache.match(req, { ignoreVary: true });
     if (hit) return hit;
     if (req.mode === "navigate") {
-      const fallback = await cache.match(FALLBACK, { ignoreVary: true });
-      if (fallback) return fallback;
+      for (const path of FALLBACKS) {
+        const fallback = await cache.match(path, { ignoreVary: true });
+        if (fallback) return fallback;
+      }
     }
     throw err;
   }

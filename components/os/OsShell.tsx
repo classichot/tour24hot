@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut, useMember } from "@/lib/auth/client";
+import { ROLE_INFO } from "@/lib/auth/session";
+import { AU } from "@/components/auth/copy";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LANGS } from "@/lib/i18n";
 import { useApp } from "@/lib/store";
@@ -162,6 +165,7 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
             <Link href="/os-product">{o.product}</Link>
             <Link href="/host">{t.navHost}</Link>
           </div>
+          <OsMember />
         </div>
         <button
           type="button"
@@ -220,6 +224,36 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
         <AskDock open={askOpen} onOpen={() => setAskOpen(true)} onClose={() => setAskOpen(false)} />
         <PlaybookPanel menuKey={pageKey} open={open} onClose={() => setOpen(false)} />
       </div>
+    </div>
+  );
+}
+
+/** Signed-in staff member and sign-out, at the foot of the OS rail. */
+function OsMember() {
+  const { L } = useApp();
+  const member = useMember();
+  const router = useRouter();
+  if (!member) return null;
+  return (
+    <div className="mt-2 flex items-center gap-2 border-t border-white/15 pt-3">
+      <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#ffc61a] text-[12px] font-extrabold text-[#141312]">
+        {member.name.slice(0, 1)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[12px] font-extrabold text-[#f3f2f2]">{member.name}</div>
+        <div className="truncate text-[10px] text-white/60">{member.org || L(ROLE_INFO[member.role].title)}</div>
+      </div>
+      <button
+        type="button"
+        className="shrink-0 cursor-pointer border border-white/25 bg-transparent px-1.5 py-0.5 text-[10px] font-extrabold text-[#f3f2f2] hover:bg-white/10"
+        onClick={async () => {
+          await signOut();
+          router.push("/login?role=os");
+          router.refresh();
+        }}
+      >
+        {L(AU.signOut)}
+      </button>
     </div>
   );
 }
