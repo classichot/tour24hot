@@ -698,18 +698,18 @@ export const PLAYBOOK_CODE: Record<MenuKey, string> = {
 };
 
 export function menuKeyFromPath(path: string): MenuKey {
-  if (path.startsWith("/os/agi")) return "agi";
-  if (path.startsWith("/os/workspace")) return "workspace";
-  if (path.startsWith("/os/projects")) return "projects";
-  if (path.startsWith("/os/sales")) return "sales";
-  if (path.startsWith("/os/builder")) return "builder";
-  if (path.startsWith("/os/departures")) return "departure";
-  if (path.startsWith("/os/flights")) return "flights";
-  if (path.startsWith("/os/suppliers")) return "suppliers";
-  if (path.startsWith("/os/live")) return "live";
-  if (path.startsWith("/os/finance")) return "finance";
-  if (path.startsWith("/os/analytics")) return "analytics";
-  if (path.startsWith("/os/portals")) return "portals";
-  if (path.startsWith("/os/scope")) return "scope";
+  if (path.startsWith("/os-legacy/agi")) return "agi";
+  if (path.startsWith("/os-legacy/workspace")) return "workspace";
+  if (path.startsWith("/os-legacy/projects")) return "projects";
+  if (path.startsWith("/os-legacy/sales")) return "sales";
+  if (path.startsWith("/os-legacy/builder")) return "builder";
+  if (path.startsWith("/os-legacy/departures")) return "departure";
+  if (path.startsWith("/os-legacy/flights")) return "flights";
+  if (path.startsWith("/os-legacy/suppliers")) return "suppliers";
+  if (path.startsWith("/os-legacy/live")) return "live";
+  if (path.startsWith("/os-legacy/finance")) return "finance";
+  if (path.startsWith("/os-legacy/analytics")) return "analytics";
+  if (path.startsWith("/os-legacy/portals")) return "portals";
+  if (path.startsWith("/os-legacy/scope")) return "scope";
   return "home";
 }

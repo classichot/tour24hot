@@ -9,7 +9,7 @@ export default function AgiToggle() {
 
   function turn(on: boolean) {
     setAgiOn(on);
-    if (on) router.push("/os/agi");
+    if (on) router.push("/os-legacy/agi");
   }
 
   return (

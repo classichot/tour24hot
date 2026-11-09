@@ -15,9 +15,11 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   { role: "in-buyer", id: "cus-chenjia", name: "Chen Jia 陈佳", email: "chenjia@tour24.demo", note: "Chiang Mai · Golden Triangle, Oct 2026" },
   { role: "out-seller", id: "ag-siam-out", name: "Kittima S.", email: "kittima@siamhorizon.demo", org: "Siam Horizon Tours", note: "Outbound desk" },
   { role: "in-seller", id: "ag-siam-in", name: "Wichai R.", email: "wichai@siamhorizon.demo", org: "Siam Horizon Tours · Inbound DMC", note: "Inbound desk" },
-  { role: "os", id: "m-lead", name: "Ploy", email: "ploy@tour24.demo", org: "TOUR24 inbound desk", note: "Desk lead" },
-  { role: "os", id: "m-hotel", name: "Fon", email: "fon@tour24.demo", org: "TOUR24 inbound desk", note: "Ops — hotels" },
-  { role: "os", id: "m-docs", name: "Mint", email: "mint@tour24.demo", org: "TOUR24 inbound desk", note: "Docs & TDAC" },
+  { role: "os", id: "m-lead", name: "Ploy", email: "ploy@tour24.demo", org: "TOUR24 inbound desk", note: "Owner or manager" },
+  { role: "os", id: "m-sales", name: "Nok", email: "nok@tour24.demo", org: "TOUR24 inbound desk", note: "Sales" },
+  { role: "os", id: "m-hotel", name: "Fon", email: "fon@tour24.demo", org: "TOUR24 inbound desk", note: "Operations" },
+  { role: "os", id: "m-fin", name: "Jay", email: "jay@tour24.demo", org: "TOUR24 inbound desk", note: "Finance" },
+  { role: "os", id: "m-docs", name: "Mint", email: "mint@tour24.demo", org: "TOUR24 inbound desk", note: "Operations" },
 ];
 
 export const demoAccountsFor = (role: Role) => DEMO_ACCOUNTS.filter((a) => a.role === role);

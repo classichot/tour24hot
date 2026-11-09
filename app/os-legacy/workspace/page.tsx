@@ -151,7 +151,7 @@ export default function WorkspacePage() {
                     <p className="mt-1 text-[13px]">{L(m.text)}</p>
                     <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px]">
                       <span className="tag bg-surface text-[10px] font-extrabold uppercase text-neutral-800">{L(KIND[m.kind])}</span>
-                      <Link href={`/os/projects/${m.projectId}`} className="font-mono text-[11px] font-semibold">
+                      <Link href={`/os-legacy/projects/${m.projectId}`} className="font-mono text-[11px] font-semibold">
                         {codeOf(m.projectId)} →
                       </Link>
                     </div>
@@ -171,7 +171,7 @@ export default function WorkspacePage() {
                   <li key={d.id} className="flex items-center gap-3 border-t border-divider px-4 py-2.5 first:border-t-0">
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-[13px] font-semibold">{L(d.name)}</div>
-                      <Link href={`/os/projects/${d.projectId}`} className="font-mono text-[11px]">
+                      <Link href={`/os-legacy/projects/${d.projectId}`} className="font-mono text-[11px]">
                         {codeOf(d.projectId)}
                       </Link>
                     </div>
@@ -191,7 +191,7 @@ export default function WorkspacePage() {
                 <li key={i} className="pb-3 text-[13px]">
                   <div className="text-[11px] text-neutral-600">
                     {f.at.slice(0, 16).replace("T", " ")} ·{" "}
-                    <Link href={`/os/projects/${f.pid}`} className="font-mono">
+                    <Link href={`/os-legacy/projects/${f.pid}`} className="font-mono">
                       {f.code}
                     </Link>
                   </div>

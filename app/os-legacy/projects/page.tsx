@@ -50,7 +50,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="flex min-h-[132px] flex-col gap-2 p-2">
                     {inPhase.map((p) => (
-                      <Link key={p.id} href={`/os/projects/${p.id}`} className="block border border-divider bg-white p-2.5 text-text no-underline hover:border-text">
+                      <Link key={p.id} href={`/os-legacy/projects/${p.id}`} className="block border border-divider bg-white p-2.5 text-text no-underline hover:border-text">
                         <div className="font-mono text-[10px] text-neutral-600">{p.code}</div>
                         <div className="mt-0.5 line-clamp-2 text-[13px] font-extrabold leading-snug">{L(p.title)}</div>
                         <div className="mt-2 flex items-center justify-between gap-2">
@@ -86,7 +86,7 @@ export default function ProjectsPage() {
                 return (
                   <tr key={p.id} className="border-b border-divider align-top hover:bg-[#f7f6f5]">
                     <td className="px-4 py-3">
-                      <Link href={`/os/projects/${p.id}`} className="font-extrabold text-text no-underline hover:underline">
+                      <Link href={`/os-legacy/projects/${p.id}`} className="font-extrabold text-text no-underline hover:underline">
                         {L(p.title)}
                       </Link>
                       <div className="mt-0.5 text-[12px] text-neutral-700">

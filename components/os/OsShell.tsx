@@ -18,20 +18,20 @@ import AskDock from "./AskDock";
 import { LocText } from "./ui";
 
 const LINKS = [
-  ["agi", "/os/agi"],
-  ["home", "/os"],
-  ["workspace", "/os/workspace"],
-  ["projects", "/os/projects"],
-  ["sales", "/os/sales"],
-  ["builder", "/os/builder"],
-  ["departure", `/os/departures/${DEMO_DEP_ID}`],
-  ["flights", "/os/flights"],
-  ["suppliers", "/os/suppliers"],
-  ["live", "/os/live"],
-  ["finance", "/os/finance"],
-  ["analytics", "/os/analytics"],
-  ["portals", "/os/portals"],
-  ["scope", "/os/scope"],
+  ["agi", "/os-legacy/agi"],
+  ["home", "/os-legacy"],
+  ["workspace", "/os-legacy/workspace"],
+  ["projects", "/os-legacy/projects"],
+  ["sales", "/os-legacy/sales"],
+  ["builder", "/os-legacy/builder"],
+  ["departure", `/os-legacy/departures/${DEMO_DEP_ID}`],
+  ["flights", "/os-legacy/flights"],
+  ["suppliers", "/os-legacy/suppliers"],
+  ["live", "/os-legacy/live"],
+  ["finance", "/os-legacy/finance"],
+  ["analytics", "/os-legacy/analytics"],
+  ["portals", "/os-legacy/portals"],
+  ["scope", "/os-legacy/scope"],
 ] as const;
 
 const OS_LANGS = LANGS.filter((item) => item.id !== "ru");
@@ -119,17 +119,20 @@ export default function OsShell({ children }: { children: React.ReactNode }) {
     >
       <aside className="os-side relative lg:min-h-screen lg:sticky lg:top-0 flex flex-col overflow-hidden">
         <div className="px-4 py-5 border-b border-white/15">
-          <Link href="/os" className="no-underline font-[family-name:var(--font-heading)] font-extrabold text-[26px] leading-none tracking-[-0.02em] text-[#f3f2f2]">
+          <Link href="/os-legacy" className="no-underline font-[family-name:var(--font-heading)] font-extrabold text-[26px] leading-none tracking-[-0.02em] text-[#f3f2f2]">
             TOUR<span className="text-[#ffc61a]">24</span>
           </Link>
           <div className="mt-3 text-[12px] font-extrabold leading-snug text-[#f3f2f2]">
             {desk ? <LocText v={desk.title} /> : o.os}
           </div>
           <div className="mt-1.5 text-[9px] font-extrabold uppercase tracking-[0.14em] text-[#ffc61a]">{o.osSystem}</div>
+          <Link href="/os" className="mt-2 block border border-[#ffc61a]/60 px-2 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#ffc61a] no-underline hover:bg-white/10">
+            Legacy OS · Open new Inbound OS →
+          </Link>
         </div>
         <nav className="flex lg:flex-col gap-0 overflow-auto flex-1 py-2">
           {LINKS.map(([key, href]) => {
-            const active = href === "/os" ? path === "/os" : href === "/os/agi" ? path.startsWith("/os/agi") : path.startsWith(href.split("?")[0]);
+            const active = href === "/os-legacy" ? path === "/os-legacy" : href === "/os-legacy/agi" ? path.startsWith("/os-legacy/agi") : path.startsWith(href.split("?")[0]);
             return (
               <div key={key} className={`os-nav-item flex items-stretch ${active ? "is-active" : ""}`}>
                 <Link href={href} className="flex-1 px-4 py-2.5 no-underline text-[13px] font-bold whitespace-nowrap">

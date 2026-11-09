@@ -94,7 +94,7 @@ export default function ProjectDetailPage() {
     return (
       <main className="flex flex-col gap-4">
         <h1 className="text-[32px]">{L(PC.notFound)}</h1>
-        <Link href="/os/projects">← {L(PC.back)}</Link>
+        <Link href="/os-legacy/projects">← {L(PC.back)}</Link>
       </main>
     );
   }
@@ -108,7 +108,7 @@ export default function ProjectDetailPage() {
   return (
     <main className="flex flex-col gap-10">
       <header className="flex flex-col gap-5">
-        <Link href="/os/projects" className="text-[13px] no-underline">
+        <Link href="/os-legacy/projects" className="text-[13px] no-underline">
           ← {L(PC.back)}
         </Link>
         <div className="flex flex-wrap items-end justify-between gap-6">
@@ -131,7 +131,7 @@ export default function ProjectDetailPage() {
           </div>
           {p.departureId && (
             <div className="flex flex-col items-start gap-1.5 sm:items-end">
-              <Link href={`/os/departures/${p.departureId}`} className="btn btn-primary no-underline">
+              <Link href={`/os-legacy/departures/${p.departureId}`} className="btn btn-primary no-underline">
                 {L(PC.openDeparture)}
               </Link>
               <span className="max-w-[300px] text-[12px] text-neutral-700 sm:text-right">{L(PC.liveLinked)}</span>

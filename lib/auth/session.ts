@@ -37,7 +37,7 @@ export const ROLE_INFO: Record<Role, { title: L10n; sub: L10n; home: string; gro
   os: {
     title: z("ระบบปฏิบัติการ (OS)", "Operator OS", "运营商系统 (OS)", "ОС туроператора"),
     sub: z("ทีมปฏิบัติการ: พื้นที่ทำงาน โปรเจกต์ รอบเดินทาง ซัพพลายเออร์ และการเงิน", "Operations team: workspace, projects, departures, suppliers and finance.", "运营团队：工作台、项目、发团、供应商与财务。"),
-    home: "/os/workspace", group: "run", dir: "os",
+    home: "/os", group: "run", dir: "os",
   },
 };
 
@@ -84,7 +84,7 @@ export function rolesFor(pathname: string): Role[] | null {
   if (under("/account") || under("/trips")) return ["out-buyer", "in-buyer"];
   if (under("/inbound/agency")) return ["in-seller"];
   if (under("/agency")) return ["out-seller"];
-  if (under("/os")) return ["os"];
+  if (under("/os") || under("/os-legacy")) return ["os"];
   return null;
 }
 

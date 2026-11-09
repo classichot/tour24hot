@@ -91,7 +91,7 @@ export function TaskRow({ task, showProject, projectCode }: { task: PTask; showP
         <div className={`text-[14px] ${task.done ? "text-neutral-600 line-through" : ""}`}>{L(task.title)}</div>
         <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] text-neutral-700">
           {showProject && projectCode && (
-            <Link href={`/os/projects/${task.projectId}`} className="font-mono text-[11px] font-semibold">
+            <Link href={`/os-legacy/projects/${task.projectId}`} className="font-mono text-[11px] font-semibold">
               {projectCode}
             </Link>
           )}
